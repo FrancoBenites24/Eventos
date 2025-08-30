@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mi Perfil - Eventos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #f72585;
+      --dark: #212529;
+      --light: #f8f9fa;
+      --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    .navbar {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    
+    .btn-gradient {
+      background: var(--gradient);
+      color: white;
+      border: none;
+    }
+    
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, #d9146c 100%);
+      color: white;
+    }
+    
+    .timeline-item {
+      position: relative;
+    }
+    
+    .timeline-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 40px;
+      left: 20px;
+      height: calc(100% - 15px);
+      width: 1px;
+      background-color: #e9ecef;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Barra de navegación principal">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html" aria-label="Ir al inicio">
+        <i class="bi bi-stars text-warning"></i>
+        <span class="ms-1">Eventos</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Alternar navegación">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMain">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link active" href="profile.html">Mi Perfil</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#login">Ingresar</a></li>
+          <li class="nav-item ms-lg-3">
+            <button class="btn btn-sm btn-gradient d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas" aria-label="Abrir carrito">
+              <i class="bi bi-bag-check me-2"></i>Carrito
+              <span id="navCartCount" class="badge ms-2 bg-dark-subtle text-dark-emphasis">0</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <main>
+    <section id="view-profile" class="container py-5" aria-labelledby="profile-title">
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2">Cargando perfil...</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal para editar perfil -->
+  <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editProfileModalLabel">Editar Perfil</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editProfileForm">
+            <div class="mb-3">
+              <label for="profileName" class="form-label">Nombre Completo</label>
+              <input type="text" class="form-control" id="profileName" required>
+            </div>
+            <div class="mb-3">
+              <label for="profileEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="profileEmail" required>
+            </div>
+            <div class="mb-3">
+              <label for="profilePhone" class="form-label">Teléfono</label>
+              <input type="tel" class="form-control" id="profilePhone">
+            </div>
+            <div class="mb-3">
+              <label for="profileLocation" class="form-label">Ubicación</label>
+              <input type="text" class="form-control" id="profileLocation">
+            </div>
+            <div class="mb-3">
+              <label for="profileBio" class="form-label">Biografía</label>
+              <textarea class="form-control" id="profileBio" rows="3"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="saveProfileBtn">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para configurar perfil -->
+  <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="settingsModalLabel">Configuración de Perfil</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <h6>Notificaciones</h6>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="notifEvents" checked>
+              <label class="form-check-label" for="notifEvents">
+                Recordatorios de eventos
+              </label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="notifOffers" checked>
+              <label class="form-check-label" for="notifOffers">
+                Ofertas especiales
+              </label>
+            </div>
+          </div>
+          <div class="mb-3">
+            <h6>Privacidad</h6>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="privProfile" checked>
+              <label class="form-check-label" for="privProfile">
+                Perfil público
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="saveSettingsBtn">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para configurar saldo -->
+  <div class="modal fade" id="balanceModal" tabindex="-1" aria-labelledby="balanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="balanceModalLabel">Gestionar Saldo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <h6>Saldo Actual</h6>
+            <div class="fs-4 fw-bold" id="currentBalance">S/ 0.00</div>
+          </div>
+          <div class="mb-3">
+            <label for="addBalance" class="form-label">Agregar Saldo</label>
+            <div class="input-group">
+              <span class="input-group-text">S/</span>
+              <input type="number" class="form-control" id="addBalance" min="1" value="20">
+              <button class="btn btn-primary" id="addBalanceBtn">Agregar</button>
+            </div>
+          </div>
+          <div class="mb-3">
+            <h6>Métodos de Pago</h6>
+            <div class="list-group">
+              <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">Tarjeta de Crédito</div>
+                    <div class="text-muted small">**** **** **** 1234</div>
+                  </div>
+                  <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </div>
+              </div>
+              <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">Yape</div>
+                    <div class="text-muted small">***@email.com</div>
+                  </div>
+                  <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary mt-2 w-100">Agregar Método de Pago</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title d-flex align-items-center" id="cartOffcanvasLabel">
+        <i class="bi bi-bag me-2"></i>Tu carrito
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+      <div id="cartLines" class="flex-grow-1 small" aria-live="polite">
+        <div class="text-center text-body-secondary py-5">
+          <i class="bi bi-bag-dash fs-1 d-block mb-3"></i>
+          <p class="mb-0">Tu carrito está vacío</p>
+        </div>
+      </div>
+      <div class="border-top pt-3">
+        <div class="input-group input-group-sm mb-2">
+          <span class="input-group-text"><i class="bi bi-ticket-perforated"></i></span>
+          <input id="couponInput" type="text" class="form-control" placeholder="Cupón (FIESTA20)">
+          <button id="applyCouponBtn" class="btn btn-outline-secondary">Aplicar</button>
+        </div>
+        <div class="d-flex justify-content-between"><span>Subtotal</span><strong id="cartSubtotal">S/ 0.00</strong></div>
+        <div class="d-flex justify-content-between small text-body-secondary"><span>Desc. por cantidad</span><span id="cartQtyDiscount">S/ 0.00</span></div>
+        <div class="d-flex justify-content-between small text-body-secondary"><span>Cupones</span><span id="cartCoupon">S/ 0.00</span></div>
+        <div class="d-flex justify-content-between mt-2 fs-5"><span>Total</span><strong id="cartTotal">S/ 0.00</strong></div>
+        <button id="btnGoCheckout" class="btn btn-primary w-100 mt-3" data-bs-dismiss="offcanvas" aria-label="Ir al checkout">
+          <i class="bi bi-cash-coin me-2"></i>Continuar al pago
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 1090;">
+    <div id="toasts" class="toast-container"></div>
+  </div>
+
+  <!-- Cargar scripts al final -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="api.js"></script>
+  <script src="profile.js"></script>
+</body>
+</html>
