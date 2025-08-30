@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EventosUp — Demo funcional</title>
+
+  <!-- Bootstrap 5.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --brand:#6C5CE7; --brand2:#00D2D3; --ink:#0f172a; --muted:#64748b; --bg:#f8fafc;
+      --card-bd:1px solid rgba(2,8,23,.08); --shadow:0 18px 50px rgba(2,8,23,.08)
+    }
+    *{box-sizing:border-box}
+    body{ font-family:Inter,system-ui,ui-sans-serif; color:var(--ink); background:var(--bg) }
+    .nav-shadow{ box-shadow:0 10px 30px rgba(2,8,23,.06) }
+    .btn-brand{ background:linear-gradient(135deg,var(--brand),var(--brand2)); border:0 }
+    .btn-brand:hover{ filter:brightness(.95) }
+    .hero{
+      background:
+        radial-gradient(1000px 500px at 10% -10%, rgba(108,92,231,.18), transparent 60%),
+        radial-gradient(1000px 500px at 100% 0%, rgba(0,210,211,.15), transparent 55%);
+      padding:96px 0 56px
+    }
+    .hero-card{ background:rgba(255,255,255,.75); backdrop-filter:blur(8px); border:var(--card-bd); box-shadow:var(--shadow) }
+    .pill{ border:1px solid rgba(2,8,23,.08); background:#fff }
+    .pill.active{ background:linear-gradient(135deg,var(--brand),var(--brand2)); color:#fff; border-color:transparent }
+    .event-card{ border:var(--card-bd); box-shadow:0 16px 44px rgba(2,8,23,.06); transition:transform .25s ease, box-shadow .25s ease }
+    .event-card:hover{ transform:translateY(-4px); box-shadow:0 30px 70px rgba(2,8,23,.10) }
+    .badge-free{ background:#10b981 !important }
+    .rating i{ color:#f59e0b }
+    .reveal{ opacity:0; transform:translateY(12px); transition:all .6s cubic-bezier(.2,.65,.3,1) }
+    .reveal.visible{ opacity:1; transform:none }
+    .benefit{ border:var(--card-bd); background:#fff; box-shadow:0 10px 28px rgba(2,8,23,.05) }
+    .footer{ border-top:1px solid rgba(2,8,23,.08) }
+    .form-ghost{ background:#fff; border:1px solid rgba(2,8,23,.08) }
+    main section{ display:none }
+    main section.active{ display:block }
+    /* Checkout steps */
+    .step{ display:none }
+    .step.active{ display:block }
+    .stepper .step-dot{ width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:#e2e8f0; color:#334155; font-weight:700 }
+    .stepper .step-dot.active{ background:var(--brand); color:#fff }
+    .qr-placeholder{ width:120px; height:120px; border:2px dashed #cbd5e1; border-radius:.5rem; display:flex; align-items:center; justify-content:center; color:#64748b }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="topNav" class="navbar navbar-expand-lg bg-white sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#home" data-link>
+        <i class="bi bi-lightning-charge-fill text-warning me-2"></i>EventosUp
+      </a>
+      <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navItems">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div id="navItems" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="#home" data-link>Eventos</a></li>
+          <li class="nav-item"><a class="nav-link" href="#how" data-link>Cómo funciona</a></li>
+          <li class="nav-item"><a class="nav-link" href="#benefits" data-link>Beneficios</a></li>
+          <li class="nav-item"><a class="nav-link" href="#account" data-link><i class="bi bi-person-circle me-1"></i><span id="navUser">Mi cuenta</span></a></li>
+          <li class="nav-item ms-lg-3">
+            <button class="btn btn-dark rounded-pill px-3" data-bs-toggle="offcanvas" data-bs-target="#cartCanvas">
+              <i class="bi bi-bag"></i> Carrito <span id="navCartCount" class="badge bg-light text-dark ms-1">0</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HOME / LANDING -->
+    <section id="page-home" class="active">
+      <!-- HERO -->
+      <header class="hero">
+        <div class="container">
+          <div class="row align-items-center gy-4">
+            <div class="col-lg-6">
+              <div class="p-4 p-lg-5 rounded-4 hero-card">
+                <span class="badge text-bg-dark bg-opacity-75 rounded-pill mb-3">
+                  <i class="bi bi-stars me-1"></i> Minimal • Moderno • Profesional
+                </span>
+                <h1 class="display-5 fw-bold mb-3">Descubre eventos y compra tus entradas en segundos</h1>
+                <p class="text-secondary mb-4">Explora por categoría, paga con tarjeta, Yape o billetera y recibe tu QR al instante.</p>
+                <form id="searchForm" class="row g-2 align-items-center">
+                  <div class="col-12 col-md">
+                    <div class="input-group form-ghost">
+                      <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                      <input id="searchInput" type="search" class="form-control" placeholder="Busca por artista, evento o ciudad…" />
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-auto">
+                    <button class="btn btn-brand px-4 rounded-pill" type="submit">Explorar</button>
+                  </div>
+                </form>
+                <div class="d-flex gap-3 align-items-center mt-3 text-secondary small">
+                  <span><i class="bi bi-shield-check me-1"></i>Pago seguro</span>
+                  <span><i class="bi bi-qr-code-scan me-1"></i>QR inmediato</span>
+                  <span><i class="bi bi-award me-1"></i>Cupones y logros</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 text-center">
+              <img class="img-fluid rounded-4 shadow-lg reveal" src="https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?q=80&w=1400&auto=format&fit=crop" alt="Concierto" />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- CATEGORÍAS / FILTRO -->
+      <section class="py-4">
+        <div class="container">
+          <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <button class="btn btn-sm rounded-pill pill active" data-filter="all"><i class="bi bi-sliders me-1"></i>Todos</button>
+            <button class="btn btn-sm rounded-pill pill" data-filter="musica"><i class="bi bi-music-note-beamed me-1"></i>Música</button>
+            <button class="btn btn-sm rounded-pill pill" data-filter="cultural"><i class="bi bi-masks me-1"></i>Cultural</button>
+            <button class="btn btn-sm rounded-pill pill" data-filter="deporte"><i class="bi bi-trophy me-1"></i>Deporte</button>
+            <button class="btn btn-sm rounded-pill pill" data-filter="tech"><i class="bi bi-cpu me-1"></i>Tech</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- CATÁLOGO -->
+      <section id="eventos" class="py-5">
+        <div class="container">
+          <div class="d-flex align-items-end justify-content-between mb-3">
+            <h2 class="fw-bold m-0">Eventos destacados</h2>
+            <a href="#home" class="text-decoration-none" data-link>Ver todos <i class="bi bi-arrow-right"></i></a>
+          </div>
+          <div id="gridEventos" class="row g-4"><!-- render --></div>
+        </div>
+      </section>
+
+      <!-- CÓMO FUNCIONA -->
+      <section id="how" class="py-5 bg-white">
+        <div class="container">
+          <h2 class="fw-bold text-center mb-4">Cómo funciona</h2>
+          <div class="row g-4">
+            <div class="col-md-4">
+              <div class="p-4 rounded-4 benefit reveal">
+                <div class="fs-3 mb-2"><i class="bi bi-search"></i></div>
+                <h5>Explora y filtra</h5>
+                <p class="text-secondary">Busca por categorías, fecha o ciudad. Ve reseñas y ubicación del evento.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-4 rounded-4 benefit reveal">
+                <div class="fs-3 mb-2"><i class="bi bi-bag"></i></div>
+                <h5>Arma tu carrito</h5>
+                <p class="text-secondary">Selecciona cantidad (aplica descuento por grupos), agrega cupones y confirma.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-4 rounded-4 benefit reveal">
+                <div class="fs-3 mb-2"><i class="bi bi-qr-code"></i></div>
+                <h5>Paga y recibe tu QR</h5>
+                <p class="text-secondary">Paga con tarjeta, Yape o billetera. Check-in express.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BENEFICIOS -->
+      <section id="benefits" class="py-5">
+        <div class="container">
+          <h2 class="fw-bold text-center mb-4">Beneficios que te convienen</h2>
+          <div class="row g-4">
+            <div class="col-md-4">
+              <div class="p-4 rounded-4 benefit h-100">
+                <div class="fs-3 mb-2"><i class="bi bi-wallet2"></i></div>
+                <h5>Billetera y cashback</h5>
+                <p class="text-secondary">Acumula saldo por promos y úsalo cuando quieras.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-4 rounded-4 benefit h-100">
+                <div class="fs-3 mb-2"><i class="bi bi-ticket-perforated"></i></div>
+                <h5>Cupones y logros</h5>
+                <p class="text-secondary">Gana cupones por asistencia mensual y cumpleaños.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-4 rounded-4 benefit h-100">
+                <div class="fs-3 mb-2"><i class="bi bi-people-fill"></i></div>
+                <h5>Descuento por cantidad</h5>
+                <p class="text-secondary">Compra 3+ del mismo lote y paga menos.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TESTIMONIOS -->
+      <section id="testimonios" class="py-5 bg-white">
+        <div class="container">
+          <h2 class="fw-bold text-center mb-4">Lo que dicen nuestros usuarios</h2>
+          <div class="row g-4">
+            <div class="col-md-4">
+              <div class="p-4 rounded-4 border bg-white h-100 reveal">
+                <div class="d-flex align-items-center mb-3">
+                  <img src="https://i.pravatar.cc/60?img=12" class="rounded-circle me-3" alt="avatar">
+                  <div><strong>María P.</strong><br><small class="text-secondary">Miraflores</small></div>
+                </div>
+                <p class="mb-0">“Compré 3 entradas y el descuento salió automático. QR al toque.”</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-4 rounded-4 border bg-white h-100 reveal">
+                <div class="d-flex align-items-center mb-3">
+                  <img src="https://i.pravatar.cc/60?img=5" class="rounded-circle me-3" alt="avatar">
+                  <div><strong>Carlos R.</strong><br><small class="text-secondary">Barranco</small></div>
+                </div>
+                <p class="mb-0">“Diseño muy pro y check-in rapidísimo.”</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-4 rounded-4 border bg-white h-100 reveal">
+                <div class="d-flex align-items-center mb-3">
+                  <img src="https://i.pravatar.cc/60?img=21" class="rounded-circle me-3" alt="avatar">
+                  <div><strong>Valeria Q.</strong><br><small class="text-secondary">San Isidro</small></div>
+                </div>
+                <p class="mb-0">“Usé cupón por cumpleaños y ahorré bastante.”</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- NEWSLETTER -->
+      <section class="py-5">
+        <div class="container">
+          <div class="p-4 p-lg-5 bg-white rounded-4 border hero-card">
+            <div class="row align-items-center gy-3">
+              <div class="col-lg-6">
+                <h3 class="fw-bold mb-1">No te pierdas los mejores eventos</h3>
+                <p class="text-secondary mb-0">Suscríbete y recibe cupones y preventas exclusivas.</p>
+              </div>
+              <div class="col-lg-6">
+                <form class="row g-2">
+                  <div class="col-12 col-md">
+                    <div class="input-group form-ghost">
+                      <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
+                      <input type="email" class="form-control" placeholder="Tu correo">
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-auto">
+                    <button class="btn btn-dark rounded-pill px-4" type="button">Suscribirme</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- LOGIN / REGISTRO / CUENTA -->
+    <section id="page-account" class="container py-5">
+      <div class="row g-4">
+        <div class="col-lg-5">
+          <div class="p-4 bg-white rounded-4 border">
+            <h3 class="fw-bold mb-3"><i class="bi bi-box-arrow-in-right me-2"></i>Iniciar sesión</h3>
+            <form id="formLogin" class="vstack gap-2">
+              <div class="input-group"><span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span><input id="loginEmail" type="email" class="form-control" placeholder="Correo" required></div>
+              <div class="input-group"><span class="input-group-text bg-white"><i class="bi bi-shield-lock"></i></span><input id="loginPass" type="password" class="form-control" placeholder="Contraseña" required></div>
+              <button class="btn btn-dark">Entrar</button>
+              <div id="loginMsg" class="small text-danger"></div>
+            </form>
+          </div>
+        </div>
+        <div class="col-lg-7">
+          <div class="p-4 bg-white rounded-4 border h-100">
+            <h3 class="fw-bold mb-3"><i class="bi bi-person-plus me-2"></i>Crear cuenta</h3>
+            <form id="formRegister" class="row g-2">
+              <div class="col-12 col-md-6"><div class="input-group"><span class="input-group-text bg-white"><i class="bi bi-person"></i></span><input id="regName" type="text" class="form-control" placeholder="Nombre" required></div></div>
+              <div class="col-12 col-md-6"><div class="input-group"><span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span><input id="regEmail" type="email" class="form-control" placeholder="Correo" required></div></div>
+              <div class="col-12 col-md-6"><div class="input-group"><span class="input-group-text bg-white"><i class="bi bi-shield-lock"></i></span><input id="regPass" type="password" class="form-control" placeholder="Contraseña" required></div></div>
+              <div class="col-12 col-md-6"><div class="input-group"><span class="input-group-text bg-white"><i class="bi bi-shield-lock-fill"></i></span><input id="regPass2" type="password" class="form-control" placeholder="Repite contraseña" required></div></div>
+              <div class="col-12"><button class="btn btn-brand w-100">Registrarme</button></div>
+              <div id="regMsg" class="small"></div>
+            </form>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-semibold"><i class="bi bi-wallet2 me-1"></i>Mi billetera</div>
+                <div class="text-secondary small">Saldo actual: <span id="walletBalance">S/ 0.00</span></div>
+              </div>
+              <div class="input-group" style="max-width:240px">
+                <span class="input-group-text bg-white">S/</span>
+                <input id="walletTopupAmount" type="number" class="form-control" placeholder="Recargar" min="1" step="1">
+                <button class="btn btn-outline-dark" id="walletTopupBtn"><i class="bi bi-plus-circle"></i></button>
+              </div>
+            </div>
+            <div class="mt-3">
+              <button class="btn btn-outline-danger btn-sm" id="logoutBtn" style="display:none"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <h4 class="fw-bold mb-3"><i class="bi bi-receipt-cutoff me-2"></i>Mis órdenes</h4>
+        <div id="ordersList" class="row g-3"><!-- render --></div>
+      </div>
+    </section>
+
+    <!-- CHECKOUT (detalles del carrito + pago) -->
+    <section id="page-checkout" class="container py-5">
+      <div class="stepper mb-4 text-center">
+        <span class="step-dot active" id="dot1">1</span> <i class="bi bi-arrow-right-short mx-1"></i>
+        <span class="step-dot" id="dot2">2</span> <i class="bi bi-arrow-right-short mx-1"></i>
+        <span class="step-dot" id="dot3">3</span>
+      </div>
+
+      <!-- Step 1: resumen carrito -->
+      <div class="step active" id="step1">
+        <h3 class="fw-bold mb-3"><i class="bi bi-bag me-2"></i>Tu carrito</h3>
+        <div id="ckItems" class="list-group mb-3"><!-- render --></div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white"><i class="bi bi-ticket-perforated"></i></span>
+              <input id="ckCoupon" type="text" class="form-control" placeholder="Cupón de descuento">
+              <button class="btn btn-outline-dark" id="ckApplyCoupon">Aplicar</button>
+            </div>
+            <div id="ckCouponMsg" class="small mt-1 text-secondary">Ingresa tu cupón y presiona Aplicar.</div>
+          </div>
+          <div class="col-md-6 text-end">
+            <div>Subtotal: <strong id="ckSubtotal">S/ 0.00</strong></div>
+            <div>Desc. por cantidad: <strong id="ckQtyDisc">– S/ 0.00</strong></div>
+            <div id="ckCouponRow" style="display:none">Cupón: <strong id="ckCouponAmt">– S/ 0.00</strong></div>
+            <div class="fs-4 mt-2">Total: <strong id="ckTotal">S/ 0.00</strong></div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between mt-4">
+          <a href="#home" data-link class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Seguir comprando</a>
+          <button class="btn btn-brand" id="ckContinue">Continuar</button>
+        </div>
+      </div>
+
+      <!-- Step 2: método de pago -->
+      <div class="step" id="step2">
+        <h3 class="fw-bold mb-3"><i class="bi bi-credit-card me-2"></i>Método de pago</h3>
+        <div class="vstack gap-2 mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="payMethod" id="payCard" value="card" checked>
+            <label class="form-check-label" for="payCard"><i class="bi bi-credit-card"></i> Tarjeta (demo)</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="payMethod" id="payYape" value="yape">
+            <label class="form-check-label" for="payYape"><i class="bi bi-phone"></i> Yape (demo)</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="payMethod" id="payWallet" value="wallet">
+            <label class="form-check-label" for="payWallet"><i class="bi bi-wallet2"></i> Billetera (saldo: <span id="ckWallet">S/ 0.00</span>)</label>
+          </div>
+        </div>
+        <div class="alert alert-info small"><i class="bi bi-info-circle"></i> Este es un flujo demo. No se procesan pagos reales.</div>
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn btn-outline-secondary" id="ckBack1"><i class="bi bi-arrow-left"></i> Atrás</button>
+          <button class="btn btn-brand" id="ckPay">Pagar ahora</button>
+        </div>
+      </div>
+
+      <!-- Step 3: confirmación -->
+      <div class="step" id="step3">
+        <h3 class="fw-bold mb-3"><i class="bi bi-check2-circle me-2"></i>¡Compra confirmada!</h3>
+        <div id="cfmBox" class="p-4 bg-white rounded-4 border mb-3"><!-- render --></div>
+        <div class="d-flex gap-2">
+          <a class="btn btn-dark" href="#account" data-link><i class="bi bi-ticket-perforated"></i> Ver mis entradas</a>
+          <a class="btn btn-outline-secondary" href="#home" data-link><i class="bi bi-house"></i> Ir al inicio</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer py-4">
+    <div class="container d-flex flex-column flex-lg-row gap-3 align-items-center justify-content-between">
+      <div class="small text-secondary">© <span id="y"></span> EventosUp. Todos los derechos reservados.</div>
+      <div class="d-flex gap-3 small">
+        <a href="#" class="text-decoration-none">Términos</a>
+        <a href="#" class="text-decoration-none">Privacidad</a>
+        <a href="#" class="text-decoration-none">Soporte</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- OFFCANVAS: CARRITO -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="cartCanvas" aria-labelledby="cartTitle">
+    <div class="offcanvas-header border-bottom">
+      <h5 id="cartTitle" class="offcanvas-title">
+        <i class="bi bi-bag me-2"></i>Tu carrito
+        <span id="cartCount" class="badge bg-dark-subtle text-dark-emphasis rounded-pill ms-2">0</span>
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0 d-flex flex-column">
+      <div id="cartEmpty" class="p-4 text-center text-secondary">
+        <div class="display-6 mb-2">🛍️</div>
+        <p class="mb-3">Tu carrito está vacío. ¡Explora eventos y añade entradas!</p>
+        <a href="#home" class="btn btn-dark rounded-pill px-4" data-bs-dismiss="offcanvas" data-link>Explorar</a>
+      </div>
+      <ul id="cartList" class="list-group list-group-flush"></ul>
+
+      <!-- Resumen -->
+      <div class="mt-auto p-3 border-top bg-body">
+        <div class="d-flex justify-content-between small mb-1"><span>Subtotal</span><span id="subTotal">S/ 0.00</span></div>
+        <div class="d-flex justify-content-between small mb-1"><span>Descuento por cantidad</span><span id="qtyDisc">– S/ 0.00</span></div>
+        <div class="input-group input-group-sm my-2">
+          <span class="input-group-text bg-white"><i class="bi bi-ticket-perforated"></i></span>
+          <input id="couponInput" type="text" class="form-control" placeholder="Cupón de descuento">
+          <button class="btn btn-outline-dark" id="applyCouponBtn">Aplicar</button>
+        </div>
+        <div id="couponFeedback" class="small mb-2 text-secondary">Ingresa tu cupón y presiona Aplicar.</div>
+        <div class="d-flex justify-content-between small mb-2" id="couponRow" style="display:none">
+          <span>Cupón aplicado</span><span id="couponAmount">– S/ 0.00</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+          <strong>Total</strong><strong id="grandTotal">S/ 0.00</strong>
+        </div>
+        <a href="#checkout" data-link class="btn btn-dark w-100 mt-2 rounded-pill" id="goCheckoutBtn">
+          <i class="bi bi-lock-fill me-1"></i> Continuar al pago
+        </a>
+        <small class="text-secondary d-block text-center mt-2"><i class="bi bi-shield-check"></i> Pago seguro • QR inmediato</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALLE EVENTO -->
+  <div class="modal fade" id="modalEvento" tabindex="-1" aria-labelledby="modalTitle">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="modalTitle">Detalle de evento</h5>
+          <button class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-4">
+            <div class="col-md-6">
+              <img id="modalImg" class="img-fluid rounded-3" src="" alt="">
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex gap-2 mb-2">
+                <span class="badge text-bg-dark"><i class="bi bi-geo-alt me-1"></i><span id="modalLugar">Lima</span></span>
+                <span class="badge text-bg-secondary"><i class="bi bi-calendar-event me-1"></i><span id="modalFecha">Próximo sábado</span></span>
+              </div>
+              <p id="modalDesc" class="text-secondary">Descripción del evento.</p>
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <div class="text-secondary small">Precio desde</div>
+                  <div class="fs-4 fw-bold" id="modalPrice">S/ 0</div>
+                </div>
+                <button class="btn btn-dark" id="modalAddBtn"><i class="bi bi-bag-plus me-1"></i>Añadir</button>
+              </div>
+              <div class="mt-3 small text-secondary"><i class="bi bi-shield-lock"></i> Compra protegida</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <a href="#checkout" data-link class="btn btn-brand">Ir a pagar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ===== Utilidades =====
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+    const byId = id => document.getElementById(id);
+    const fmt = v => `S/ ${Number(v).toFixed(2)}`;
+    const store = {
+      get: (k,def) => { try{ return JSON.parse(localStorage.getItem(k)) ?? def } catch{ return def } },
+      set: (k,v) => localStorage.setItem(k, JSON.stringify(v))
+    };
+
+    // Año en footer y sombra nav
+    byId('y').textContent = new Date().getFullYear();
+    const nav = byId('topNav');
+    const onScroll = () => { if (scrollY > 8) nav.classList.add('nav-shadow'); else nav.classList.remove('nav-shadow'); };
+    onScroll(); addEventListener('scroll', onScroll);
+
+    // Reveal anim
+    const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('visible')), {threshold:.2});
+    setTimeout(()=> $$('.reveal').forEach(el => io.observe(el)), 300);
+
+    // ===== Datos de ejemplo =====
+    const eventos = [
+      { id:1, cat:'musica', title:'Festival Sunset Lima', place:'Costa Verde', when:'Sáb 20:00', price:80, img:'https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?q=80&w=1200&auto=format&fit=crop', rating:4.8, desc:'Atardecer + DJs internacionales.' },
+      { id:2, cat:'cultural', title:'Obra: El Último Acto', place:'Miraflores', when:'Vie 19:30', price:0, img:'https://images.unsplash.com/photo-1505664194779-8beaceb93744?q=80&w=1200&auto=format&fit=crop', rating:4.6, desc:'Teatro contemporáneo, entrada libre.' },
+      { id:3, cat:'tech', title:'Conferencia Dev LATAM', place:'San Isidro', when:'Jue 09:00', price:120, img:'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1200&auto=format&fit=crop', rating:4.9, desc:'Tendencias y arquitectura cloud.' },
+      { id:4, cat:'deporte', title:'Maratón 10K Costa', place:'Chorrillos', when:'Dom 07:00', price:50, img:'https://images.unsplash.com/photo-1534361960057-19889db9621e?q=80&w=1200&auto=format&fit=crop', rating:4.7, desc:'Ruta escénica y kit del corredor.' },
+      { id:5, cat:'musica', title:'Indie Night Barranco', place:'Barranco', when:'Vie 22:00', price:60, img:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop', rating:4.5, desc:'Bandas indie en vivo.' },
+      { id:6, cat:'tech', title:'AI Meetup Lima', place:'Lince', when:'Mié 19:00', price:30, img:'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop', rating:4.4, desc:'Charlas y networking IA.' }
+    ];
+
+    // ===== Estado (localStorage) =====
+    const KEY_USERS = 'ev_users';      // [{id, name, email, passHash, wallet}]
+    const KEY_SESSION = 'ev_session';  // {userId}
+    const KEY_CART = 'ev_cart';        // [{id,eventId,title,price,qty,img,place,when}]
+    const KEY_ORDERS = 'ev_orders';    // [{id,userId,items:[...], subtotal, qtyDiscount, coupon, total, payMethod, createdAt, tickets:[{code,title}]}]
+
+    const state = {
+      users: store.get(KEY_USERS, []),
+      session: store.get(KEY_SESSION, null),
+      cart: store.get(KEY_CART, []),
+      orders: store.get(KEY_ORDERS, [])
+    };
+
+    function save(){ store.set(KEY_USERS, state.users); store.set(KEY_SESSION, state.session); store.set(KEY_CART, state.cart); store.set(KEY_ORDERS, state.orders); }
+    function currentUser(){ return state.session ? state.users.find(u=>u.id===state.session.userId) : null }
+
+    // ===== Catálogo =====
+    function renderCatalog(list){
+      const wrap = byId('gridEventos');
+      wrap.innerHTML = list.map(ev => `
+        <div class="col-md-6 col-lg-4" data-cat="${ev.cat}">
+          <div class="card event-card h-100 overflow-hidden">
+            <img src="${ev.img}" class="card-img-top" alt="${ev.title}">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge text-bg-secondary bg-opacity-75 text-capitalize"><i class="bi bi-tag"></i> ${ev.cat}</span>
+                <span class="rating" title="Calificación"><i class="bi bi-star-fill"></i> ${ev.rating}</span>
+              </div>
+              <h5 class="card-title">${ev.title}</h5>
+              <p class="text-secondary small mb-2"><i class="bi bi-geo-alt me-1"></i>${ev.place} • ${ev.when}</p>
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="fs-5 fw-bold">${ev.price>0 ? fmt(ev.price) : 'GRATIS'}</span>
+                <div class="btn-group">
+                  <button class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modalEvento"
+                          data-id="${ev.id}"><i class="bi bi-eye"></i> Ver</button>
+                  <button class="btn ${ev.price>0 ? 'btn-dark':'btn-success'} btn-sm add-btn" data-id="${ev.id}">
+                    ${ev.price>0 ? '<i class="bi bi-bag-plus"></i> Añadir' : '<i class="bi bi-ticket-perforated"></i> Obtener'}
+                  </button>
+                </div>
+              </div>
+              ${ev.price===0 ? '<span class="badge badge-free mt-2"><i class="bi bi-gift"></i> Entrada gratuita</span>' : ''}
+              ${ev.price>0 ? '<span class="badge text-bg-dark mt-2"><i class="bi bi-people-fill me-1"></i> Descuento 3+</span>' : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+      // Bind add buttons
+      $$('.add-btn').forEach(b => b.addEventListener('click', e => addToCart(Number(e.currentTarget.dataset.id))));
+    }
+
+    renderCatalog(eventos);
+
+    // Filtro por categorías
+    $$('.pill').forEach(p => p.addEventListener('click', ()=>{
+      $$('.pill').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+      const f = p.dataset.filter;
+      $$('#gridEventos > div').forEach(card => { card.style.display = (f==='all' || card.dataset.cat===f) ? '' : 'none'; });
+    }));
+
+    // Búsqueda simple
+    $('#searchForm').addEventListener('submit', e=>{
+      e.preventDefault();
+      const q = byId('searchInput').value.trim().toLowerCase();
+      const filtered = q ? eventos.filter(ev => (ev.title+ev.place).toLowerCase().includes(q)) : eventos;
+      renderCatalog(filtered);
+    });
+
+    // Modal detalle
+    const modalEl = byId('modalEvento');
+    modalEl.addEventListener('show.bs.modal', ev=>{
+      const id = Number(ev.relatedTarget?.dataset.id);
+      const data = eventos.find(x=>x.id===id) || eventos[0];
+      byId('modalTitle').textContent = data.title;
+      byId('modalImg').src = data.img;
+      byId('modalLugar').textContent = data.place;
+      byId('modalFecha').textContent = data.when;
+      byId('modalDesc').textContent = data.desc;
+      byId('modalPrice').textContent = data.price>0 ? fmt(data.price) : 'GRATIS';
+      byId('modalAddBtn').onclick = () => { addToCart(data.id); bootstrap.Modal.getInstance(modalEl).hide(); };
+    });
+
+    // ===== Carrito =====
+    function addToCart(eventId){
+      const ev = eventos.find(x=>x.id===eventId);
+      const found = state.cart.find(x=>x.eventId===eventId);
+      if(found) found.qty += 1; else state.cart.push({id:Date.now()+Math.random(), eventId, title:ev.title, price:ev.price, qty:1, img:ev.img, place:ev.place, when:ev.when});
+      save();
+      syncCartUI();
+      bootstrap.Offcanvas.getOrCreateInstance('#cartCanvas').show();
+    }
+    function removeFromCart(i){ state.cart.splice(i,1); save(); syncCartUI(); }
+    function stepQty(i, d){ state.cart[i].qty = Math.max(1, (state.cart[i].qty||1)+d); save(); syncCartUI(); }
+    function setQty(i, v){ state.cart[i].qty = Math.max(1, parseInt(v||'1',10)); save(); syncCartUI(); }
+    window.removeFromCart = removeFromCart; window.stepQty = stepQty; window.setQty = setQty;
+
+    function totals(cart){
+      const subtotal = cart.reduce((a,x)=> a + x.price*x.qty, 0);
+      const qtyDiscount = cart.reduce((a,x)=> a + (x.qty>=3 && x.price>0 ? (x.price*x.qty*0.10) : 0), 0);
+      const coupon = Number(byId('couponAmount').dataset.val || 0);
+      const total = Math.max(0, subtotal - qtyDiscount - coupon);
+      return {subtotal, qtyDiscount, coupon, total}
+    }
+
+    function syncCartUI(){
+      const list = byId('cartList'), empty = byId('cartEmpty'), count = byId('cartCount'), navCount = byId('navCartCount');
+      list.innerHTML = state.cart.map((it, i)=> `
+        <li class="list-group-item py-3">
+          <div class="d-flex align-items-start gap-3">
+            <img src="${it.img}" class="rounded" width="56" height="56" style="object-fit:cover; box-shadow:0 8px 24px rgba(2,8,23,.08)" alt="">
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <div class="fw-semibold">${it.title}</div>
+                  <div class="text-secondary small">${it.place} • ${it.when}</div>
+                </div>
+                <button class="btn btn-sm btn-link text-danger p-0" aria-label="Quitar" onclick="removeFromCart(${i})">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <div class="input-group input-group-sm" style="width:140px;">
+                  <button class="btn btn-outline-secondary" onclick="stepQty(${i},-1)" aria-label="Disminuir">–</button>
+                  <input type="number" min="1" class="form-control text-center" value="${it.qty}" onchange="setQty(${i}, this.value)">
+                  <button class="btn btn-outline-secondary" onclick="stepQty(${i},1)" aria-label="Aumentar">+</button>
+                </div>
+                <div class="text-end">
+                  <div class="fw-bold">${fmt(it.price * it.qty)}</div>
+                  ${it.qty>=3 && it.price>0 ? '<small class="text-success">Incluye desc. por 3+</small>' : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+      `).join('');
+
+      empty.style.display = state.cart.length ? 'none' : '';
+      list.style.display = state.cart.length ? '' : 'none';
+      count.textContent = navCount.textContent = state.cart.length;
+
+      const t = totals(state.cart);
+      byId('subTotal').textContent = fmt(t.subtotal);
+      byId('qtyDisc').textContent = `– ${fmt(t.qtyDiscount)}`;
+      byId('grandTotal').textContent = fmt(t.total);
+    }
+
+    // Cupón (demo): FIESTA20 => S/ 20
+    byId('applyCouponBtn').addEventListener('click', ()=>{
+      const code = byId('couponInput').value.trim().toUpperCase();
+      const fb = byId('couponFeedback');
+      if(!code){ fb.textContent='Ingresa un código válido.'; fb.className='small text-danger'; return; }
+      if(code==='FIESTA20'){
+        byId('couponRow').style.display=''; byId('couponAmount').textContent = '– S/ 20.00'; byId('couponAmount').dataset.val = '20';
+        fb.textContent = 'Cupón FIESTA20 aplicado: – S/ 20.00'; fb.className='small text-success';
+      } else { byId('couponRow').style.display='none'; byId('couponAmount').dataset.val = '0'; fb.textContent = 'Cupón no válido o vencido.'; fb.className='small text-danger'; }
+      syncCartUI();
+    });
+
+    // Go to checkout from offcanvas
+    byId('goCheckoutBtn').addEventListener('click', ()=>{ if(state.cart.length===0){ alert('Tu carrito está vacío.'); } });
+
+    // ===== Auth (demo) =====
+    function updateNavUser(){ const u = currentUser(); byId('navUser').textContent = u ? u.name.split(' ')[0] : 'Mi cuenta'; byId('logoutBtn').style.display = u ? '' : 'none'; byId('walletBalance').textContent = fmt(u?.wallet ?? 0); }
+
+    byId('formRegister').addEventListener('submit', e=>{
+      e.preventDefault();
+      const name = byId('regName').value.trim();
+      const email = byId('regEmail').value.trim().toLowerCase();
+      const p1 = byId('regPass').value, p2 = byId('regPass2').value;
+      const msg = byId('regMsg');
+      if(p1!==p2){ msg.textContent='Las contraseñas no coinciden.'; msg.className='small text-danger'; return; }
+      if(state.users.some(u=>u.email===email)){ msg.textContent='Ya existe una cuenta con ese correo.'; msg.className='small text-danger'; return; }
+      const id = Date.now();
+      state.users.push({id, name, email, passHash:btoa(p1), wallet:100}); // wallet inicial demo
+      state.session = {userId:id};
+      save(); updateNavUser(); msg.textContent='Cuenta creada. ¡Bienvenido!'; msg.className='small text-success';
+      location.hash = '#account';
+    });
+
+    byId('formLogin').addEventListener('submit', e=>{
+      e.preventDefault();
+      const email = byId('loginEmail').value.trim().toLowerCase();
+      const pass = byId('loginPass').value;
+      const msg = byId('loginMsg');
+      const u = state.users.find(u=>u.email===email && u.passHash===btoa(pass));
+      if(!u){ msg.textContent='Correo o contraseña incorrectos.'; return; }
+      state.session = {userId:u.id}; save(); updateNavUser(); msg.textContent='';
+      alert('Sesión iniciada.');
+    });
+
+    byId('logoutBtn').addEventListener('click', ()=>{ state.session=null; save(); updateNavUser(); alert('Sesión cerrada.'); });
+
+    // Recargar billetera (demo)
+    byId('walletTopupBtn').addEventListener('click', ()=>{
+      const u = currentUser(); if(!u) return alert('Inicia sesión primero.');
+      const amt = Number(byId('walletTopupAmount').value||0); if(amt<=0) return;
+      u.wallet = (u.wallet||0) + amt; save(); updateNavUser(); byId('walletTopupAmount').value='';
+    });
+
+    // Render órdenes del usuario
+    function renderOrders(){
+      const wrap = byId('ordersList'); const u = currentUser();
+      const my = state.orders.filter(o=>o.userId===u?.id).sort((a,b)=>b.createdAt-a.createdAt);
+      wrap.innerHTML = my.length? my.map(o=>`
+        <div class="col-12">
+          <div class="p-3 bg-white border rounded-4">
+            <div class="d-flex justify-content-between flex-wrap gap-2">
+              <div>
+                <div class="fw-semibold"><i class="bi bi-hash"></i> Pedido ${o.id}</div>
+                <div class="small text-secondary">${new Date(o.createdAt).toLocaleString()}</div>
+              </div>
+              <div class="text-end">
+                <div>Total pagado: <strong>${fmt(o.total)}</strong></div>
+                <div class="small text-secondary"><i class="bi bi-credit-card"></i> ${o.payMethod}</div>
+              </div>
+            </div>
+            <hr>
+            <div class="row g-3">
+              ${o.items.map(it=>`
+                <div class="col-md-6 col-lg-4">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="qr-placeholder"><i class="bi bi-qr-code"></i></div>
+                    <div>
+                      <div class="fw-semibold">${it.title}</div>
+                      <div class="small text-secondary">x${it.qty} • ${it.place} • ${it.when}</div>
+                      <div class="small">${it.tickets.map(t=>`<span class='badge text-bg-light text-wrap me-1 my-1'><i class='bi bi-ticket-perforated'></i> ${t.code}</span>`).join(' ')}</div>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `).join('') : '<div class="text-secondary">Aún no tienes órdenes.</div>';
+    }
+
+    // ===== Checkout Router & Lógica =====
+    function goCheckout(){
+      if(state.cart.length===0){ alert('Tu carrito está vacío.'); location.hash = '#home'; return; }
+      // Step 1 render
+      const list = byId('ckItems');
+      list.innerHTML = state.cart.map((it,i)=>`
+        <div class="list-group-item">
+          <div class="d-flex justify-content-between align-items-start gap-3">
+            <div class="d-flex align-items-start gap-3">
+              <img src="${it.img}" width="64" height="64" class="rounded" style="object-fit:cover" alt="">
+              <div>
+                <div class="fw-semibold">${it.title}</div>
+                <div class="small text-secondary">${it.place} • ${it.when}</div>
+                <div class="small">${fmt(it.price)} c/u</div>
+              </div>
+            </div>
+            <div class="text-end">
+              <div class="input-group input-group-sm" style="width:140px;">
+                <button class="btn btn-outline-secondary" onclick="stepQty(${i},-1)">–</button>
+                <input type="number" min="1" class="form-control text-center" value="${it.qty}" onchange="setQty(${i}, this.value); goCheckout()">
+                <button class="btn btn-outline-secondary" onclick="stepQty(${i},1); goCheckout()">+</button>
+              </div>
+              <div class="fw-bold mt-1">${fmt(it.price*it.qty)}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      const t = totals(state.cart);
+      byId('ckSubtotal').textContent = fmt(t.subtotal);
+      byId('ckQtyDisc').textContent = `– ${fmt(t.qtyDiscount)}`;
+      const couponVal = Number(byId('couponAmount').dataset.val || 0);
+      if(couponVal>0){ byId('ckCouponRow').style.display=''; byId('ckCouponAmt').textContent = `– ${fmt(couponVal)}`; }
+      else { byId('ckCouponRow').style.display='none'; }
+      byId('ckTotal').textContent = fmt(t.total);
+
+      // Stepper states
+      byId('dot1').classList.add('active'); byId('dot2').classList.remove('active'); byId('dot3').classList.remove('active');
+      byId('step1').classList.add('active'); byId('step2').classList.remove('active'); byId('step3').classList.remove('active');
+    }
+
+    // Apply coupon in checkout
+    byId('ckApplyCoupon').addEventListener('click', ()=>{
+      const code = byId('ckCoupon').value.trim().toUpperCase();
+      const msg = byId('ckCouponMsg');
+      if(code==='FIESTA20'){ byId('couponAmount').dataset.val='20'; byId('couponRow').style.display=''; byId('couponAmount').textContent='– S/ 20.00'; msg.textContent='Cupón aplicado.'; msg.className='small text-success'; }
+      else { byId('couponAmount').dataset.val='0'; byId('couponRow').style.display='none'; msg.textContent='Cupón no válido.'; msg.className='small text-danger'; }
+      goCheckout(); syncCartUI();
+    });
+
+    // Continuar a método de pago
+    byId('ckContinue').addEventListener('click', ()=>{
+      // Debe estar logueado
+      if(!currentUser()){ alert('Inicia sesión para continuar.'); location.hash = '#account'; return; }
+      byId('dot1').classList.remove('active'); byId('dot2').classList.add('active');
+      byId('step1').classList.remove('active'); byId('step2').classList.add('active');
+      byId('ckWallet').textContent = fmt(currentUser()?.wallet || 0);
+    });
+
+    // Atrás a carrito
+    byId('ckBack1').addEventListener('click', ()=>{ byId('dot2').classList.remove('active'); byId('dot1').classList.add('active'); byId('step2').classList.remove('active'); byId('step1').classList.add('active'); });
+
+    // Pagar
+    byId('ckPay').addEventListener('click', ()=>{
+      const u = currentUser(); if(!u) return alert('Inicia sesión.');
+      const t = totals(state.cart); if(t.total<=0 && state.cart.length===0) return alert('Carrito vacío.');
+      const method = document.querySelector('input[name="payMethod"]:checked').value;
+
+      if(method==='wallet'){
+        if((u.wallet||0) < t.total){ alert('Saldo insuficiente en billetera.'); return; }
+        u.wallet -= t.total;
+      }
+      // Simula autorización OK para card/yape
+
+      // Crear orden+tickets
+      const orderId = Math.floor(100000 + Math.random()*900000);
+      const items = state.cart.map(it=>({ ...it, tickets: Array.from({length:it.qty}, (_,k)=>({ code:`TCK-${orderId}-${it.eventId}-${k+1}` })) }));
+      const order = { id: orderId, userId:u.id, items, subtotal:t.subtotal, qtyDiscount:t.qtyDiscount, coupon:t.coupon, total:t.total, payMethod:method, createdAt: Date.now() };
+      state.orders.push(order);
+      state.cart = []; byId('couponAmount').dataset.val='0'; save();
+
+      // Render confirmación
+      byId('cfmBox').innerHTML = `
+        <div class="d-flex justify-content-between flex-wrap gap-2">
+          <div>
+            <div class="fw-semibold"><i class="bi bi-hash"></i> Pedido ${order.id}</div>
+            <div class="small text-secondary">${new Date(order.createdAt).toLocaleString()}</div>
+          </div>
+          <div class="text-end">
+            <div>Total pagado: <strong>${fmt(order.total)}</strong></div>
+            <div class="small text-secondary"><i class="bi bi-credit-card"></i> ${order.payMethod}</div>
+          </div>
+        </div>
+        <hr>
+        <div class="row g-3">
+          ${order.items.map(it=>`
+            <div class="col-md-6 col-lg-4">
+              <div class="d-flex align-items-center gap-2">
+                <div class="qr-placeholder"><i class="bi bi-qr-code"></i></div>
+                <div>
+                  <div class="fw-semibold">${it.title}</div>
+                  <div class="small text-secondary">x${it.qty} • ${it.place} • ${it.when}</div>
+                  <div class="small">${it.tickets.map(t=>`<span class='badge text-bg-light text-wrap me-1 my-1'><i class='bi bi-ticket-perforated'></i> ${t.code}</span>`).join(' ')}</div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+
+      // Step 3
+      byId('dot2').classList.remove('active'); byId('dot3').classList.add('active');
+      byId('step2').classList.remove('active'); byId('step3').classList.add('active');
+      updateNavUser(); syncCartUI(); renderOrders();
+    });
+
+    // ===== Router ==== (#home, #account, #checkout)
+    function show(id){ $$('#page-home, #page-account, #page-checkout').forEach(s=>s.classList.remove('active')); if(id==='#home') byId('page-home').classList.add('active'); if(id==='#account') { byId('page-account').classList.add('active'); renderOrders(); } if(id==='#checkout') { byId('page-checkout').classList.add('active'); goCheckout(); } }
+    function onHash(){ const h = location.hash || '#home'; show(h); }
+    window.addEventListener('hashchange', onHash); onHash();
+
+    // Navegación con atributo data-link
+    document.body.addEventListener('click', (e)=>{ const a = e.target.closest('[data-link]'); if(a){ e.preventDefault(); location.hash = a.getAttribute('href'); } });
+
+    // Inicializa
+    updateNavUser(); syncCartUI();
+  </script>
+</body>
+</html>
