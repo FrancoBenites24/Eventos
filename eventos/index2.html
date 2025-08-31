@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <!-- Meta básicos -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- SEO -->
+  <title>Eventos Piura — Descubre y vive los mejores eventos en Piura</title>
+  <meta name="description" content="Explora conciertos, gastronomía, fiestas, circos y más en Piura y alrededores. Compra entradas, encuentra eventos cerca de ti y vive la ciudad.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Eventos Piura">
+  <meta property="og:description" content="Explora conciertos, gastronomía, fiestas, circos y más en Piura y alrededores.">
+  <meta property="og:image" content="https://picsum.photos/1200/630?blur=1">
+  <meta property="og:type" content="website">
+
+  <!-- Bootstrap 5.3 (CSS) + Bootstrap Icons (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <!-- Estilos ligeros -->
+  <style>
+    :root {
+      --bs-primary: #0ea5e9;  /* celeste */
+      --bs-secondary: #0f172a; /* slate-900 */
+      --rounded-lg: 1rem;
+      --shadow-soft: 0 6px 20px rgba(0,0,0,.08);
+      --shadow-card: 0 8px 24px rgba(0,0,0,.06);
+    }
+
+    /* Accesibilidad: foco visible */
+    :focus-visible {
+      outline: 2px solid var(--bs-primary);
+      outline-offset: 2px;
+      border-radius: .5rem;
+    }
+
+    /* Navbar */
+    .navbar-compact {
+      padding-top: .25rem !important;
+      padding-bottom: .25rem !important;
+      box-shadow: 0 6px 20px rgba(0,0,0,.06);
+      transition: padding .2s ease, box-shadow .2s ease;
+    }
+
+    /* Hero */
+    .hero {
+      background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(14,165,233,.12), transparent 70%),
+        radial-gradient(1000px 500px at 90% 10%, rgba(14,165,233,.08), transparent 70%),
+        linear-gradient(to bottom, rgba(14,165,233,.04), transparent 40%);
+    }
+
+    /* Cards */
+    .event-card {
+      transition: transform .2s ease, box-shadow .2s ease;
+      border-radius: var(--rounded-lg) !important;
+    }
+    .event-card:hover,
+    .event-card:focus-within {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card);
+    }
+    .card-img-top {
+      border-top-left-radius: var(--rounded-lg);
+      border-top-right-radius: var(--rounded-lg);
+    }
+
+    /* Chips categorías (scroll-x en mobile) */
+    .chips {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+    .chips::-webkit-scrollbar { height: 6px; }
+    .chips::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 999px; }
+
+    /* Back to top */
+    #backToTop {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      z-index: 1050;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .2s ease, transform .2s ease, visibility .2s;
+      box-shadow: var(--shadow-soft);
+    }
+    #backToTop.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* Utilidades pequeñas */
+    .rounded-4 { border-radius: var(--rounded-lg) !important; }
+    .shadow-soft { box-shadow: var(--shadow-soft); }
+
+    /* Sección "Cerca de ti": carrusel horizontal simple en mobile */
+    .nearby-scroll {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 80%;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: .5rem;
+    }
+    @media (min-width: 576px) {
+      .nearby-scroll { grid-auto-columns: 40%; }
+    }
+    @media (min-width: 992px) {
+      .nearby-scroll { display: grid; grid-auto-flow: initial; grid-template-columns: repeat(3, 1fr); overflow: visible; }
+    }
+
+    /* Footer */
+    footer a { text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <a class="visually-hidden-focusable position-absolute top-0 start-0 m-2" href="#main">Saltar al contenido principal</a>
+
+  <!-- =========================================
+       HEADER / NAV
+  ========================================== -->
+  <header>
+    <nav class="navbar navbar-expand-lg bg-body sticky-top py-3" aria-label="Navegación principal">
+      <div class="container">
+        <a class="navbar-brand fw-semibold" href="#" aria-label="Inicio Eventos Piura">
+          <i class="bi bi-calendar-event me-2 text-primary"></i>Eventos Piura
+        </a>
+
+        <!-- Botones derecha (desktop) -->
+        <div class="d-flex d-lg-none align-items-center gap-2">
+          <button id="themeToggleMobile" class="btn btn-outline-secondary btn-sm" type="button" aria-pressed="false" aria-label="Cambiar tema">
+            <i class="bi bi-sun-fill" aria-hidden="true"></i>
+          </button>
+          <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNav" aria-controls="offcanvasNav" aria-label="Abrir menú">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+
+        <div class="collapse navbar-collapse">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
+            <li class="nav-item"><a class="nav-link" href="#explorar">Explorar</a></li>
+            <li class="nav-item"><a class="nav-link" href="#categorias">Categorías</a></li>
+            <li class="nav-item"><a class="nav-link" href="#billetera">Billetera</a></li>
+            <li class="nav-item"><a class="nav-link" href="#organizadores">Organizadores</a></li>
+            <li class="nav-item"><a class="nav-link" href="#ayuda">Ayuda</a></li>
+          </ul>
+
+          <!-- Buscador compacto -->
+          <form class="d-none d-lg-flex me-2" role="search" aria-label="Búsqueda rápida en navbar" onsubmit="handleQuickSearch(event)">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text" id="search-icon"><i class="bi bi-search" aria-hidden="true"></i></span>
+              <input class="form-control" type="search" placeholder="Buscar eventos" aria-label="Buscar eventos" aria-describedby="search-icon" name="q">
+            </div>
+          </form>
+
+          <!-- Tema + Ingresar -->
+          <div class="d-none d-lg-flex align-items-center gap-2">
+            <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button" aria-pressed="false" aria-label="Cambiar tema">
+              <i class="bi bi-sun-fill" aria-hidden="true"></i> <span class="ms-1 d-none d-xxl-inline">Tema</span>
+            </button>
+            <a class="btn btn-primary btn-sm" href="#login">Ingresar</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Offcanvas (mobile) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNav" aria-labelledby="offcanvasNavLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasNavLabel"><i class="bi bi-calendar-event me-2 text-primary"></i>Eventos Piura</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+      </div>
+      <div class="offcanvas-body d-flex flex-column gap-3">
+        <form role="search" aria-label="Búsqueda móvil" onsubmit="handleQuickSearch(event)">
+          <div class="input-group">
+            <span class="input-group-text" id="search-icon-mobile"><i class="bi bi-search" aria-hidden="true"></i></span>
+            <input class="form-control" type="search" placeholder="Buscar eventos" aria-label="Buscar eventos" aria-describedby="search-icon-mobile" name="q">
+          </div>
+        </form>
+        <ul class="navbar-nav flex-grow-1">
+          <li class="nav-item"><a class="nav-link" href="#explorar" data-bs-dismiss="offcanvas">Explorar</a></li>
+          <li class="nav-item"><a class="nav-link" href="#categorias" data-bs-dismiss="offcanvas">Categorías</a></li>
+          <li class="nav-item"><a class="nav-link" href="#billetera" data-bs-dismiss="offcanvas">Billetera</a></li>
+          <li class="nav-item"><a class="nav-link" href="#organizadores" data-bs-dismiss="offcanvas">Organizadores</a></li>
+          <li class="nav-item"><a class="nav-link" href="#ayuda" data-bs-dismiss="offcanvas">Ayuda</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <button id="themeToggleOffcanvas" class="btn btn-outline-secondary" type="button" aria-pressed="false" aria-label="Cambiar tema">
+            <i class="bi bi-sun-fill" aria-hidden="true"></i> Tema
+          </button>
+          <a class="btn btn-primary" href="#login">Ingresar</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================
+       MAIN
+  ========================================== -->
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero py-5 py-lg-6 border-bottom" aria-label="Buscador principal">
+      <div class="container">
+        <div class="row justify-content-center text-center">
+          <div class="col-lg-9 col-xl-8">
+            <h1 class="display-5 fw-bold mb-3">Descubre y vive los mejores eventos en Piura</h1>
+            <p class="lead text-muted mb-4">Conciertos, sabores, fiestas y experiencias únicas. Encuentra tu plan perfecto hoy.</p>
+
+            <!-- Buscador principal -->
+            <form class="mb-3" onsubmit="handleHeroSearch(event)" aria-labelledby="heroFormTitle">
+              <span id="heroFormTitle" class="visually-hidden">Formulario de búsqueda de eventos</span>
+              <div class="row g-2 g-lg-3">
+                <div class="col-12 col-lg-5">
+                  <div class="input-group input-group-lg">
+                    <span class="input-group-text" id="what-label"><i class="bi bi-search" aria-hidden="true"></i></span>
+                    <input type="text" class="form-control" placeholder="¿Qué quieres hacer?" aria-label="¿Qué quieres hacer?" aria-describedby="what-label" name="q" required>
+                  </div>
+                </div>
+                <div class="col-6 col-lg-2">
+                  <input type="date" class="form-control form-control-lg" aria-label="Fecha" name="date">
+                </div>
+                <div class="col-6 col-lg-3">
+                  <select class="form-select form-select-lg" aria-label="Ubicación" name="city">
+                    <option value="Piura" selected>Piura</option>
+                    <option value="Catacaos">Catacaos</option>
+                    <option value="Sullana">Sullana</option>
+                    <option value="Paita">Paita</option>
+                    <option value="Talara">Talara</option>
+                    <option value="Máncora">Máncora</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg-2 d-grid">
+                  <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-arrow-right-circle me-1" aria-hidden="true"></i>Buscar</button>
+                </div>
+              </div>
+            </form>
+
+            <!-- Chips categorías -->
+            <div class="chips d-flex gap-2 justify-content-center justify-content-lg-start pb-1" id="categorias" role="listbox" aria-label="Categorías destacadas">
+              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" role="option">Gastronomía</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" role="option">Conciertos</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" role="option">Discotecas</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" role="option">Circos</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" role="option">Viajes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DESTACADOS -->
+    <section class="py-5" id="explorar" aria-labelledby="destacadosTitle">
+      <div class="container">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h2 id="destacadosTitle" class="h3 mb-0">Destacados <span class="badge text-bg-primary ms-2" data-bs-toggle="tooltip" data-bs-title="Recomendados por actividad">Esta semana</span></h2>
+          <a class="btn btn-outline-primary btn-sm" href="#" aria-label="Ver todos los destacados">Ver todos</a>
+        </div>
+
+        <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-lg-4">
+          <!-- 1 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura1/800/450" class="card-img-top" alt="Foto del Festival de Sabores en Catacaos" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Gastronomía">Gastronomía</span>
+                  <span class="badge text-bg-success" data-bs-toggle="tooltip" data-bs-title="Entrada libre">Gratis</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Festival de Sabores</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Catacaos · <i class="bi bi-calendar-event ms-2 me-1"></i>Vie 05, 7:00 p.m.</p>
+                <p class="card-text small flex-grow-1">Degustaciones, food trucks y cocina regional en vivo.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 0</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 2 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura2/800/450" class="card-img-top" alt="Imagen del concierto Indie en Piura" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Conciertos">Conciertos</span>
+                  <span class="badge text-bg-warning" data-bs-toggle="tooltip" data-bs-title="Recibe un 10% de vuelta">Cashback 10%</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Indie Sunset Live</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Piura Centro · <i class="bi bi-calendar-event ms-2 me-1"></i>Sáb 06, 8:30 p.m.</p>
+                <p class="card-text small flex-grow-1">Bandas locales al aire libre con barra y snacks.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 55</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 3 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura3/800/450" class="card-img-top" alt="Noche de salsa en discoteca de Sullana" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Discotecas">Discotecas</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Salsa Night</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Sullana · <i class="bi bi-calendar-event ms-2 me-1"></i>Vie 05, 10:00 p.m.</p>
+                <p class="card-text small flex-grow-1">Clases introductorias y pista abierta hasta el amanecer.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 35</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 4 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura4/800/450" class="card-img-top" alt="Carpa de circo en Paita" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Circos">Circos</span>
+                  <span class="badge text-bg-warning" data-bs-toggle="tooltip" data-bs-title="Recibe un 10% de vuelta">Cashback 10%</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Circo del Pacífico</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Paita · <i class="bi bi-calendar-event ms-2 me-1"></i>Dom 07, 6:00 p.m.</p>
+                <p class="card-text small flex-grow-1">Acróbatas, payasos y magia para toda la familia.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 25</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 5 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura5/800/450" class="card-img-top" alt="Tour a Máncora con vista al mar" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Viajes">Viajes</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Full Day Máncora</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Máncora · <i class="bi bi-calendar-event ms-2 me-1"></i>Sáb 06, 5:00 a.m.</p>
+                <p class="card-text small flex-grow-1">Playas, ceviche y avistamiento de tortugas.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 119</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 6 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura6/800/450" class="card-img-top" alt="Concierto acústico en Talara" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Conciertos">Conciertos</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Acoustic Sessions</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Talara · <i class="bi bi-calendar-event ms-2 me-1"></i>Jue 04, 8:00 p.m.</p>
+                <p class="card-text small flex-grow-1">Artistas emergentes en formato íntimo.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 40</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 7 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura7/800/450" class="card-img-top" alt="Ruta gastronómica en Piura" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Gastronomía">Gastronomía</span>
+                  <span class="badge text-bg-warning" data-bs-toggle="tooltip" data-bs-title="Recibe un 10% de vuelta">Cashback 10%</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Ruta del Seco</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Piura Centro · <i class="bi bi-calendar-event ms-2 me-1"></i>Sáb 06, 1:30 p.m.</p>
+                <p class="card-text small flex-grow-1">Tour de restaurantes con maridaje local.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 79</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 8 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura8/800/450" class="card-img-top" alt="Noche electrónica en discoteca de Piura" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Discotecas">Discotecas</span>
+                  <span class="badge text-bg-success" data-bs-toggle="tooltip" data-bs-title="Entrada libre hasta las 11">Gratis</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Electro Wave</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Piura · <i class="bi bi-calendar-event ms-2 me-1"></i>Vie 05, 11:00 p.m.</p>
+                <p class="card-text small flex-grow-1">DJ invitados y visuales immersivos.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 0</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ESTE FIN DE SEMANA -->
+    <section class="py-5 bg-body-tertiary" aria-labelledby="weekendTitle">
+      <div class="container">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h2 id="weekendTitle" class="h3 mb-0">Este fin de semana</h2>
+          <a class="btn btn-outline-primary btn-sm" href="#" aria-label="Ver todos los eventos del fin de semana">Ver todos</a>
+        </div>
+        <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-lg-4">
+          <!-- 1 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura9/800/450" class="card-img-top" alt="Taller de fotografía en Paita" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Talleres">Taller</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Foto al Atardecer</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Paita · <i class="bi bi-calendar-event ms-2 me-1"></i>Sáb 06, 4:30 p.m.</p>
+                <p class="card-text small flex-grow-1">Composición, luz natural y edición móvil.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 60</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 2 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura10/800/450" class="card-img-top" alt="Maratón 10K en Piura" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Deportes">Deportes</span>
+                  <span class="badge text-bg-success" data-bs-toggle="tooltip" data-bs-title="Registro gratuito para niños">Gratis</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Piura 10K</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Piura · <i class="bi bi-calendar-event ms-2 me-1"></i>Dom 07, 7:00 a.m.</p>
+                <p class="card-text small flex-grow-1">Circuito urbano con puntos de hidratación.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 35</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 3 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura11/800/450" class="card-img-top" alt="Feria artesanal en Catacaos" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Ferias">Ferias</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Feria Artesanal</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Catacaos · <i class="bi bi-calendar-event ms-2 me-1"></i>Sab 06, 10:00 a.m.</p>
+                <p class="card-text small flex-grow-1">Orfebrería, filigrana y tejidos locales.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 10</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 4 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura12/800/450" class="card-img-top" alt="Cata de café en Sullana" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Gastronomía">Gastronomía</span>
+                  <span class="badge text-bg-warning" data-bs-toggle="tooltip" data-bs-title="Recibe un 10% de vuelta">Cashback 10%</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Cata de Café</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Sullana · <i class="bi bi-calendar-event ms-2 me-1"></i>Dom 07, 5:00 p.m.</p>
+                <p class="card-text small flex-grow-1">Orígenes del norte y métodos de filtrado.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 45</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 5 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura13/800/450" class="card-img-top" alt="Tarde de cine al aire libre en Piura" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Cine">Cine</span>
+                  <span class="badge text-bg-success" data-bs-toggle="tooltip" data-bs-title="Entrada libre">Gratis</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Cine bajo las Estrellas</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Piura · <i class="bi bi-calendar-event ms-2 me-1"></i>Sáb 06, 7:30 p.m.</p>
+                <p class="card-text small flex-grow-1">Clásicos familiares con palomitas.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 0</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 6 -->
+          <article class="col">
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura14/800/450" class="card-img-top" alt="Surf trip en Máncora" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Viajes">Viajes</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Surf Trip</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Máncora · <i class="bi bi-calendar-event ms-2 me-1"></i>Dom 07, 6:00 a.m.</p>
+                <p class="card-text small flex-grow-1">Clases para todos los niveles y fotos incluidas.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 150</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- CERCA DE TI (opcional) -->
+    <section class="py-5" aria-labelledby="nearbyTitle">
+      <div class="container">
+        <h2 id="nearbyTitle" class="h3 mb-3">Cerca de ti</h2>
+        <div class="nearby-scroll">
+          <!-- 1 -->
+          <article>
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura15/800/450" class="card-img-top" alt="Música en vivo en café de Piura" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Conciertos">Conciertos</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Live Acoustic Café</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Piura · <i class="bi bi-calendar-event ms-2 me-1"></i>Hoy, 7:00 p.m.</p>
+                <p class="card-text small flex-grow-1">Dúos acústicos y bebidas artesanales.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 25</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 2 -->
+          <article>
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura16/800/450" class="card-img-top" alt="Clases de baile en Sullana" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Talleres">Taller</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Baile Urbano</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Sullana · <i class="bi bi-calendar-event ms-2 me-1"></i>Jue 04, 6:00 p.m.</p>
+                <p class="card-text small flex-grow-1">Coreografías urbanas para principiantes.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 20</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+          <!-- 3 -->
+          <article>
+            <div class="card h-100 shadow-sm event-card">
+              <img src="https://picsum.photos/seed/piura17/800/450" class="card-img-top" alt="Exposición de arte en Piura" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-title="Arte y cultura">Cultura</span>
+                  <span class="badge text-bg-success" data-bs-toggle="tooltip" data-bs-title="Entrada libre">Gratis</span>
+                </div>
+                <h3 class="h6 card-title mb-1">Expo Arte Local</h3>
+                <p class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>Piura · <i class="bi bi-calendar-event ms-2 me-1"></i>Todo el día</p>
+                <p class="card-text small flex-grow-1">Obras de artistas piuranos contemporáneos.</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold">desde S/ 0</span>
+                  <a href="#" class="btn btn-sm btn-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA / NEWSLETTER -->
+    <section class="py-5 bg-body-tertiary" aria-labelledby="ctaTitle">
+      <div class="container">
+        <div class="row align-items-center g-3">
+          <div class="col-lg-6">
+            <h2 id="ctaTitle" class="h4 mb-1">¿Te avisamos de nuevos eventos?</h2>
+            <p class="mb-0 text-muted">Suscríbete al boletín semanal de <strong>Eventos Piura</strong>.</p>
+          </div>
+          <div class="col-lg-6">
+            <form class="d-grid d-sm-flex gap-2" onsubmit="handleNewsletter(event)" aria-label="Formulario de suscripción">
+              <label for="emailNews" class="visually-hidden">Correo electrónico</label>
+              <input id="emailNews" type="email" class="form-control" placeholder="tu@email.com" required>
+              <button class="btn btn-primary" type="submit"><i class="bi bi-envelope-paper me-1" aria-hidden="true"></i>Suscribirme</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================================
+       FOOTER
+  ========================================== -->
+  <footer class="border-top pt-5" aria-labelledby="footerTitle">
+    <div class="container">
+      <h2 id="footerTitle" class="visually-hidden">Pie de página</h2>
+      <div class="row g-4">
+        <div class="col-12 col-lg-4">
+          <h3 class="h6">Acerca de</h3>
+          <p class="text-muted small mb-2">Eventos Piura conecta a personas con experiencias únicas en Piura y alrededores.</p>
+          <div class="d-flex gap-3 fs-5" aria-label="Redes sociales">
+            <a aria-label="Instagram" href="#"><i class="bi bi-instagram"></i></a>
+            <a aria-label="Facebook" href="#"><i class="bi bi-facebook"></i></a>
+            <a aria-label="X (Twitter)" href="#"><i class="bi bi-twitter-x"></i></a>
+            <a aria-label="YouTube" href="#"><i class="bi bi-youtube"></i></a>
+          </div>
+        </div>
+        <div class="col-6 col-lg-4" id="ayuda">
+          <h3 class="h6">Ayuda</h3>
+          <ul class="list-unstyled small">
+            <li><a href="#">Cómo comprar</a></li>
+            <li><a href="#">Métodos de pago</a></li>
+            <li><a href="#">Centros de atención</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-lg-4">
+          <h3 class="h6">Legal</h3>
+          <ul class="list-unstyled small">
+            <li><a href="#">Términos y condiciones</a></li>
+            <li><a href="#">Política de privacidad</a></li>
+            <li><a href="#">Cookies</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <hr class="my-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center pb-4">
+        <p class="small text-muted mb-2 mb-md-0">© <span id="yearNow"></span> Eventos Piura. Todos los derechos reservados.</p>
+        <div class="d-flex gap-3 small">
+          <a href="#">Términos</a>
+          <a href="#">Privacidad</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Botón Back to Top -->
+  <button id="backToTop" class="btn btn-primary rounded-circle p-3" type="button" aria-label="Volver arriba">
+    <i class="bi bi-arrow-up" aria-hidden="true"></i>
+  </button>
+
+  <!-- TOASTS -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+    <div id="mainToast" class="toast align-items-center text-bg-primary border-0" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMessage">Listo.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle (incluye Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+  <!-- JS vanilla: interacciones -->
+  <script>
+    /* ================================
+       Utilidades generales
+    ================================= */
+    const htmlEl = document.documentElement;
+    const toastEl = document.getElementById('mainToast');
+    const toastMsg = document.getElementById('toastMessage');
+    const mainToast = toastEl ? new bootstrap.Toast(toastEl, { delay: 2500 }) : null;
+
+    // Mostrar mensaje reutilizable
+    function showToast(message = 'Acción realizada') {
+      if (!mainToast) return;
+      toastMsg.textContent = message;
+      mainToast.show();
+    }
+
+    // Tooltips globales
+    document.addEventListener('DOMContentLoaded', () => {
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+    });
+
+    // Año dinámico en footer
+    document.getElementById('yearNow').textContent = new Date().getFullYear();
+
+    /* ================================
+       Tema claro/oscuro con persistencia
+    ================================= */
+    const THEME_KEY = 'ep_theme';
+    function applyTheme(theme) {
+      htmlEl.setAttribute('data-bs-theme', theme);
+      const iconClass = theme === 'dark' ? 'bi-moon-stars' : 'bi-sun-fill';
+      // Actualiza iconos en todos los toggles
+      document.querySelectorAll('#themeToggle i, #themeToggleMobile i, #themeToggleOffcanvas i').forEach(i => {
+        i.className = 'bi ' + iconClass;
+      });
+      // aria-pressed
+      document.querySelectorAll('#themeToggle, #themeToggleMobile, #themeToggleOffcanvas').forEach(btn => {
+        btn.setAttribute('aria-pressed', theme === 'dark');
+      });
+      localStorage.setItem(THEME_KEY, theme);
+    }
+
+    function initTheme() {
+      const stored = localStorage.getItem(THEME_KEY);
+      if (stored) return applyTheme(stored);
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      applyTheme(prefersDark ? 'dark' : 'light');
+    }
+    initTheme();
+
+    function toggleTheme() {
+      const current = htmlEl.getAttribute('data-bs-theme') || 'light';
+      applyTheme(current === 'light' ? 'dark' : 'light');
+      showToast('Tema cambiado a ' + (htmlEl.getAttribute('data-bs-theme') === 'dark' ? 'oscuro' : 'claro'));
+    }
+
+    // Listeners de toggles
+    ['themeToggle', 'themeToggleMobile', 'themeToggleOffcanvas'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', toggleTheme);
+    });
+
+    /* ================================
+       Navbar shrink al hacer scroll
+    ================================= */
+    const navbar = document.querySelector('.navbar');
+    function handleNavbarShrink() {
+      if (!navbar) return;
+      if (window.scrollY > 40) {
+        navbar.classList.add('navbar-compact');
+      } else {
+        navbar.classList.remove('navbar-compact');
+      }
+    }
+    document.addEventListener('scroll', handleNavbarShrink, { passive: true });
+    handleNavbarShrink();
+
+    /* ================================
+       Back to Top
+    ================================= */
+    const backBtn = document.getElementById('backToTop');
+    function toggleBackBtn() {
+      if (window.scrollY > 200) {
+        backBtn.classList.add('show');
+      } else {
+        backBtn.classList.remove('show');
+      }
+    }
+    window.addEventListener('scroll', toggleBackBtn, { passive: true });
+    backBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    /* ================================
+       Formularios (simulación)
+    ================================= */
+    function handleHeroSearch(e) {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const q = fd.get('q')?.trim() || 'eventos';
+      const date = fd.get('date') || 'fecha flexible';
+      const city = fd.get('city') || 'Piura';
+      showToast(`Buscando "${q}" en ${city} (${date})`);
+    }
+
+    function handleQuickSearch(e) {
+      e.preventDefault();
+      const q = new FormData(e.target).get('q')?.trim() || 'eventos';
+      showToast(`Buscando rápido: "${q}"`);
+    }
+
+    function handleNewsletter(e) {
+      e.preventDefault();
+      const email = document.getElementById('emailNews').value.trim();
+      if (email) showToast(`¡Listo! Te suscribiste como ${email}`);
+    }
+  </script>
+</body>
+</html>

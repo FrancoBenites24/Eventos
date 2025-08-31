@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <!-- ================== META / SEO ================== -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crear cuenta — Eventos Piura</title>
+  <meta name="description" content="Regístrate en Eventos Piura para descubrir y publicar eventos, obtener cashback y gestionar tus entradas.">
+
+  <!-- ================== Bootstrap 5.3 + Icons (CDN) ================== -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <!-- ================== CSS Ligero ================== -->
+  <style>
+    :root{
+      --bs-primary:#0ea5e9;
+      --bs-secondary:#0f172a;
+      --radius-lg:1rem;
+      --shadow-soft:0 10px 30px rgba(0,0,0,.10);
+      --shadow-subtle:0 6px 18px rgba(0,0,0,.08);
+    }
+
+    /* Fondo sutil con degradados */
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(1200px 500px at 0% -10%, rgba(14,165,233,.12), transparent 70%),
+        radial-gradient(900px 500px at 100% 0%, rgba(14,165,233,.08), transparent 70%),
+        linear-gradient(to bottom, rgba(14,165,233,.04), transparent 40%);
+    }
+
+    /* Foco accesible */
+    :focus-visible{ outline:2px solid var(--bs-primary); outline-offset:2px; border-radius:.5rem; }
+
+    /* Navbar compacta al hacer scroll (se activa vía JS) */
+    .navbar-compact{ padding-top:.25rem!important; padding-bottom:.25rem!important; box-shadow:var(--shadow-subtle); transition: padding .2s, box-shadow .2s; }
+
+    /* Tarjetas y micro-interacciones */
+    .rounded-4{ border-radius:var(--radius-lg)!important; }
+    .card{ transition: transform .2s, box-shadow .2s; }
+    .card:hover, .card:focus-within{ transform:translateY(-2px); box-shadow:var(--shadow-soft); }
+
+    /* Layout central */
+    .reg-wrap{ min-height: calc(100vh - 64px - 120px); } /* resta header y footer aproximados */
+
+    /* Toasts */
+    .toast-container{ z-index:1080; }
+
+    /* Lista de requisitos */
+    .req-list li{ display:flex; align-items:center; gap:.5rem; }
+    .req-list .met{ color: var(--bs-success); }
+    .req-list .unmet{ color: var(--bs-secondary); opacity:.7; }
+
+    /* Tamaños cómodos */
+    .reg-card{ max-width: 520px; }
+    .side-card{ max-width: 420px; }
+  </style>
+</head>
+<body>
+  <a class="visually-hidden-focusable position-absolute top-0 start-0 m-2" href="#main">Saltar al contenido principal</a>
+
+  <!-- ================== HEADER / NAVBAR ================== -->
+  <header>
+    <nav class="navbar navbar-expand bg-body sticky-top py-3">
+      <div class="container">
+        <a class="navbar-brand fw-semibold" href="#" aria-label="Inicio Eventos Piura">
+          <i class="bi bi-calendar-event me-2 text-primary" aria-hidden="true"></i>Eventos Piura
+        </a>
+        <div class="ms-auto">
+          <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Cambiar tema">
+            <i class="bi bi-sun-fill" aria-hidden="true"></i> <span class="d-none d-sm-inline ms-1">Tema</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ================== MAIN ================== -->
+  <main id="main" class="reg-wrap d-flex align-items-center">
+    <div class="container">
+      <div class="row g-4 justify-content-center align-items-start">
+        <!-- Formulario registro -->
+        <div class="col-12 col-lg-7">
+          <section aria-labelledby="regTitle">
+            <div class="card shadow-sm rounded-4 reg-card mx-auto">
+              <div class="card-body p-4 p-lg-5">
+                <h1 id="regTitle" class="h4 mb-3">Crear cuenta</h1>
+                <form id="regForm" class="needs-validation" novalidate aria-describedby="regHelp">
+                  <p id="regHelp" class="visually-hidden">Completa tus datos. Debes aceptar términos y tu contraseña debe cumplir los requisitos.</p>
+
+                  <div class="row g-3">
+                    <!-- Nombre -->
+                    <div class="col-sm-6">
+                      <label for="nombre" class="form-label">Nombre</label>
+                      <input id="nombre" name="nombre" type="text" class="form-control" placeholder="Tu nombre" required>
+                      <div class="invalid-feedback">Ingresa tu nombre.</div>
+                    </div>
+                    <!-- Apellido -->
+                    <div class="col-sm-6">
+                      <label for="apellido" class="form-label">Apellido</label>
+                      <input id="apellido" name="apellido" type="text" class="form-control" placeholder="Tu apellido" required>
+                      <div class="invalid-feedback">Ingresa tu apellido.</div>
+                    </div>
+                    <!-- Email -->
+                    <div class="col-sm-6">
+                      <label for="email" class="form-label">Email</label>
+                      <input id="email" name="email" type="email" class="form-control" placeholder="nombre@ejemplo.com" autocomplete="email" required aria-describedby="emailHelp">
+                      <div id="emailHelp" class="form-text">Usaremos tu email para confirmar la cuenta.</div>
+                      <div class="invalid-feedback">Ingresa un email válido.</div>
+                    </div>
+                    <!-- Teléfono -->
+                    <div class="col-sm-6">
+                      <label for="telefono" class="form-label">Teléfono</label>
+                      <input id="telefono" name="telefono" type="tel" class="form-control" placeholder="+51 900 000 000"
+                             pattern="^[0-9+()\-\s]{7,}$" aria-describedby="telHelp">
+                      <div id="telHelp" class="form-text">Formato libre (mín. 7 caracteres).</div>
+                      <div class="invalid-feedback">Número no válido.</div>
+                    </div>
+                    <!-- Rol -->
+                    <div class="col-sm-6">
+                      <label for="rol" class="form-label">Rol</label>
+                      <select id="rol" name="rol" class="form-select" required aria-describedby="rolHelp">
+                        <option value="" selected disabled>Selecciona una opción</option>
+                        <option value="usuario">Usuario</option>
+                        <option value="organizador">Organizador</option>
+                      </select>
+                      <div id="rolHelp" class="form-text">Elige cómo usarás Eventos Piura.</div>
+                      <div class="invalid-feedback">Selecciona tu rol.</div>
+                    </div>
+                  </div>
+
+                  <!-- Alerta KYC (oculta por defecto) -->
+                  <div id="kycAlert" class="alert alert-info d-none mt-3" role="alert">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Si te registras como <strong>Organizador</strong>, podremos solicitar verificación básica (KYC): DNI/RUC y cuenta bancaria (solo demostración).
+                  </div>
+
+                  <!-- Contraseñas -->
+                  <div class="row g-3 mt-1">
+                    <div class="col-sm-6">
+                      <label for="password" class="form-label">Contraseña</label>
+                      <div class="input-group">
+                        <input id="password" name="password" type="password" class="form-control" placeholder="Mínimo 8 caracteres"
+                               autocomplete="new-password" required aria-describedby="pwdHelp pwdToggle">
+                        <button class="btn btn-outline-secondary" type="button" id="pwdToggle" aria-label="Mostrar contraseña" aria-pressed="false"
+                                data-bs-toggle="tooltip" data-bs-title="Mostrar/ocultar">
+                          <i class="bi bi-eye" aria-hidden="true"></i>
+                        </button>
+                        <div class="invalid-feedback">Ingresa una contraseña.</div>
+                      </div>
+                      <div id="pwdHelp" class="form-text">Usa una contraseña segura.</div>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <label for="password2" class="form-label">Confirmar contraseña</label>
+                      <div class="input-group">
+                        <input id="password2" name="password2" type="password" class="form-control" placeholder="Repite tu contraseña"
+                               autocomplete="new-password" required aria-describedby="pwd2Toggle">
+                        <button class="btn btn-outline-secondary" type="button" id="pwd2Toggle" aria-label="Mostrar confirmación" aria-pressed="false"
+                                data-bs-toggle="tooltip" data-bs-title="Mostrar/ocultar">
+                          <i class="bi bi-eye" aria-hidden="true"></i>
+                        </button>
+                        <div class="invalid-feedback">Las contraseñas no coinciden.</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Medidor de fortaleza -->
+                  <div class="mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <small class="text-muted">Fortaleza de contraseña</small>
+                      <small id="strengthLabel" class="fw-semibold">—</small>
+                    </div>
+                    <div class="progress" role="progressbar" aria-label="Fortaleza de contraseña" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                      <div id="strengthBar" class="progress-bar" style="width:0%"></div>
+                    </div>
+                    <!-- Requisitos dinámicos -->
+                    <ul class="req-list list-unstyled small mt-2 mb-0" aria-live="polite">
+                      <li id="reqLen"><i class="bi bi-x-circle"></i> Mínimo 8 caracteres</li>
+                      <li id="reqUpper"><i class="bi bi-x-circle"></i> Una mayúscula</li>
+                      <li id="reqLower"><i class="bi bi-x-circle"></i> Una minúscula</li>
+                      <li id="reqNum"><i class="bi bi-x-circle"></i> Un número</li>
+                      <li id="reqSym"><i class="bi bi-x-circle"></i> Un símbolo</li>
+                    </ul>
+                  </div>
+
+                  <!-- Aceptación -->
+                  <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" value="1" id="terms" required>
+                    <label class="form-check-label" for="terms">Acepto <a href="#" class="link-primary">Términos</a> y <a href="#" class="link-primary">Privacidad</a></label>
+                    <div class="invalid-feedback">Debes aceptar los términos.</div>
+                  </div>
+                  <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" value="1" id="promo">
+                    <label class="form-check-label" for="promo">Recibir novedades y promociones</label>
+                  </div>
+
+                  <!-- Botón enviar -->
+                  <div class="d-grid mt-4">
+                    <button id="submitBtn" class="btn btn-primary btn-lg" type="submit" disabled>
+                      <i class="bi bi-person-check me-1" aria-hidden="true"></i>Crear cuenta
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- CTA lateral: ¿Ya tienes cuenta? -->
+        <div class="col-12 col-lg-5">
+          <aside aria-label="Iniciar sesión">
+            <div class="card shadow-sm rounded-4 side-card mx-auto">
+              <div class="card-body p-4">
+                <h2 class="h5 mb-2">¿Ya tienes cuenta?</h2>
+                <p class="text-muted mb-3">Inicia sesión para seguir tus compras, entradas y beneficios.</p>
+                <a href="login.html" class="btn btn-outline-secondary">
+                  <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Ir a Iniciar sesión
+                </a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================== FOOTER ================== -->
+  <footer class="border-top py-4">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+      <small class="text-muted">© <span id="yearNow"></span> Eventos Piura</small>
+      <ul class="list-inline m-0 small">
+        <li class="list-inline-item"><a href="#" class="link-secondary">Ayuda</a></li>
+        <li class="list-inline-item"><a href="#" class="link-secondary">Términos</a></li>
+        <li class="list-inline-item"><a href="#" class="link-secondary">Privacidad</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- ================== TOAST ================== -->
+  <div class="position-fixed bottom-0 end-0 p-3 toast-container">
+    <div id="toastOK" class="toast text-bg-success border-0" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">Cuenta creada (demo)</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================== Bootstrap Bundle ================== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+  <!-- ================== JS Vanilla: Tema, Validación, Fortaleza, Toasts ================== -->
+  <script>
+    /* ---------- Helpers ---------- */
+    const $ = (s, c=document) => c.querySelector(s);
+    const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
+    const htmlEl = document.documentElement;
+
+    /* ---------- Año footer ---------- */
+    $("#yearNow").textContent = new Date().getFullYear();
+
+    /* ---------- Tooltips globales ---------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      $$('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+    });
+
+    /* ---------- Tema claro/oscuro con persistencia ---------- */
+    const THEME_KEY = 'ep_theme';
+    function applyTheme(theme){
+      htmlEl.setAttribute('data-bs-theme', theme);
+      const icon = theme === 'dark' ? 'bi-moon-stars' : 'bi-sun-fill';
+      $('#themeToggle i').className = 'bi ' + icon;
+      localStorage.setItem(THEME_KEY, theme);
+    }
+    function initTheme(){
+      const saved = localStorage.getItem(THEME_KEY);
+      if(saved){ applyTheme(saved); }
+      else{
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(prefersDark ? 'dark' : 'light');
+      }
+    }
+    initTheme();
+    $('#themeToggle').addEventListener('click', () => {
+      const next = htmlEl.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+    });
+
+    /* ---------- Navbar shrink al hacer scroll ---------- */
+    const navbar = document.querySelector('.navbar');
+    function handleNavbarShrink(){
+      if(window.scrollY > 40){ navbar.classList.add('navbar-compact'); }
+      else { navbar.classList.remove('navbar-compact'); }
+    }
+    document.addEventListener('scroll', handleNavbarShrink, { passive:true });
+    handleNavbarShrink();
+
+    /* ---------- Toast OK ---------- */
+    const toastOK = new bootstrap.Toast($('#toastOK'), { delay:2500 });
+
+    /* ---------- Elementos del formulario ---------- */
+    const form = $('#regForm');
+    const submitBtn = $('#submitBtn');
+    const pwd = $('#password');
+    const pwd2 = $('#password2');
+    const pwdToggle = $('#pwdToggle');
+    const pwd2Toggle = $('#pwd2Toggle');
+    const rol = $('#rol');
+    const kycAlert = $('#kycAlert');
+
+    const strengthBar = $('#strengthBar');
+    const strengthLabel = $('#strengthLabel');
+
+    const reqLen = $('#reqLen'), reqUpper = $('#reqUpper'), reqLower = $('#reqLower'),
+          reqNum = $('#reqNum'), reqSym = $('#reqSym');
+
+    /* ---------- Mostrar/ocultar contraseña ---------- */
+    function togglePwd(input, btn){
+      const isPwd = input.type === 'password';
+      input.type = isPwd ? 'text' : 'password';
+      const icon = btn.querySelector('i');
+      icon.className = 'bi ' + (isPwd ? 'bi-eye-slash' : 'bi-eye');
+      btn.setAttribute('aria-pressed', isPwd ? 'true' : 'false');
+      btn.setAttribute('aria-label', isPwd ? 'Ocultar contraseña' : 'Mostrar contraseña');
+      input.focus();
+    }
+    pwdToggle.addEventListener('click', () => togglePwd(pwd, pwdToggle));
+    pwd2Toggle.addEventListener('click', () => togglePwd(pwd2, pwd2Toggle));
+
+    /* ---------- Rol: alerta KYC ---------- */
+    rol.addEventListener('change', () => {
+      if(rol.value === 'organizador'){
+        kycAlert.classList.remove('d-none');
+      } else {
+        kycAlert.classList.add('d-none');
+      }
+    });
+
+    /* ---------- Evaluar fortaleza de contraseña ---------- */
+    function setReqStatus(el, ok){
+      const i = el.querySelector('i');
+      if(ok){
+        el.classList.add('met'); el.classList.remove('unmet');
+        i.className = 'bi bi-check-circle';
+      } else {
+        el.classList.add('unmet'); el.classList.remove('met');
+        i.className = 'bi bi-x-circle';
+      }
+    }
+
+    function evaluateStrength(value){
+      const len = value.length >= 8;
+      const upper = /[A-ZÁÉÍÓÚÑ]/.test(value);
+      const lower = /[a-záéíóúñ]/.test(value);
+      const num = /\d/.test(value);
+      const sym = /[^A-Za-z0-9]/.test(value);
+
+      setReqStatus(reqLen, len);
+      setReqStatus(reqUpper, upper);
+      setReqStatus(reqLower, lower);
+      setReqStatus(reqNum, num);
+      setReqStatus(reqSym, sym);
+
+      const checks = [len, upper, lower, num, sym].filter(Boolean).length;
+      const pct = Math.round(checks/5*100);
+
+      strengthBar.style.width = pct + '%';
+      strengthBar.setAttribute('aria-valuenow', pct);
+
+      strengthBar.classList.remove('bg-danger','bg-warning','bg-success');
+      let label = 'Muy débil';
+      if(pct < 40){ strengthBar.classList.add('bg-danger'); label = 'Débil'; }
+      else if(pct < 80){ strengthBar.classList.add('bg-warning'); label = 'Media'; }
+      else { strengthBar.classList.add('bg-success'); label = 'Fuerte'; }
+      strengthLabel.textContent = label;
+
+      return { pct, checks, valid: len && upper && lower && num && sym };
+    }
+
+    /* ---------- Validación + habilitar botón ---------- */
+    function passwordsMatch(){
+      return pwd.value && pwd2.value && pwd.value === pwd2.value;
+    }
+
+    function updateSubmitState(){
+      // Sin exigir fortaleza "fuerte", solo requisitos de formulario + coincidencia
+      const formValid = form.checkValidity() && passwordsMatch();
+      submitBtn.disabled = !formValid;
+    }
+
+    // Sincronizar validación visual
+    function syncPasswordValidity(){
+      if(passwordsMatch()){
+        pwd2.setCustomValidity('');
+      } else {
+        pwd2.setCustomValidity('No coincide');
+      }
+    }
+
+    // Listeners
+    ['input','change','keyup'].forEach(evt=>{
+      pwd.addEventListener(evt, () => { evaluateStrength(pwd.value); syncPasswordValidity(); updateSubmitState(); }, { passive:true });
+      pwd2.addEventListener(evt, () => { syncPasswordValidity(); updateSubmitState(); }, { passive:true });
+      form.addEventListener(evt, updateSubmitState, { passive:true });
+    });
+
+    // Primera evaluación
+    evaluateStrength('');
+    updateSubmitState();
+
+    /* ---------- Envío (demo) ---------- */
+    form.addEventListener('submit', (e)=>{
+      if(!form.checkValidity() || !passwordsMatch()){
+        e.preventDefault(); e.stopPropagation();
+      } else {
+        e.preventDefault(); // demo
+        toastOK.show();
+        // Reset visual opcional
+        // form.reset(); evaluateStrength(''); updateSubmitState();
+      }
+      form.classList.add('was-validated');
+    });
+
+    /* ---------- Accesibilidad: aria-live para cambios de fortaleza ---------- */
+    // (Ya usamos la lista con aria-live en los requisitos)
+  </script>
+</body>
+</html>

@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Evento - EventosPiura</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand: #6C5CE7;
+            --accent: #00D2D3;
+            --ink: #0f172a;
+            --muted: #64748b;
+            --bg: #f8fafc;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--ink);
+        }
+
+        /* Event Banner */
+        .event-banner {
+            height: 60vh;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.7) 0%, rgba(0, 210, 211, 0.6) 100%);
+            display: flex;
+            align-items: end;
+            padding: 3rem 0;
+        }
+
+        .event-badge {
+            background: rgba(0, 210, 211, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .event-badge.featured {
+            background: linear-gradient(45deg, var(--accent), var(--brand));
+        }
+
+        /* Info Badges */
+        .info-badge {
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            background: rgba(0, 210, 211, 0.1);
+            padding: 0.8rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Quantity Stepper */
+        .quantity-stepper {
+            display: flex;
+            align-items: center;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-stepper:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(0, 210, 211, 0.25);
+        }
+
+        .qty-btn {
+            background: white;
+            border: none;
+            padding: 0.8rem 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--brand);
+            transition: all 0.3s ease;
+        }
+
+        .qty-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .qty-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .qty-input {
+            border: none;
+            padding: 0.8rem 1rem;
+            text-align: center;
+            font-weight: 600;
+            width: 80px;
+            background: #f8fafc;
+        }
+
+        .qty-input:focus {
+            outline: none;
+            background: white;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand) 70%, var(--accent) 30%);
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid var(--muted);
+            color: var(--muted);
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 210, 211, 0.1);
+        }
+
+        /* Reviews Section */
+        .review-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .review-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .rating-display {
+            color: var(--brand);
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stars {
+            color: #ffc107;
+        }
+
+        .stars.selected {
+            color: var(--accent);
+        }
+
+        .star {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .star:hover {
+            transform: scale(1.2);
+        }
+
+        /* Price Section */
+        .price-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 100px;
+        }
+
+        .price-main {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--brand);
+        }
+
+        /* Map Container */
+        .map-container {
+            height: 300px;
+            background: #f8fafc;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Tabs */
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--muted);
+            font-weight: 500;
+            padding: 1rem 1.5rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: none;
+            color: var(--brand);
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--accent);
+            border: none;
+        }
+
+        /* Cart Badge */
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Related Events */
+        .related-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .related-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.2);
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3" href="#home" style="color: var(--brand);">
+                <i class="bi bi-calendar-event me-2"></i>EventosPiura
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">
+                            <i class="bi bi-house me-1"></i>Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#eventos">Eventos</a>
+                    </li>
+                    <li class="nav-item position-relative">
+                        <a class="nav-link" href="#carrito" id="cartLink">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="cart-badge d-none" id="cartBadge">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-secondary ms-2" href="#login">
+                            <i class="bi bi-person me-2"></i>Ingresar
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Event Banner -->
+    <section class="event-banner" id="eventBanner">
+        <div class="banner-overlay">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div id="eventBadgeContainer"></div>
+                        <h1 class="display-4 fw-bold text-white mb-3" id="eventTitle">Cargando evento...</h1>
+                        <p class="lead text-white opacity-75" id="eventDescription"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Event Details -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <!-- Main Content -->
+                <div class="col-lg-8">
+                    <!-- Info Badges -->
+                    <div class="mb-4" id="infoBadges">
+                        <!-- Badges will be generated here -->
+                    </div>
+
+                    <!-- Tabs Navigation -->
+                    <ul class="nav nav-tabs mb-4" id="eventTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">
+                                <i class="bi bi-info-circle me-2"></i>Descripción
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="location-tab" data-bs-toggle="tab" data-bs-target="#location" type="button" role="tab">
+                                <i class="bi bi-geo-alt me-2"></i>Ubicación
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
+                                <i class="bi bi-star me-2"></i>Reseñas
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tabs Content -->
+                    <div class="tab-content" id="eventTabsContent">
+                        <!-- Description Tab -->
+                        <div class="tab-pane fade show active" id="description" role="tabpanel">
+                            <div class="bg-white p-4 rounded-3 shadow-sm">
+                                <h4 class="fw-bold mb-3" style="color: var(--brand);">Sobre este evento</h4>
+                                <div id="eventFullDescription">
+                                    <!-- Event description will be loaded here -->
+                                </div>
+                                
+                                <hr class="my-4">
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="fw-bold mb-3">Información adicional</h6>
+                                        <ul class="list-unstyled text-muted">
+                                            <li class="mb-2"><i class="bi bi-clock me-2"></i>Duración: <span id="eventDuration">2 horas</span></li>
+                                            <li class="mb-2"><i class="bi bi-people me-2"></i>Capacidad: <span id="eventCapacity">500 personas</span></li>
+                                            <li class="mb-2"><i class="bi bi-tag me-2"></i>Categoría: <span id="eventCategory"></span></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="fw-bold mb-3">Políticas</h6>
+                                        <ul class="list-unstyled text-muted">
+                                            <li class="mb-2"><i class="bi bi-shield-check me-2 text-success"></i>Entrada garantizada</li>
+                                            <li class="mb-2"><i class="bi bi-arrow-counterclockwise me-2 text-warning"></i>Reembolso 24h antes</li>
+                                            <li class="mb-2"><i class="bi bi-qr-code me-2 text-info"></i>Boleto digital QR</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Tab -->
+                        <div class="tab-pane fade" id="location" role="tabpanel">
+                            <div class="bg-white p-4 rounded-3 shadow-sm">
+                                <h4 class="fw-bold mb-3" style="color: var(--brand);">Ubicación</h4>
+                                <div class="mb-3">
+                                    <h6 class="fw-bold" id="venueName">Cargando...</h6>
+                                    <p class="text-muted" id="venueAddress">Dirección del evento</p>
+                                </div>
+                                
+                                <!-- Map Placeholder -->
+                                <div class="map-container mb-3">
+                                    <div class="text-center">
+                                        <i class="bi bi-map fs-1 text-muted mb-2"></i>
+                                        <p class="text-muted">Mapa interactivo del evento</p>
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="bi bi-geo-alt me-2"></i>Ver en Google Maps
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="bi bi-car-front me-2"></i>Cómo llegar
+                                    </button>
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="bi bi-p-square me-2"></i>Estacionamiento
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reviews Tab -->
+                        <div class="tab-pane fade" id="reviews" role="tabpanel">
+                            <div class="bg-white p-4 rounded-3 shadow-sm">
+                                <div class="row mb-4">
+                                    <div class="col-md-4 text-center">
+                                        <div class="rating-display" id="averageRating">4.8</div>
+                                        <div class="stars mb-2" id="averageStars">
+                                            <i class="bi bi-star-fill"></i>
+                                            <i class="bi bi-star-fill"></i>
+                                            <i class="bi bi-star-fill"></i>
+                                            <i class="bi bi-star-fill"></i>
+                                            <i class="bi bi-star-fill"></i>
+                                        </div>
+                                        <p class="text-muted">Basado en <span id="reviewCount">24</span> reseñas</p>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="rating-breakdown">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="me-2">5★</span>
+                                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                    <div class="progress-bar" style="width: 70%; background-color: var(--accent);"></div>
+                                                </div>
+                                                <span class="text-muted">70%</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="me-2">4★</span>
+                                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                    <div class="progress-bar" style="width: 20%; background-color: var(--accent);"></div>
+                                                </div>
+                                                <span class="text-muted">20%</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="me-2">3★</span>
+                                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                    <div class="progress-bar" style="width: 5%; background-color: var(--accent);"></div>
+                                                </div>
+                                                <span class="text-muted">5%</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="me-2">2★</span>
+                                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                    <div class="progress-bar" style="width: 3%; background-color: var(--accent);"></div>
+                                                </div>
+                                                <span class="text-muted">3%</span>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">1★</span>
+                                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                    <div class="progress-bar" style="width: 2%; background-color: var(--accent);"></div>
+                                                </div>
+                                                <span class="text-muted">2%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="reviewsList">
+                                    <!-- Reviews will be loaded here -->
+                                </div>
+
+                                <div class="text-center">
+                                    <button class="btn btn-outline-secondary" id="loadMoreReviews">
+                                        <i class="bi bi-plus-circle me-2"></i>Ver más reseñas
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <div class="price-section">
+                        <div class="text-center mb-4">
+                            <div class="price-main" id="eventPrice">S/ 45</div>
+                            <p class="text-muted">por entrada</p>
+                        </div>
+
+                        <!-- Quantity Selector -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Cantidad de entradas</label>
+                            <div class="quantity-stepper">
+                                <button type="button" class="qty-btn" id="decreaseQty">−</button>
+                                <input type="number" class="qty-input" id="quantityInput" value="1" min="1" max="10" readonly>
+                                <button type="button" class="qty-btn" id="increaseQty">+</button>
+                            </div>
+                            <small class="text-muted">Máximo 10 entradas por compra</small>
+                        </div>
+
+                        <!-- Discount Info -->
+                        <div class="alert alert-info mb-4" style="background: rgba(0, 210, 211, 0.1); border: 1px solid var(--accent); color: var(--ink);">
+                            <i class="bi bi-gift me-2"></i>
+                            <strong>¡Descuento automático!</strong><br>
+                            <small>10% de descuento al comprar 3 o más eventos</small>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="fw-bold">Total:</span>
+                            <span class="fw-bold fs-4" style="color: var(--brand);" id="totalPrice">S/ 45</span>
+                        </div>
+
+                        <!-- Add to Cart Button -->
+                        <button class="btn btn-primary w-100 mb-3" id="addToCartBtn">
+                            <i class="bi bi-cart-plus me-2"></i>Añadir al carrito
+                        </button>
+
+                        <!-- Secondary Actions -->
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-secondary">
+                                <i class="bi bi-heart me-2"></i>Guardar evento
+                            </button>
+                            <button class="btn btn-outline-secondary">
+                                <i class="bi bi-share me-2"></i>Compartir evento
+                            </button>
+                        </div>
+
+                        <!-- Organizer Info -->
+                        <div class="mt-4 pt-4 border-top">
+                            <h6 class="fw-bold mb-3">Organizador</h6>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-building text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold" id="organizerName">Producciones Norteñas</h6>
+                                    <small class="text-muted">Organizador verificado</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-secondary w-100 mt-3">
+                                <i class="bi bi-chat-dots me-2"></i>Contactar organizador
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Events -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <h3 class="fw-bold mb-4" style="color: var(--brand);">Eventos relacionados</h3>
+            <div class="row" id="relatedEvents">
+                <!-- Related events will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-5" style="background: var(--ink);">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="fw-bold text-white mb-3">
+                        <i class="bi bi-calendar-event me-2"></i>EventosPiura
+                    </h5>
+                    <p class="text-muted">La plataforma líder de eventos en Piura.</p>
+                </div>
+                <div class="col-lg-8">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6 class="text-white fw-bold mb-3">Enlaces</h6>
+                            <ul class="list-unstyled">
+                                <li><a href="#home" class="text-muted">Inicio</a></li>
+                                <li><a href="#eventos" class="text-muted">Eventos</a></li>
+                                <li><a href="#organizadores" class="text-muted">Organizadores</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-white fw-bold mb-3">Soporte</h6>
+                            <ul class="list-unstyled">
+                                <li><a href="#" class="text-muted">Centro de ayuda</a></li>
+                                <li><a href="#" class="text-muted">Contacto</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-white fw-bold mb-3">Síguenos</h6>
+                            <div class="d-flex gap-3">
+                                <a href="#" class="text-muted fs-4"><i class="bi bi-facebook"></i></a>
+                                <a href="#" class="text-muted fs-4"><i class="bi bi-instagram"></i></a>
+                                <a href="#" class="text-muted fs-4"><i class="bi bi-twitter"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sample Events Data
+        const sampleEvents = [
+            {
+                id: 1,
+                titulo: "Concierto de Tony Rosado",
+                categoria: "conciertos",
+                fecha: "2025-09-15",
+                hora: "20:00",
+                lugar: "Coliseo Miguel Grau",
+                direccion: "Av. Grau 1250, Piura 20001",
+                precio: 45,
+                imagen: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnMSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzZDNUNFNztzdG9wLW9wYWNpdHk6MSIgLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMEQyRDM7c3RvcC1vcGFjaXR5OjEiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjZzEpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iMTAwIiByPSI0MCIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuMiIvPjx0ZXh0IHg9IjE1MCIgeT0iMTA1IiBmb250LWZhbWlseT0iSW50ZXIiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+Q29uY2llcnRvPC90ZXh0Pjwvc3ZnPg==",
+                destacado: true,
+                gratuito: false,
+                descripcion: "El rey de la cumbia peruana llega a Piura con todos sus éxitos. Una noche inolvidable llena de música, baile y diversión para toda la familia.",
+                descripcionCompleta: "Tony Rosado, conocido como 'El Ruiseñor de la Cumbia', regresa a Piura después de 2 años con un espectáculo renovado. Interpretará sus grandes éxitos como 'Corazoncito', 'Otra Noche Más' y 'Ambulante Soy', además de presentar canciones de su nuevo álbum. El show incluye una banda completa de 8 músicos, bailarines profesionales y efectos especiales de iluminación.",
+                duracion: "3 horas",
+                capacidad: "2,500 personas",
+                organizador: "Producciones Norteñas SAC"
+            },
+            {
+                id: 2,
+                titulo: "Festival Gastronómico Piurano",
+                categoria: "gastronomia",
+                fecha: "2025-09-20",
+                hora: "18:00",
+                lugar: "Plaza de Armas de Piura",
+                direccion: "Plaza de Armas, Centro Histórico, Piura",
+                precio: 0,
+                imagen: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnMiIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I2ZmNzA0ZDtzdG9wLW9wYWNpdHk6MSIgLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmZjkyMDA7c3RvcC1vcGFjaXR5OjEiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjZzIpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iMTAwIiByPSI0MCIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuMyIvPjx0ZXh0IHg9IjE1MCIgeT0iMTA1IiBmb250LWZhbWlseT0iSW50ZXIiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+R2FzdHJvbm9tw61hPC90ZXh0Pjwvc3ZnPg==",
+                destacado: false,
+                gratuito: true,
+                descripcion: "Degusta lo mejor de la cocina piurana en un solo lugar",
+                descripcionCompleta: "El Festival Gastronómico Piurano es una celebración de la rica tradición culinaria de nuestra región. Durante todo el fin de semana, podrás degustar platos típicos como el seco de cabrito, la malarrabia, el majado de yuca y muchos postres tradicionales. Más de 20 restaurantes locales participarán en este evento gratuito.",
+                duracion: "Todo el día",
+                capacidad: "Libre",
+                organizador: "Municipalidad Provincial de Piura"
+            }
+        ];
+
+        // Sample Reviews Data
+        const sampleReviews = [
+            {
+                id: 1,
+                eventId: 1,
+                usuario: "María González",
+                rating: 5,
+                comentario: "Increíble concierto, Tony Rosado estuvo espectacular. La organización fue perfecta y el sonido excelente.",
+                fecha: "2025-01-15",
+                verificado: true
+            },
+            {
+                id: 2,
+                eventId: 1,
+                usuario: "Carlos Mendoza",
+                rating: 4,
+                comentario: "Muy buen show, aunque el evento comenzó 30 minutos tarde. La música estuvo genial.",
+                fecha: "2025-01-14",
+                verificado: true
+            },
+            {
+                id: 3,
+                eventId: 2,
+                usuario: "Ana Torres",
+                rating: 5,
+                comentario: "El festival gastronómico superó mis expectativas. Probé platos deliciosos y conocí nuevos restaurantes.",
+                fecha: "2025-01-10",
+                verificado: true
+            }
+        ];
+
+        // Cart and current event state
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let currentEvent = null;
+        let currentQuantity = 1;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEventFromUrl();
+            updateCartBadge();
+            setupEventListeners();
+        });
+
+        function loadEventFromUrl() {
+            // Get event ID from URL hash (e.g., #event/1)
+            const hash = window.location.hash;
+            const eventId = hash.split('/')[1] || '1'; // Default to event 1
+            loadEvent(parseInt(eventId));
+        }
+
+        function loadEvent(eventId) {
+            currentEvent = sampleEvents.find(e => e.id === eventId);
+            if (!currentEvent) {
+                // Event not found, redirect to home
+                window.location.hash = '#home';
+                return;
+            }
+
+            renderEventDetails();
+            renderReviews(eventId);
+            loadRelatedEvents();
+        }
+
+        function renderEventDetails() {
+            if (!currentEvent) return;
+
+            // Update banner
+            document.getElementById('eventBanner').style.backgroundImage = `url('${currentEvent.imagen}')`;
+            document.getElementById('eventTitle').textContent = currentEvent.titulo;
+            document.getElementById('eventDescription').textContent = currentEvent.descripcion;
+
+            // Event badge
+            const badgeContainer = document.getElementById('eventBadgeContainer');
+            if (currentEvent.gratuito) {
+                badgeContainer.innerHTML = '<span class="event-badge">Entrada gratuita</span>';
+            } else if (currentEvent.destacado) {
+                badgeContainer.innerHTML = '<span class="event-badge featured">Evento destacado</span>';
+            }
+
+            // Info badges
+            const fecha = new Date(currentEvent.fecha);
+            const fechaFormatted = fecha.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            document.getElementById('infoBadges').innerHTML = `
+                <div class="d-flex flex-wrap gap-3">
+                    <span class="info-badge">
+                        <i class="bi bi-calendar me-2"></i>${fechaFormatted}
+                    </span>
+                    <span class="info-badge">
+                        <i class="bi bi-clock me-2"></i>${currentEvent.hora}
+                    </span>
+                    <span class="info-badge">
+                        <i class="bi bi-geo-alt me-2"></i>${currentEvent.lugar}
+                    </span>
+                    <span class="info-badge">
+                        <i class="bi bi-tag me-2"></i>${getCategoryName(currentEvent.categoria)}
+                    </span>
+                </div>
+            `;
+
+            // Full description
+            document.getElementById('eventFullDescription').innerHTML = `
+                <p class="text-muted">${currentEvent.descripcionCompleta}</p>
+            `;
+
+            // Event details
+            document.getElementById('eventDuration').textContent = currentEvent.duracion || '2 horas';
+            document.getElementById('eventCapacity').textContent = currentEvent.capacidad || '500 personas';
+            document.getElementById('eventCategory').textContent = getCategoryName(currentEvent.categoria);
+
+            // Venue info
+            document.getElementById('venueName').textContent = currentEvent.lugar;
+            document.getElementById('venueAddress').textContent = currentEvent.direccion;
+
+            // Price info
+            document.getElementById('eventPrice').textContent = currentEvent.gratuito ? 'Gratis' : `S/ ${currentEvent.precio}`;
+            document.getElementById('organizerName').textContent = currentEvent.organizador || 'Organizador verificado';
+
+            updateTotalPrice();
+        }
+
+        function setupEventListeners() {
+            // Quantity controls
+            document.getElementById('increaseQty').addEventListener('click', function() {
+                if (currentQuantity < 10) {
+                    currentQuantity++;
+                    document.getElementById('quantityInput').value = currentQuantity;
+                    updateTotalPrice();
+                }
+            });
+
+            document.getElementById('decreaseQty').addEventListener('click', function() {
+                if (currentQuantity > 1) {
+                    currentQuantity--;
+                    document.getElementById('quantityInput').value = currentQuantity;
+                    updateTotalPrice();
+                }
+            });
+
+            // Add to cart
+            document.getElementById('addToCartBtn').addEventListener('click', function() {
+                addToCartFromDetail(currentEvent.id, currentQuantity);
+            });
+
+            // Quantity input direct change
+            document.getElementById('quantityInput').addEventListener('change', function() {
+                const value = parseInt(this.value);
+                if (value >= 1 && value <= 10) {
+                    currentQuantity = value;
+                    updateTotalPrice();
+                } else {
+                    this.value = currentQuantity;
+                }
+            });
+        }
+
+        function addToCartFromDetail(eventId, quantity) {
+            if (!currentEvent) return;
+
+            // Check if event already in cart
+            const existingItem = cart.find(item => item.eventId === eventId);
+            
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    eventId: eventId,
+                    titulo: currentEvent.titulo,
+                    fecha: currentEvent.fecha,
+                    hora: currentEvent.hora,
+                    lugar: currentEvent.lugar,
+                    precio: currentEvent.precio,
+                    quantity: quantity,
+                    imagen: currentEvent.imagen
+                });
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartBadge();
+            
+            // Show success feedback
+            showToast(`${quantity} entrada(s) agregada(s) al carrito`, 'success');
+        }
+
+        function updateTotalPrice() {
+            if (!currentEvent) return;
+            
+            const total = currentEvent.gratuito ? 0 : currentEvent.precio * currentQuantity;
+            document.getElementById('totalPrice').textContent = currentEvent.gratuito ? 'Gratis' : `S/ ${total}`;
+        }
+
+        function renderReviews(eventId) {
+            const eventReviews = sampleReviews.filter(r => r.eventId === eventId);
+            const reviewsList = document.getElementById('reviewsList');
+
+            if (eventReviews.length === 0) {
+                reviewsList.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-chat-quote fs-1 text-muted mb-3 d-block"></i>
+                        <h5 class="text-muted">Aún no hay reseñas</h5>
+                        <p class="text-muted">Sé el primero en compartir tu experiencia</p>
+                    </div>
+                `;
+                return;
+            }
+
+            reviewsList.innerHTML = eventReviews.map(review => {
+                const fecha = new Date(review.fecha);
+                const fechaFormatted = fecha.toLocaleDateString('es-ES', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                return `
+                    <div class="review-card">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
+                                    <i class="bi bi-person text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">${review.usuario}</h6>
+                                    <small class="text-muted">
+                                        ${fechaFormatted}
+                                        ${review.verificado ? '<i class="bi bi-patch-check-fill text-success ms-1"></i>' : ''}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="stars selected">
+                                ${generateStars(review.rating)}
+                            </div>
+                        </div>
+                        <p class="text-muted mb-0">${review.comentario}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += `<i class="bi bi-star${i <= rating ? '-fill' : ''}"></i>`;
+            }
+            return stars;
+        }
+
+        function loadRelatedEvents() {
+            if (!currentEvent) return;
+            
+            const relatedEvents = sampleEvents
+                .filter(e => e.id !== currentEvent.id && e.categoria === currentEvent.categoria)
+                .slice(0, 3);
+
+            const relatedContainer = document.getElementById('relatedEvents');
+            
+            if (relatedEvents.length === 0) {
+                relatedContainer.innerHTML = `
+                    <div class="col-12 text-center">
+                        <p class="text-muted">No hay eventos relacionados disponibles</p>
+                    </div>
+                `;
+                return;
+            }
+
+            relatedContainer.innerHTML = relatedEvents.map(event => {
+                const fecha = new Date(event.fecha);
+                const fechaFormatted = fecha.toLocaleDateString('es-ES', {
+                    day: 'numeric',
+                    month: 'short'
+                });
+
+                return `
+                    <div class="col-md-4 mb-4">
+                        <div class="card related-card h-100">
+                            <img src="${event.imagen}" class="card-img-top" alt="${event.titulo}" style="height: 150px; object-fit: cover;">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold">${event.titulo}</h6>
+                                <p class="card-text text-muted small flex-grow-1">${event.descripcion}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar me-1"></i>${fechaFormatted}
+                                    </small>
+                                    <span class="fw-bold" style="color: var(--brand);">
+                                        ${event.gratuito ? 'Gratis' : 'S/ ' + event.precio}
+                                    </span>
+                                </div>
+                                <button class="btn btn-outline-secondary btn-sm mt-2" onclick="viewEvent(${event.id})">
+                                    Ver evento
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'conciertos': 'Conciertos',
+                'teatro': 'Teatro',
+                'gastronomia': 'Gastronomía',
+                'deportes': 'Deportes',
+                'tech': 'Conferencias',
+                'ferias': 'Ferias'
+            };
+            return categories[category] || category;
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cartBadge');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            if (totalItems > 0) {
+                badge.textContent = totalItems;
+                badge.classList.remove('d-none');
+            } else {
+                badge.classList.add('d-none');
+            }
+        }
+
+        function viewEvent(eventId) {
+            window.location.hash = `#event/${eventId}`;
+            loadEvent(eventId);
+        }
+
+        function showToast(message, type = 'success') {
+            // Create toast notification
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+
+        // Handle browser back/forward navigation
+        window.addEventListener('hashchange', function() {
+            loadEventFromUrl();
+        });
+
+        // Smooth scrolling for tabs
+        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function(e) {
+                const target = document.querySelector(e.target.getAttribute('data-bs-target'));
+                if (target) {
+                    target.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'nearest' 
+                    });
+                }
+            });
+        });
+
+        // Load more reviews functionality
+        document.getElementById('loadMoreReviews').addEventListener('click', function() {
+            // Simulate loading more reviews
+            showToast('Todas las reseñas han sido cargadas', 'info');
+        });
+    </script>
+</body>
+</html>

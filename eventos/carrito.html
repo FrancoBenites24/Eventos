@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito - EventosPiura</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand: #6C5CE7;
+            --accent: #00D2D3;
+            --ink: #0f172a;
+            --muted: #64748b;
+            --bg: #f8fafc;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--ink);
+        }
+
+        /* Offcanvas Styling */
+        .offcanvas-header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem;
+        }
+
+        .offcanvas-title {
+            color: var(--brand);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .cart-icon {
+            color: var(--brand);
+            font-size: 1.8rem;
+        }
+
+        /* Cart Items */
+        .cart-item {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        .item-image {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        /* Quantity Stepper */
+        .cart-quantity-stepper {
+            display: flex;
+            align-items: center;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            width: fit-content;
+            transition: all 0.3s ease;
+        }
+
+        .cart-quantity-stepper:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(0, 210, 211, 0.25);
+        }
+
+        .cart-qty-btn {
+            background: var(--brand);
+            border: none;
+            padding: 0.5rem 0.8rem;
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s ease;
+            min-width: 35px;
+        }
+
+        .cart-qty-btn:hover {
+            background: var(--accent);
+        }
+
+        .cart-qty-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .cart-qty-input {
+            border: none;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 600;
+            width: 50px;
+            background: #f8fafc;
+        }
+
+        .cart-qty-input:focus {
+            outline: none;
+            background: white;
+        }
+
+        /* Remove Button */
+        .remove-btn {
+            color: #dc3545;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: rgba(220, 53, 69, 0.1);
+            transform: scale(1.1);
+        }
+
+        /* Summary Section */
+        .cart-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 1rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .discount-text {
+            color: var(--brand);
+            font-weight: 600;
+        }
+
+        .discount-amount {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        /* Coupon Section */
+        .coupon-section {
+            background: rgba(0, 210, 211, 0.05);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .coupon-input {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .coupon-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(0, 210, 211, 0.25);
+        }
+
+        .coupon-applied {
+            background: rgba(0, 210, 211, 0.1);
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            padding: 0.8rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand) 70%, var(--accent) 30%);
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn-outline-turquoise {
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .btn-outline-turquoise:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Empty State */
+        .empty-cart {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .empty-emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* Cart Badge */
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Animations */
+        .slide-in {
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3" href="#home" style="color: var(--brand);">
+                <i class="bi bi-calendar-event me-2"></i>EventosPiura
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#eventos">Eventos</a>
+                    </li>
+                    <li class="nav-item position-relative">
+                        <button class="nav-link btn" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="cart-badge d-none" id="cartBadge">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-secondary ms-2" href="#login">
+                            <i class="bi bi-person me-2"></i>Ingresar
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Demo Content -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="fw-bold mb-4" style="color: var(--brand);">Demo del Carrito</h2>
+                <p class="text-muted mb-4">Haz clic en el ícono del carrito para ver el offcanvas en acción</p>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <button class="btn btn-primary w-100" onclick="addSampleEvent(1)">
+                            <i class="bi bi-plus me-2"></i>Añadir Concierto Tony Rosado
+                        </button>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <button class="btn btn-primary w-100" onclick="addSampleEvent(2)">
+                            <i class="bi bi-plus me-2"></i>Añadir Festival Gastronómico
+                        </button>
+                    </div>
+                </div>
+                
+                <button class="btn btn-outline-secondary mt-3" onclick="clearCart()">
+                    <i class="bi bi-trash me-2"></i>Limpiar carrito
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="cartOffcanvasLabel">
+                <i class="bi bi-bag cart-icon me-2"></i>Mi Carrito
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        
+        <div class="offcanvas-body p-0">
+            <!-- Cart Items Container -->
+            <div class="p-3" id="cartItemsContainer">
+                <!-- Cart items will be rendered here -->
+            </div>
+
+            <!-- Coupon Section -->
+            <div class="px-3 mb-3" id="couponSection">
+                <div class="coupon-section">
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-ticket-perforated me-2" style="color: var(--accent);"></i>
+                        ¿Tienes un cupón?
+                    </h6>
+                    <div class="input-group" id="couponInputGroup">
+                        <input type="text" class="form-control coupon-input" placeholder="Código del cupón" id="couponInput">
+                        <button class="btn btn-outline-secondary" type="button" id="applyCouponBtn">
+                            <i class="bi bi-check2"></i>
+                        </button>
+                    </div>
+                    <div class="d-none mt-2" id="couponApplied">
+                        <div class="coupon-applied d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-check-circle me-2"></i>FIESTA20 aplicado</span>
+                            <button class="btn btn-sm btn-link text-danger p-0" id="removeCouponBtn">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="cart-summary mx-3 mb-3" id="cartSummary">
+                <!-- Summary will be rendered here -->
+            </div>
+
+            <!-- Actions -->
+            <div class="p-3 border-top" id="cartActions">
+                <!-- Actions will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sample Events Data
+        const sampleEvents = [
+            {
+                id: 1,
+                titulo: "Concierto de Tony Rosado",
+                categoria: "conciertos",
+                fecha: "2025-09-15",
+                hora: "20:00",
+                lugar: "Coliseo Miguel Grau",
+                precio: 45,
+                imagen: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnMSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzZDNUNFNztzdG9wLW9wYWNpdHk6MSIgLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMEQyRDM7c3RvcC1vcGFjaXR5OjEiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjZzEpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iMTAwIiByPSI0MCIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuMiIvPjx0ZXh0IHg9IjE1MCIgeT0iMTA1IiBmb250LWZhbWlseT0iSW50ZXIiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+Q29uY2llcnRvPC90ZXh0Pjwvc3ZnPg==",
+                gratuito: false
+            },
+            {
+                id: 2,
+                titulo: "Festival Gastronómico Piurano",
+                categoria: "gastronomia",
+                fecha: "2025-09-20",
+                hora: "18:00",
+                lugar: "Plaza de Armas de Piura",
+                precio: 0,
+                imagen: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnMiIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I2ZmNzA0ZDtzdG9wLW9wYWNpdHk6MSIgLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmZjkyMDA7c3RvcC1vcGFjaXR5OjEiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjZzIpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iMTAwIiByPSI0MCIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuMyIvPjx0ZXh0IHg9IjE1MCIgeT0iMTA1IiBmb250LWZhbWlseT0iSW50ZXIiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+R2FzdHJvbm9tw61hPC90ZXh0Pjwvc3ZnPg==",
+                gratuito: true
+            }
+        ];
+
+        // Cart state
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let appliedCoupon = JSON.parse(localStorage.getItem('appliedCoupon')) || null;
+
+        // Available coupons
+        const availableCoupons = {
+            'FIESTA20': {
+                code: 'FIESTA20',
+                discount: 20,
+                type: 'fixed',
+                description: 'S/ 20 de descuento'
+            },
+            'DESCUENTO10': {
+                code: 'DESCUENTO10',
+                discount: 10,
+                type: 'percentage',
+                description: '10% de descuento'
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartBadge();
+            renderCart();
+            setupEventListeners();
+            
+            // Show offcanvas if cart has items and URL contains #carrito
+            if (window.location.hash === '#carrito' && cart.length > 0) {
+                const offcanvas = new bootstrap.Offcanvas(document.getElementById('cartOffcanvas'));
+                offcanvas.show();
+            }
+        });
+
+        function setupEventListeners() {
+            // Coupon application
+            document.getElementById('applyCouponBtn').addEventListener('click', applyCoupon);
+            document.getElementById('couponInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    applyCoupon();
+                }
+            });
+
+            // Remove coupon
+            document.getElementById('removeCouponBtn').addEventListener('click', removeCoupon);
+        }
+
+        function addSampleEvent(eventId) {
+            const event = sampleEvents.find(e => e.id === eventId);
+            if (!event) return;
+
+            const existingItem = cart.find(item => item.eventId === eventId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    eventId: eventId,
+                    titulo: event.titulo,
+                    fecha: event.fecha,
+                    hora: event.hora,
+                    lugar: event.lugar,
+                    precio: event.precio,
+                    quantity: 1,
+                    imagen: event.imagen,
+                    gratuito: event.gratuito
+                });
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartBadge();
+            renderCart();
+            
+            // Show offcanvas
+            const offcanvas = new bootstrap.Offcanvas(document.getElementById('cartOffcanvas'));
+            offcanvas.show();
+            
+            showToast('Evento agregado al carrito', 'success');
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItemsContainer');
+            
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart">
+                        <span class="empty-emoji">🛒</span>
+                        <h5 class="fw-bold mb-3">Tu carrito está vacío</h5>
+                        <p class="text-muted mb-4">Explora nuestros eventos y añade algunos a tu carrito</p>
+                        <button class="btn btn-outline-turquoise" data-bs-dismiss="offcanvas" onclick="window.location.hash='#home'">
+                            <i class="bi bi-compass me-2"></i>Explorar eventos
+                        </button>
+                    </div>
+                `;
+                
+                // Hide coupon and summary sections
+                document.getElementById('couponSection').classList.add('d-none');
+                document.getElementById('cartSummary').classList.add('d-none');
+                document.getElementById('cartActions').innerHTML = '';
+                return;
+            }
+
+            // Show sections
+            document.getElementById('couponSection').classList.remove('d-none');
+            document.getElementById('cartSummary').classList.remove('d-none');
+
+            // Render cart items
+            container.innerHTML = cart.map(item => {
+                const fecha = new Date(item.fecha);
+                const fechaFormatted = fecha.toLocaleDateString('es-ES', {
+                    day: 'numeric',
+                    month: 'short'
+                });
+
+                return `
+                    <div class="cart-item slide-in">
+                        <div class="d-flex align-items-start">
+                            <img src="${item.imagen}" alt="${item.titulo}" class="item-image me-3">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-1">${item.titulo}</h6>
+                                <div class="text-muted small mb-2">
+                                    <i class="bi bi-calendar me-1"></i>${fechaFormatted} • 
+                                    <i class="bi bi-geo-alt me-1"></i>${item.lugar}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="cart-quantity-stepper">
+                                        <button type="button" class="cart-qty-btn" onclick="updateQuantity(${item.eventId}, ${item.quantity - 1})" ${item.quantity <= 1 ? 'disabled' : ''}>
+                                            −
+                                        </button>
+                                        <input type="number" class="cart-qty-input" value="${item.quantity}" readonly>
+                                        <button type="button" class="cart-qty-btn" onclick="updateQuantity(${item.eventId}, ${item.quantity + 1})" ${item.quantity >= 10 ? 'disabled' : ''}>
+                                            +
+                                        </button>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="fw-bold me-2" style="color: var(--brand);">
+                                            ${item.gratuito ? 'Gratis' : 'S/ ' + (item.precio * item.quantity)}
+                                        </span>
+                                        <button class="remove-btn" onclick="removeFromCart(${item.eventId})" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            renderSummary();
+            renderActions();
+        }
+
+        function renderSummary() {
+            const summaryContainer = document.getElementById('cartSummary');
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.gratuito ? 0 : item.precio * item.quantity), 0);
+            const totalEvents = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            // Calculate quantity discount (10% for 3+ events)
+            const quantityDiscount = totalEvents >= 3 ? subtotal * 0.1 : 0;
+            
+            // Calculate coupon discount
+            let couponDiscount = 0;
+            if (appliedCoupon) {
+                if (appliedCoupon.type === 'fixed') {
+                    couponDiscount = Math.min(appliedCoupon.discount, subtotal - quantityDiscount);
+                } else if (appliedCoupon.type === 'percentage') {
+                    couponDiscount = (subtotal - quantityDiscount) * (appliedCoupon.discount / 100);
+                }
+            }
+            
+            const total = Math.max(0, subtotal - quantityDiscount - couponDiscount);
+
+            summaryContainer.innerHTML = `
+                <h6 class="fw-bold mb-3">Resumen del pedido</h6>
+                
+                <div class="summary-row">
+                    <span>Subtotal (${totalEvents} entrada${totalEvents !== 1 ? 's' : ''})</span>
+                    <span>S/ ${subtotal.toFixed(2)}</span>
+                </div>
+                
+                ${quantityDiscount > 0 ? `
+                    <div class="summary-row">
+                        <span class="discount-text">
+                            <i class="bi bi-gift me-1"></i>Descuento por cantidad
+                        </span>
+                        <span class="discount-amount">-S/ ${quantityDiscount.toFixed(2)}</span>
+                    </div>
+                ` : ''}
+                
+                ${appliedCoupon ? `
+                    <div class="summary-row">
+                        <span class="discount-text">
+                            <i class="bi bi-ticket me-1"></i>Cupón ${appliedCoupon.code}
+                        </span>
+                        <span class="discount-amount">-S/ ${couponDiscount.toFixed(2)}</span>
+                    </div>
+                ` : ''}
+                
+                <div class="summary-row">
+                    <span>Total</span>
+                    <span style="color: var(--brand);">S/ ${total.toFixed(2)}</span>
+                </div>
+            `;
+        }
+
+        function renderActions() {
+            const actionsContainer = document.getElementById('cartActions');
+            
+            if (cart.length === 0) {
+                actionsContainer.innerHTML = '';
+                return;
+            }
+
+            const totalEvents = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            actionsContainer.innerHTML = `
+                <button class="btn btn-primary w-100 mb-3" onclick="proceedToCheckout()">
+                    <i class="bi bi-credit-card me-2"></i>Continuar al pago
+                </button>
+                
+                <div class="text-center">
+                    <button class="btn btn-link text-muted" onclick="clearCart()">
+                        <i class="bi bi-trash me-2"></i>Vaciar carrito
+                    </button>
+                </div>
+                
+                ${totalEvents >= 3 ? `
+                    <div class="alert alert-success mt-3 mb-0" style="background: rgba(40, 167, 69, 0.1); border: 1px solid #28a745;">
+                        <i class="bi bi-check-circle me-2"></i>
+                        <strong>¡Descuento aplicado!</strong><br>
+                        <small>10% de descuento por comprar 3+ eventos</small>
+                    </div>
+                ` : totalEvents === 2 ? `
+                    <div class="alert alert-info mt-3 mb-0" style="background: rgba(0, 210, 211, 0.1); border: 1px solid var(--accent);">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>¡Casi lo logras!</strong><br>
+                        <small>Añade 1 evento más y obtén 10% de descuento</small>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function updateQuantity(eventId, newQuantity) {
+            if (newQuantity < 1 || newQuantity > 10) return;
