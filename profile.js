@@ -134,6 +134,20 @@
     }
   }
 
+  // Función para obtener información de un evento
+  function getEvent(eventId) {
+    try {
+      const eventsData = localStorage.getItem('events');
+      if (!eventsData) return null;
+      
+      const events = JSON.parse(eventsData);
+      return events.find(event => event.id === Number(eventId)) || null;
+    } catch (error) {
+      console.error("Error al obtener evento:", error);
+      return null;
+    }
+  }
+
   // Renderizar el perfil
   function renderProfile() {
     console.log("Renderizando perfil");
@@ -167,14 +181,14 @@
     // Obtener las órdenes del usuario
     const orders = getUserOrders(user.id);
     
-    // Calcular puntos y nivel (cada 100 soles = 10 puntos)
+    // Calcular puntos y nivel (cada 1 sol = 0.5 puntos)
     let totalSpent = 0;
     orders.forEach(order => {
       totalSpent += order.items.reduce((sum, item) => sum + (item.price || 0) * (item.qty || 1), 0);
     });
     
-    // Calcular puntos (cada 100 soles = 10 puntos)
-    const totalPoints = Math.floor(totalSpent / 10);
+    // Calcular puntos (cada 1 sol = 0.5 puntos)
+    const totalPoints = Math.floor(totalSpent * 0.5);
     
     // Calcular nivel (cada 100 puntos = 1 nivel)
     const level = Math.floor(totalPoints / 100) + 1;
@@ -195,7 +209,10 @@
               upcomingEvents.push({
                 ...item,
                 orderId: order.id,
-                orderDate: order.createdAt
+                orderDate: order.createdAt,
+                orderTotal: order.total,
+                orderPayMethod: order.payMethod,
+                orderTickets: order.tickets
               });
             }
           } catch (e) {
@@ -322,7 +339,7 @@
                     </div>
                   </div>
                   <div class="small text-muted">
-                    Cada 100 soles gastados te dan 10 puntos. Acumula puntos para subir de nivel y ganar cupones.
+                    Cada 1 sol gastado te da 0.5 puntos. Acumula puntos para subir de nivel.
                   </div>
                 </div>
               </div>
@@ -336,7 +353,7 @@
                     <div class="swiper-wrapper">
                       ${upcomingEvents.map(event => `
                         <div class="swiper-slide">
-                          <div class="event-card h-100">
+                          <div class="event-card h-100" data-event-id="${event.eventId}" data-order-id="${event.orderId}">
                             <div class="position-relative">
                               <img src="${event.img || 'https://picsum.photos/seed/event/600/300.jpg'}" class="card-img-top" alt="${event.title}">
                               <div class="position-absolute top-0 end-0 m-2">
@@ -351,6 +368,11 @@
                               <p class="card-text">
                                 <i class="bi bi-geo-alt me-1"></i> ${event.place}
                               </p>
+                              <div class="d-grid">
+                                <button class="btn btn-sm btn-outline-primary view-event-details">
+                                  Ver detalles
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -421,6 +443,16 @@
       });
     }
     
+    // Agregar event listeners para los botones de ver detalles de evento
+    document.querySelectorAll('.view-event-details').forEach(button => {
+      button.addEventListener('click', function() {
+        const eventCard = this.closest('.event-card');
+        const eventId = eventCard.dataset.eventId;
+        const orderId = eventCard.dataset.orderId;
+        showEventDetailsModal(eventId, orderId);
+      });
+    });
+    
     // Inicializar Swiper si hay eventos próximos
     if (upcomingEvents.length > 0) {
       setTimeout(() => {
@@ -443,6 +475,155 @@
         });
       }, 100);
     }
+  }
+
+  // Función para mostrar modal con detalles del evento
+  function showEventDetailsModal(eventId, orderId) {
+    // Obtener información del evento
+    const event = getEvent(eventId);
+    
+    // Obtener información de la orden
+    const user = checkSession();
+    if (!user) return;
+    
+    const orders = getUserOrders(user.id);
+    const order = orders.find(o => o.id === orderId);
+    
+    if (!event || !order) {
+      showToast('error', 'Error', 'No se pudo encontrar la información del evento');
+      return;
+    }
+    
+    // Encontrar el item específico del evento en la orden
+    const orderItem = order.items.find(item => item.eventId === Number(eventId));
+    
+    // Crear modal dinámicamente
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'eventDetailsModal';
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('aria-labelledby', 'eventDetailsModalLabel');
+    modal.setAttribute('aria-hidden', 'true');
+    
+    modal.innerHTML = `
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="eventDetailsModalLabel">Detalles del Evento</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <img src="${event.img || 'https://picsum.photos/seed/event/600/400.jpg'}" class="img-fluid rounded mb-3" alt="${event.title}">
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="badge bg-primary"><i class="bi bi-bookmark me-1"></i>${event.cat}</span>
+                  <span class="text-warning"><i class="bi bi-star-fill me-1"></i>${event.rating.toFixed(1)}</span>
+                </div>
+                <h4>${event.title}</h4>
+                <p class="text-muted">${event.desc || ''}</p>
+              </div>
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div class="card-header bg-light">
+                    <h6 class="mb-0">Información del Evento</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="mb-2">
+                      <i class="bi bi-calendar3 me-2"></i>
+                      <strong>Fecha y Hora:</strong> ${event.when}
+                    </div>
+                    <div class="mb-2">
+                      <i class="bi bi-geo-alt me-2"></i>
+                      <strong>Lugar:</strong> ${event.place}
+                    </div>
+                    <div>
+                      <i class="bi bi-tag me-2"></i>
+                      <strong>Precio:</strong> ${event.price > 0 ? formatP(event.price) : '<span class="text-success">GRATIS</span>'}
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="card mb-3">
+                  <div class="card-header bg-light">
+                    <h6 class="mb-0">Información de Compra</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="mb-2">
+                      <i class="bi bi-receipt me-2"></i>
+                      <strong>Orden:</strong> #${order.id}
+                    </div>
+                    <div class="mb-2">
+                      <i class="bi bi-calendar-date me-2"></i>
+                      <strong>Fecha de Compra:</strong> ${new Date(order.createdAt).toLocaleString()}
+                    </div>
+                    <div class="mb-2">
+                      <i class="bi bi-credit-card me-2"></i>
+                      <strong>Método de Pago:</strong> ${order.payMethod}
+                    </div>
+                    <div>
+                      <i class="bi bi-cash-stack me-2"></i>
+                      <strong>Total Pagado:</strong> ${formatP(order.total)}
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="card">
+                  <div class="card-header bg-light">
+                    <h6 class="mb-0">Entradas</h6>
+                  </div>
+                  <div class="card-body">
+                    ${order.tickets && order.tickets.length > 0 ? `
+                      <div class="table-responsive">
+                        <table class="table table-sm">
+                          <thead>
+                            <tr>
+                              <th>Código</th>
+                              <th>Estado</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            ${order.tickets.filter(ticket => ticket.eventId === Number(eventId)).map(ticket => `
+                              <tr>
+                                <td><code>${ticket.code}</code></td>
+                                <td><span class="badge bg-success">Válida</span></td>
+                              </tr>
+                            `).join('')}
+                          </tbody>
+                        </table>
+                      </div>
+                    ` : '<p class="text-muted">No se encontraron entradas para este evento</p>'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="downloadTicketsBtn">
+              <i class="bi bi-download me-1"></i>Descargar Entradas
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    
+    // Event listener para descargar entradas
+    const downloadTicketsBtn = document.getElementById('downloadTicketsBtn');
+    if (downloadTicketsBtn) {
+      downloadTicketsBtn.addEventListener('click', () => {
+        showToast('info', 'Descargar Entradas', 'Función no implementada en esta demo');
+      });
+    }
+    
+    // Eliminar el modal del DOM cuando se cierre
+    modal.addEventListener('hidden.bs.modal', function () {
+      document.body.removeChild(modal);
+    });
   }
 
   // Mostrar modal para editar perfil
