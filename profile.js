@@ -72,6 +72,68 @@
     }
   }
 
+  // Función para obtener movimientos de la billetera
+  function getWalletMovements(userId) {
+    try {
+      const movementsData = localStorage.getItem(`walletMovements_${userId}`);
+      if (!movementsData) return [];
+      
+      const movements = JSON.parse(movementsData);
+      return movements || [];
+    } catch (error) {
+      console.error("Error al obtener movimientos de billetera:", error);
+      return [];
+    }
+  }
+
+  // Función para agregar un movimiento a la billetera
+  function addWalletMovement(userId, amount, description) {
+    try {
+      const movements = getWalletMovements(userId);
+      movements.push({
+        id: Date.now(),
+        amount: amount,
+        description: description,
+        date: new Date().toISOString()
+      });
+      
+      localStorage.setItem(`walletMovements_${userId}`, JSON.stringify(movements));
+      return true;
+    } catch (error) {
+      console.error("Error al agregar movimiento de billetera:", error);
+      return false;
+    }
+  }
+
+  // Función para obtener todos los movimientos (incluyendo compras)
+  function getAllMovements(userId) {
+    try {
+      // Obtener movimientos de billetera
+      const walletMovements = getWalletMovements(userId);
+      
+      // Obtener órdenes del usuario
+      const orders = getUserOrders(userId);
+      
+      // Convertir órdenes a movimientos
+      const purchaseMovements = orders.map(order => ({
+        id: `order_${order.id}`,
+        amount: -order.total, // Negativo porque es un gasto
+        description: `Compra: ${order.items.map(item => item.title).join(', ')}`,
+        date: order.createdAt,
+        type: 'purchase'
+      }));
+      
+      // Combinar y ordenar por fecha (más recientes primero)
+      const allMovements = [...walletMovements, ...purchaseMovements];
+      allMovements.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      return allMovements;
+    } catch (error) {
+      console.error("Error al obtener todos los movimientos:", error);
+      return [];
+    }
+  }
+
   // Renderizar el perfil
   function renderProfile() {
     console.log("Renderizando perfil");
@@ -105,6 +167,23 @@
     // Obtener las órdenes del usuario
     const orders = getUserOrders(user.id);
     
+    // Calcular puntos y nivel (cada 100 soles = 10 puntos)
+    let totalSpent = 0;
+    orders.forEach(order => {
+      totalSpent += order.items.reduce((sum, item) => sum + (item.price || 0) * (item.qty || 1), 0);
+    });
+    
+    // Calcular puntos (cada 100 soles = 10 puntos)
+    const totalPoints = Math.floor(totalSpent / 10);
+    
+    // Calcular nivel (cada 100 puntos = 1 nivel)
+    const level = Math.floor(totalPoints / 100) + 1;
+    const nextLevelPoints = level * 100;
+    const progressPercentage = ((totalPoints % 100) / 100) * 100;
+    
+    // Obtener todos los movimientos (billetera + compras)
+    const allMovements = getAllMovements(user.id);
+    
     // Calcular próximos eventos
     const upcomingEvents = [];
     orders.forEach(order => {
@@ -125,9 +204,6 @@
         });
       }
     });
-    
-    // Limitar a 3 eventos próximos para mostrar
-    const limitedEvents = upcomingEvents.slice(0, 3);
 
     // Renderizar el perfil
     profileContainer.innerHTML = `
@@ -160,22 +236,45 @@
             
             <div class="card shadow-sm mt-4">
               <div class="card-body">
-                <h5 class="card-title mb-3">Estadísticas</h5>
-                <div class="d-flex justify-content-between mb-2">
-                  <span>Eventos Asistidos</span>
-                  <span class="fw-bold">${orders.length}</span>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                  <span>Próximos Eventos</span>
-                  <span class="fw-bold">${upcomingEvents.length}</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                  <span>Saldo</span>
+                <h5 class="card-title mb-3">Billetera</h5>
+                <div class="d-flex justify-content-between mb-3">
+                  <span>Saldo Actual</span>
                   <span class="fw-bold">${formatP(user.wallet || 0)}</span>
                 </div>
-                <button class="btn btn-sm btn-outline-secondary w-100 mt-3" id="manageBalanceBtn">
+                <button class="btn btn-sm btn-outline-secondary w-100 mb-3" id="manageBalanceBtn">
                   <i class="bi bi-wallet2 me-1"></i>Gestionar Saldo
                 </button>
+                
+                <h6 class="mb-2">Últimos Movimientos</h6>
+                <div class="small">
+                  ${allMovements.length > 0 ? allMovements.slice(0, 3).map(movement => `
+                    <div class="d-flex justify-content-between mb-2">
+                      <div>
+                        <div>${movement.description}</div>
+                        <small class="text-muted">${new Date(movement.date).toLocaleDateString()}</small>
+                      </div>
+                      <div class="${movement.amount > 0 ? 'text-success' : 'text-danger'}">
+                        ${movement.amount > 0 ? '+' : ''}${formatP(movement.amount)}
+                      </div>
+                    </div>
+                  `).join('') : '<p class="text-muted small">No hay movimientos recientes</p>'}
+                </div>
+                <button class="btn btn-sm btn-link w-100 mt-2" id="viewAllMovementsBtn">
+                  Ver todos los movimientos
+                </button>
+                
+                <hr class="my-3">
+                
+                <h6 class="mb-2">Tarjetas Guardadas</h6>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div>
+                    <div class="fw-bold">Tarjeta de Crédito</div>
+                    <div class="text-muted small">**** **** **** 1234</div>
+                  </div>
+                  <button class="btn btn-sm btn-outline-danger" id="editCardBtn">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -207,13 +306,23 @@
                 </div>
                 
                 <div class="mb-3">
-                  <label class="form-label small text-muted">Intereses</label>
-                  <div class="d-flex flex-wrap gap-2">
-                    <span class="badge bg-light text-dark">Música</span>
-                    <span class="badge bg-light text-dark">Arte</span>
-                    <span class="badge bg-light text-dark">Tecnología</span>
-                    <span class="badge bg-light text-dark">Deportes</span>
-                    <span class="badge bg-light text-dark">Gastronomía</span>
+                  <label class="form-label small text-muted">Puntos y Nivel</label>
+                  <div class="d-flex align-items-center mb-2">
+                    <div class="me-3">
+                      <div class="badge bg-warning text-dark fs-6">${totalPoints} pts</div>
+                    </div>
+                    <div class="flex-fill">
+                      <div class="d-flex justify-content-between mb-1">
+                        <span>Nivel ${level}</span>
+                        <span>${nextLevelPoints - totalPoints} pts para siguiente nivel</span>
+                      </div>
+                      <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: ${progressPercentage}%" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="small text-muted">
+                    Cada 100 soles gastados te dan 10 puntos. Acumula puntos para subir de nivel y ganar cupones.
                   </div>
                 </div>
               </div>
@@ -222,58 +331,38 @@
             <div class="card shadow-sm mb-4">
               <div class="card-body p-4">
                 <h4 class="mb-4">Próximos Eventos</h4>
-                ${limitedEvents.length > 0 ? `
-                  <div class="row g-3">
-                    ${limitedEvents.map(event => `
-                      <div class="col-md-6">
-                        <div class="card border-0 shadow-sm h-100">
-                          <div class="row g-0">
-                            <div class="col-4">
-                              <img src="${event.img || 'https://picsum.photos/seed/event/100/100.jpg'}" class="img-fluid rounded-start h-100 object-fit-cover" alt="${event.title}">
-                            </div>
-                            <div class="col-8">
-                              <div class="card-body">
-                                <h6 class="card-title">${event.title}</h6>
-                                <p class="card-text small text-muted">
-                                  <i class="bi bi-calendar3 me-1"></i> ${event.when}
-                                </p>
-                                <p class="card-text small text-muted">
-                                  <i class="bi bi-geo-alt me-1"></i> ${event.place}
-                                </p>
+                ${upcomingEvents.length > 0 ? `
+                  <div class="swiper-container eventsSwiper">
+                    <div class="swiper-wrapper">
+                      ${upcomingEvents.map(event => `
+                        <div class="swiper-slide">
+                          <div class="event-card h-100">
+                            <div class="position-relative">
+                              <img src="${event.img || 'https://picsum.photos/seed/event/600/300.jpg'}" class="card-img-top" alt="${event.title}">
+                              <div class="position-absolute top-0 end-0 m-2">
                                 <span class="badge bg-success">Confirmado</span>
                               </div>
                             </div>
+                            <div class="card-body">
+                              <h5 class="card-title">${event.title}</h5>
+                              <p class="card-text">
+                                <i class="bi bi-calendar3 me-1"></i> ${event.when}
+                              </p>
+                              <p class="card-text">
+                                <i class="bi bi-geo-alt me-1"></i> ${event.place}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    `).join('')}
+                      `).join('')}
+                    </div>
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
                   </div>
                 ` : '<p class="text-muted">No tienes próximos eventos.</p>'}
                 <div class="text-center mt-3">
                   <a href="index.html#account" class="btn btn-sm btn-link">Ver todos mis eventos</a>
-                </div>
-              </div>
-            </div>
-            
-            <div class="card shadow-sm">
-              <div class="card-body p-4">
-                <h4 class="mb-4">Actividad Reciente</h4>
-                <div class="timeline">
-                  ${orders.length > 0 ? orders.slice(0, 3).map(order => `
-                    <div class="timeline-item mb-3 pb-3 border-bottom">
-                      <div class="d-flex">
-                        <div class="me-3">
-                          <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                            <i class="bi bi-calendar-check"></i>
-                          </div>
-                        </div>
-                        <div>
-                          <p class="mb-1">Registraste <strong>${order.items ? order.items.length : 0} evento${order.items && order.items.length > 1 ? 's' : ''}</strong></p>
-                          <small class="text-muted">Hace ${Math.floor((new Date() - new Date(order.createdAt)) / (1000 * 60 * 60 * 24))} días</small>
-                        </div>
-                      </div>
-                    </div>
-                  `).join('') : '<p class="text-muted">No hay actividad reciente.</p>'}
                 </div>
               </div>
             </div>
@@ -316,6 +405,43 @@
       editInfoBtn.addEventListener('click', () => {
         showEditProfileModal(user);
       });
+    }
+    
+    const viewAllMovementsBtn = document.getElementById('viewAllMovementsBtn');
+    if (viewAllMovementsBtn) {
+      viewAllMovementsBtn.addEventListener('click', () => {
+        showMovementsModal(user.id);
+      });
+    }
+    
+    const editCardBtn = document.getElementById('editCardBtn');
+    if (editCardBtn) {
+      editCardBtn.addEventListener('click', () => {
+        showEditCardModal();
+      });
+    }
+    
+    // Inicializar Swiper si hay eventos próximos
+    if (upcomingEvents.length > 0) {
+      setTimeout(() => {
+        const swiper = new Swiper('.eventsSwiper', {
+          slidesPerView: 1,
+          spaceBetween: 30,
+          loop: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+          autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+          },
+        });
+      }, 100);
     }
   }
 
@@ -437,6 +563,9 @@
             users[userIndex].wallet = (users[userIndex].wallet || 0) + amount;
             localStorage.setItem('users', JSON.stringify(users));
             
+            // Registrar movimiento
+            addWalletMovement(user.id, amount, 'Recarga de saldo');
+            
             showToast('success', 'Saldo Agregado', `Se agregó ${formatP(amount)} a tu billetera`);
             
             // Actualizar el saldo en el modal
@@ -453,6 +582,145 @@
         }
       };
     }
+  }
+
+  // Función para mostrar modal de movimientos
+  function showMovementsModal(userId) {
+    const allMovements = getAllMovements(userId);
+    
+    // Crear modal dinámicamente
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'movementsModal';
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('aria-labelledby', 'movementsModalLabel');
+    modal.setAttribute('aria-hidden', 'true');
+    
+    modal.innerHTML = `
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="movementsModalLabel">Todos los Movimientos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ${allMovements.length > 0 ? `
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Descripción</th>
+                      <th class="text-end">Monto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${allMovements.map(movement => `
+                      <tr>
+                        <td>${new Date(movement.date).toLocaleDateString()}</td>
+                        <td>${movement.description}</td>
+                        <td class="text-end ${movement.amount > 0 ? 'text-success' : 'text-danger'}">
+                          ${movement.amount > 0 ? '+' : ''}${formatP(movement.amount)}
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            ` : '<p class="text-center text-muted">No hay movimientos registrados</p>'}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    
+    // Eliminar el modal del DOM cuando se cierre
+    modal.addEventListener('hidden.bs.modal', function () {
+      document.body.removeChild(modal);
+    });
+  }
+
+  // Función para mostrar modal de editar tarjeta
+  function showEditCardModal() {
+    // Crear modal dinámicamente
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'editCardModal';
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('aria-labelledby', 'editCardModalLabel');
+    modal.setAttribute('aria-hidden', 'true');
+    
+    modal.innerHTML = `
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editCardModalLabel">Editar Tarjeta</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editCardForm">
+              <div class="mb-3">
+                <label for="cardNumber" class="form-label">Número de Tarjeta</label>
+                <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" value="1234 5678 9012 3456" maxlength="19">
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="cardExpiry" class="form-label">Fecha de Vencimiento</label>
+                  <input type="text" class="form-control" id="cardExpiry" placeholder="MM/AA" value="12/25">
+                </div>
+                <div class="col-md-6">
+                  <label for="cardCVC" class="form-label">CVC</label>
+                  <input type="text" class="form-control" id="cardCVC" placeholder="123" value="123" maxlength="4">
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="cardName" class="form-label">Nombre en la Tarjeta</label>
+                <input type="text" class="form-control" id="cardName" placeholder="Nombre completo" value="Juan Pérez">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="removeCardBtn">Eliminar Tarjeta</button>
+            <button type="button" class="btn btn-primary" id="saveCardBtn">Guardar Cambios</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    
+    // Event listeners
+    const saveCardBtn = document.getElementById('saveCardBtn');
+    if (saveCardBtn) {
+      saveCardBtn.addEventListener('click', () => {
+        showToast('success', 'Tarjeta Actualizada', 'Los datos de tu tarjeta han sido actualizados correctamente');
+        modalInstance.hide();
+      });
+    }
+    
+    const removeCardBtn = document.getElementById('removeCardBtn');
+    if (removeCardBtn) {
+      removeCardBtn.addEventListener('click', () => {
+        if (confirm('¿Estás seguro de que deseas eliminar esta tarjeta?')) {
+          showToast('info', 'Tarjeta Eliminada', 'La tarjeta ha sido eliminada de tu cuenta');
+          modalInstance.hide();
+        }
+      });
+    }
+    
+    // Eliminar el modal del DOM cuando se cierre
+    modal.addEventListener('hidden.bs.modal', function () {
+      document.body.removeChild(modal);
+    });
   }
 
   // Inicialización
