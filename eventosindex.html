@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Catálogo de Eventos</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body{background:#f7f8fa}
+    .app-container{max-width: 1280px}
+    .card{border:1px solid #e9ecef;}
+    .card:hover{box-shadow:0 8px 24px rgba(16,24,40,.08); transform: translateY(-2px); transition:.15s}
+    .sticky-lg{position:sticky; top:1rem}
+    .event-thumb{aspect-ratio:16/9; object-fit:cover}
+    .tag{font-size:.8rem}
+    .muted{color:#6c757d}
+  </style>
+</head>
+<body>
+  <header class="py-4">
+    <div class="container app-container d-flex align-items-center justify-content-between gap-3">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-calendar3 text-primary fs-3"></i>
+        <h1 class="h4 m-0">Catálogo de Eventos</h1>
+      </div>
+      <button class="btn btn-outline-secondary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtersOffcanvas" aria-controls="filtersOffcanvas">
+        <i class="bi bi-funnel me-2"></i>Filtros
+      </button>
+    </div>
+  </header>
+
+  <main class="container app-container pb-5">
+    <!-- Banner interactivo de eventos destacados -->
+    <div id="featuredCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+      <div class="carousel-inner"></div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Siguiente</span>
+      </button>
+    </div>
+
+    <div class="row g-3">
+      <!-- Sidebar / filtros -->
+      <aside class="col-12 col-lg-3">
+        <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="filtersOffcanvas" aria-labelledby="filtersLabel">
+          <div class="offcanvas-header border-bottom">
+            <h2 class="offcanvas-title h5" id="filtersLabel"><i class="bi bi-funnel me-2"></i>Filtros</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#filtersOffcanvas" aria-label="Cerrar"></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="card shadow-sm sticky-lg">
+              <div class="card-body">
+                <form id="filtersForm" onsubmit="event.preventDefault()" class="d-grid gap-3">
+                  <div>
+                    <label for="q" class="form-label">Búsqueda</label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-search"></i></span>
+                      <input type="search" id="q" class="form-control" placeholder="Título o etiquetas…">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="form-label">Categorías</label>
+                    <div class="row row-cols-2 g-2">
+                      <div class="form-check col"><input class="form-check-input" type="checkbox" value="tech" id="cat-tech"><label for="cat-tech" class="form-check-label">Tech</label></div>
+                      <div class="form-check col"><input class="form-check-input" type="checkbox" value="music" id="cat-music"><label for="cat-music" class="form-check-label">Música</label></div>
+                      <div class="form-check col"><input class="form-check-input" type="checkbox" value="business" id="cat-business"><label for="cat-business" class="form-check-label">Negocios</label></div>
+                      <div class="form-check col"><input class="form-check-input" type="checkbox" value="sports" id="cat-sports"><label for="cat-sports" class="form-check-label">Deportes</label></div>
+                      <div class="form-check col"><input class="form-check-input" type="checkbox" value="art" id="cat-art"><label for="cat-art" class="form-check-label">Arte</label></div>
+                      <div class="form-check col"><input class="form-check-input" type="checkbox" value="education" id="cat-education"><label for="cat-education" class="form-check-label">Educación</label></div>
+                    </div>
+                  </div>
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <label for="from" class="form-label">Desde</label>
+                      <input type="date" id="from" class="form-control">
+                    </div>
+                    <div class="col-6">
+                      <label for="to" class="form-label">Hasta</label>
+                      <input type="date" id="to" class="form-control">
+                    </div>
+                  </div>
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <label for="min" class="form-label">Precio mínimo (S/)</label>
+                      <input type="number" id="min" class="form-control" inputmode="decimal" placeholder="0">
+                    </div>
+                    <div class="col-6">
+                      <label for="max" class="form-label">Precio máximo (S/)</label>
+                      <input type="number" id="max" class="form-control" inputmode="decimal" placeholder="500">
+                    </div>
+                  </div>
+                  <div>
+                    <label for="location" class="form-label">Ubicación</label>
+                    <select id="location" class="form-select">
+                      <option value="">Cualquiera</option>
+                      <option value="lima">Lima</option>
+                      <option value="arequipa">Arequipa</option>
+                      <option value="cusco">Cusco</option>
+                      <option value="virtual">Virtual</option>
+                    </select>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-primary" id="apply" type="button"><i class="bi bi-check2 me-1"></i>Aplicar</button>
+                    <button class="btn btn-outline-secondary" id="clear" type="button"><i class="bi bi-eraser me-1"></i>Limpiar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Catalogo -->
+      <section class="col-12 col-lg-9" aria-live="polite">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h3 class="h5 m-0">Eventos</h3>
+          <span class="text-secondary small">(<span id="count">0</span> resultados)</span>
+        </div>
+        <div id="grid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3" role="list"></div>
+        <div id="empty" class="alert alert-light border mt-3 d-none" role="status">
+          <i class="bi bi-info-circle me-2"></i>No se encontraron eventos que coincidan con los filtros.
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title h6" id="eventModalLabel">Detalles del evento</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <img id="m-hero" class="img-fluid rounded mb-3" alt="Imagen del evento" />
+          <p class="mb-1 muted" id="m-meta"></p>
+          <h5 id="m-title" class="mb-1"></h5>
+          <p id="m-brief" class="mb-2 text-secondary"></p>
+          <div id="m-tags" class="d-flex flex-wrap gap-2"></div>
+        </div>
+        <div class="modal-footer">
+          <a id="m-link" class="btn btn-primary" href="#" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right me-1"></i>Ver evento completo</a>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ===== Datos de ejemplo =====
+    const EVENTS = [
+      { id:'e1', title:'Tech Summit 2025', date:'2025-09-20', location:'lima', price:120, category:'tech', tags:['cloud','ai','devops'], brief:'Conferencia sobre IA aplicada y arquitecturas cloud nativas.', image:'https://images.unsplash.com/photo-1517059224940-d4af9eec41e5?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e1' },
+      { id:'e2', title:'Festival de Música Andina', date:'2025-10-05', location:'cusco', price:60, category:'music', tags:['folk','tradicional'], brief:'Artistas locales e internacionales celebran la música de los Andes.', image:'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e2' },
+      { id:'e3', title:'Expo Negocios & Startups', date:'2025-09-28', location:'lima', price:0, category:'business', tags:['networking','pitch'], brief:'Feria de innovación, stands y ruedas de negocio para startups.', image:'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e3' },
+      { id:'e4', title:'Maratón Costa Verde', date:'2025-11-12', location:'lima', price:40, category:'sports', tags:['running','salud'], brief:'Recorrido de 21K junto al mar. Cupos limitados.', image:'https://images.unsplash.com/photo-1496302662116-85c3c06a6b35?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e4' },
+      { id:'e5', title:'Bienal de Arte Contemporáneo', date:'2025-12-03', location:'arequipa', price:25, category:'art', tags:['exposición','galería'], brief:'Obras de artistas emergentes y consagrados en espacios históricos.', image:'https://images.unsplash.com/photo-1526318472351-c75fcf070305?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e5' },
+      { id:'e6', title:'Taller de Data Science', date:'2025-09-10', location:'virtual', price:15, category:'education', tags:['python','ml'], brief:'Introducción práctica a modelos supervisados con Python.', image:'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e6' },
+      { id:'e7', title:'Noche de Jazz en el Parque', date:'2025-09-18', location:'lima', price:30, category:'music', tags:['jazz','live'], brief:'Concierto al aire libre con solistas invitados.', image:'https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e7' },
+      { id:'e8', title:'Hackathon Universitaria', date:'2025-09-25', location:'lima', price:0, category:'tech', tags:['estudiantes','hackathon'], brief:'48 horas para crear soluciones a retos reales.', image:'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e8' },
+      { id:'e9', title:'Cumbre de Emprendimiento Social', date:'2025-10-22', location:'cusco', price:45, category:'business', tags:['impacto','ong'], brief:'Casos de éxito y workshops de innovación social.', image:'https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e9' },
+    ];
+
+    const $ = (s, el=document)=> el.querySelector(s);
+    const $$ = (s, el=document)=> Array.from(el.querySelectorAll(s));
+
+    function formatPrice(v){ return v===0 ? 'Gratis' : new Intl.NumberFormat('es-PE',{style:'currency',currency:'PEN',maximumFractionDigits:0}).format(v); }
+    function formatDate(iso){ const d=new Date(iso+'T00:00:00'); return new Intl.DateTimeFormat('es-PE',{dateStyle:'medium'}).format(d); }
+
+    function render(events){
+      const grid = $('#grid');
+      grid.innerHTML = '';
+      events.forEach(ev=>{
+        const col = document.createElement('div');
+        col.className = 'col';
+        col.innerHTML = `
+          <article class="card h-100" role="listitem">
+            <img src="${ev.image}" alt="${ev.title}" class="card-img-top event-thumb" loading="lazy">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h4 class="h6 card-title mb-0">${ev.title}</h4>
+                <span class="badge text-bg-light border">${formatPrice(ev.price)}</span>
+              </div>
+              <p class="card-subtitle text-secondary small mb-2">${formatDate(ev.date)} • ${ev.location.toUpperCase()}</p>
+              <p class="text-secondary small mb-2">${ev.brief}</p>
+              <div class="d-flex flex-wrap gap-1 mb-3">${ev.tags.map(t=>`<span class='badge rounded-pill bg-body-secondary border tag'>#${t}</span>`).join('')}</div>
+              <div class="mt-auto d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" data-quick="${ev.id}"><i class="bi bi-eye me-1"></i>Vista rápida</button>
+                <a class="btn btn-primary btn-sm" href="${ev.url}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right me-1"></i>Ver completo</a>
+              </div>
+            </div>
+          </article>`;
+        grid.appendChild(col);
+      });
+      $('#count').textContent = String(events.length);
+      $('#empty').classList.toggle('d-none', events.length>0);
+    }
+
+    function getFilters(){
+      const q = $('#q').value.trim().toLowerCase();
+      const from = $('#from').value ? new Date($('#from').value+'T00:00:00') : null;
+      const to   = $('#to').value ? new Date($('#to').value+'T23:59:59') : null;
+      const min  = $('#min').value!=='' ? Number($('#min').value) : null;
+      const max  = $('#max').value!=='' ? Number($('#max').value) : null;
+      const location = $('#location').value;
+      const cats = $$('#filtersForm input[type="checkbox"]:checked').map(i=>i.value);
+      return {q, from, to, min, max, location, cats};
+    }
+
+    function applyFilters(){
+      const {q, from, to, min, max, location, cats} = getFilters();
+      const out = EVENTS.filter(ev=>{
+        if(q){ const hay = (ev.title + ' ' + ev.tags.join(' ')).toLowerCase(); if(!hay.includes(q)) return false; }
+        if(cats.length && !cats.includes(ev.category)) return false;
+        if(location && ev.location !== location) return false;
+        if(from && new Date(ev.date) < from) return false;
+        if(to && new Date(ev.date) > to) return false;
+        if(min!=null && ev.price < min) return false;
+        if(max!=null && ev.price > max) return false;
+        return true;
+      });
+      render(out);
+    }
+
+    function clearFilters(){
+      $('#filtersForm').reset();
+      render(EVENTS);
+    }
+
+    const modalEl = $('#eventModal');
+    const modal = new bootstrap.Modal(modalEl);
+
+   
+    function openModal(data){
+      $('#m-hero').src = data.image;
+      $('#m-hero').alt = data.title;
+      $('#m-title').textContent = data.title;
+      $('#m-meta').textContent = `${formatDate(data.date)} • ${data.location.toUpperCase()} • ${formatPrice(data.price)}`;
+      $('#m-brief').textContent = data.brief;
+      $('#m-tags').innerHTML = data.tags.map(t=>`<span class='badge rounded-pill bg-body-secondary border'>#${t}</span>`).join('');
+      $('#m-link').href = data.url;
+      modal.show();
+    }
+
+    // Delegación de click para modal
+    $('#grid').addEventListener('click', e=>{
+      const btn = e.target.closest('[data-quick]');
+      if(!btn) return;
+      const id = btn.getAttribute('data-quick');
+      const ev = EVENTS.find(x=>x.id===id);
+      if(ev) openModal(ev);
+    });
+
+    // Filtros
+    $('#apply').addEventListener('click', applyFilters);
+    $('#clear').addEventListener('click', clearFilters);
+    $$('#filtersForm input, #filtersForm select').forEach(el=>{
+      el.addEventListener('change', applyFilters);
+      if(el.type==='search' || el.type==='number') el.addEventListener('input', ()=>{/* opcional: debounced */});
+    });
+
+    // ===== Banner de eventos destacados =====
+    const FEATURED_EVENTS = EVENTS.slice(0, 3);
+
+    function renderFeatured(){
+      const carouselInner = document.querySelector('#featuredCarousel .carousel-inner');
+      carouselInner.innerHTML = '';
+      FEATURED_EVENTS.forEach((ev, idx)=>{
+        const active = idx === 0 ? 'active' : '';
+        const item = document.createElement('div');
+        item.className = `carousel-item ${active}`;
+        item.innerHTML = `
+          <a href="#" data-quick="${ev.id}" class="d-block position-relative">
+            <img src="${ev.image}" class="d-block w-100 rounded" alt="${ev.title}" style="height:400px; object-fit:cover;">
+            <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
+              <h5>${ev.title}</h5>
+              <p>${formatDate(ev.date)} • ${ev.location.toUpperCase()} • ${formatPrice(ev.price)}</p>
+            </div>
+          </a>
+        `;
+        carouselInner.appendChild(item);
+      });
+    }
+
+    document.querySelector('#featuredCarousel').addEventListener('click', e=>{
+      const link = e.target.closest('[data-quick]');
+      if(!link) return;
+      const id = link.getAttribute('data-quick');
+      const ev = EVENTS.find(x=>x.id===id);
+      if(ev) openModal(ev);
+    });
+
+    // Inicializar
+    render(EVENTS);
+    renderFeatured();
+
+  </script>
+</body>
+</html>
