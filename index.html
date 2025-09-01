@@ -49,6 +49,60 @@
     <!-- LOGIN/REGISTER -->
     <section id="view-login" data-route="login" class="container section-content" aria-labelledby="login-title"></section>
   </main>
+      <!-- FOOTER -->
+    <footer class="mt-auto pt-5 pb-4">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-md-4">
+            <a class="navbar-brand d-inline-flex align-items-center gap-2 mb-2" href="#home">
+              <i class="bi bi-music-note-beamed logo-mark"></i>
+              <strong>Eventos</strong>
+            </a>
+            <p class="text-secondary">Encuentra y vive experiencias inolvidables.</p>
+            <div class="d-flex gap-2 social">
+              <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+              <a href="#" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+              <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+              <a href="#" aria-label="GitHub"><i class="bi bi-github"></i></a>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <h6 class="text-uppercase small mb-3">Explorar</h6>
+            <ul class="list-unstyled">
+              <li><a class="footer-link" href="#proximos">Próximos</a></li>
+              <li><a class="footer-link" href="#faq">FAQ</a></li>
+              <li><a class="footer-link" href="#contacto">Contacto</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3">
+            <h6 class="text-uppercase small mb-3">Organizadores</h6>
+            <ul class="list-unstyled">
+              <li><a class="footer-link" href="#">Publicar evento</a></li>
+              <li><a class="footer-link" href="#">Precios</a></li>
+              <li><a class="footer-link" href="#">Centro de ayuda</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3">
+            <h6 class="text-uppercase small mb-3">Boletín</h6>
+            <form class="d-flex gap-2" id="formNewsletter" aria-label="Suscripción al boletín">
+              <label for="n-email" class="visually-hidden">Email</label>
+              <input type="email" id="n-email" class="form-control" placeholder="tu@email.com" required>
+              <button class="btn btn-brand" type="submit"><i class="bi bi-send"></i></button>
+            </form>
+            <small class="text-secondary d-block mt-2">Al suscribirte aceptas nuestra política de datos.</small>
+          </div>
+        </div>
+        <hr class="my-4" />
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 small text-secondary">
+          <span>© <span id="year"></span> Eventos. Todos los derechos reservados.</span>
+          <div class="d-flex gap-3">
+            <a class="footer-link" href="#">Términos</a>
+            <a class="footer-link" href="#">Privacidad</a>
+            <a class="footer-link" href="#">Estado</a>
+          </div>
+        </div>
+      </div>
+    </footer>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel">
     <div class="offcanvas-header">
       <h5 class="offcanvas-title d-flex align-items-center" id="cartOffcanvasLabel">
@@ -86,4 +140,5 @@
   <script src="api.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>

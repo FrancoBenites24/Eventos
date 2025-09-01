@@ -63,31 +63,41 @@
     }
 
     .footer{ border-top:1px solid rgba(2,8,23,.08) }
+    .site-footer{ background:#f8fafc; border-top:1px solid rgba(2,8,23,.08); }
+  .site-footer .title{ font-weight:700; letter-spacing:.2px; }
+  .site-footer .social a{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:36px; height:36px; border-radius:50%;
+    border:1px solid rgba(2,8,23,.1); background:#fff;
+  }
+  .site-footer .social a:hover{ border-color: var(--brand-2); box-shadow:0 6px 16px rgba(2,8,23,.06); }
+  .site-footer .list-unstyled a{ color:#0d6efd; } /* enlaces azules como en screenshot */
+  .site-footer .list-unstyled a:hover{ text-decoration:underline; }
+  .site-footer .newsletter .form-control{ background:#fff; }
+  .site-footer .send-btn{
+    border:1px solid rgba(2,8,23,.1); background:#fff;
+    width:40px; display:inline-flex; align-items:center; justify-content:center;
+  }
   </style>
 </head>
 <body>
   <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Barra de navegación principal">
+  <nav id="topNav" class="navbar navbar-expand-lg bg-white sticky-top">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="3.html" aria-label="Ir al inicio">
-        <i class="bi bi-stars text-warning"></i>
-        <span class="ms-1">Eventos</span>
-      </a>
-
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Alternar navegación">
+      <a class="navbar-brand fw-bold" href="#"><i class="bi bi-sun-fill text-warning me-2"></i><b>EventosUp • Piura</b></a>
+      <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navItems">
         <span class="navbar-toggler-icon"></span>
       </button>
-
-      <div class="collapse navbar-collapse" id="navMain">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
-          <li class="nav-item"><a class="nav-link" href="3.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="#home">Eventos</a></li>
-          <li class="nav-item"><a class="nav-link" href="#account">Mi cuenta</a></li>
-          <li class="nav-item"><a class="nav-link" href="#login">Ingresar</a></li>
-          <li class="nav-item ms-lg-3">
-            <button class="btn btn-sm btn-gradient d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas" aria-label="Abrir carrito">
-              <i class="bi bi-bag-check me-2"></i>Carrito
-              <span id="navCartCount" class="badge ms-2 bg-dark-subtle text-dark-emphasis">0</span>
+      <div id="navItems" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto align-items-lg-center">          
+          <li class="nav-item"><a class="nav-link" href="#beneficios">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="#como-funciona">Conócenos</a></li>
+          <li class="nav-item"><a class="nav-link" href="#testimonios">Mi cuenta</a></li>
+          <li class="nav-item"><a class="nav-link" href="#piura">Ingresar</a></li>
+          
+          <li class="nav-item">
+            <button class="btn btn-grad rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#authModal">
+              Únete gratis
             </button>
           </li>
         </ul>
@@ -301,60 +311,73 @@
   </section>
 
   <!-- FOOTER -->
-    <!-- FOOTER -->
-    <footer class="mt-auto pt-5 pb-4">
-      <div class="container">
-        <div class="row g-4">
-          <div class="col-md-4">
-            <a class="navbar-brand d-inline-flex align-items-center gap-2 mb-2" href="#home">
-              <i class="bi bi-music-note-beamed logo-mark"></i>
-              <strong>Eventos</strong>
-            </a>
-            <p class="text-secondary">Encuentra y vive experiencias inolvidables.</p>
-            <div class="d-flex gap-2 social">
-              <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-              <a href="#" aria-label="X"><i class="bi bi-twitter-x"></i></a>
-              <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-              <a href="#" aria-label="GitHub"><i class="bi bi-github"></i></a>
-            </div>
-          </div>
-          <div class="col-md-2">
-            <h6 class="text-uppercase small mb-3">Explorar</h6>
-            <ul class="list-unstyled">
-              <li><a class="footer-link" href="#proximos">Próximos</a></li>
-              <li><a class="footer-link" href="#faq">FAQ</a></li>
-              <li><a class="footer-link" href="#contacto">Contacto</a></li>
-            </ul>
-          </div>
-          <div class="col-md-3">
-            <h6 class="text-uppercase small mb-3">Organizadores</h6>
-            <ul class="list-unstyled">
-              <li><a class="footer-link" href="#">Publicar evento</a></li>
-              <li><a class="footer-link" href="#">Precios</a></li>
-              <li><a class="footer-link" href="#">Centro de ayuda</a></li>
-            </ul>
-          </div>
-          <div class="col-md-3">
-            <h6 class="text-uppercase small mb-3">Boletín</h6>
-            <form class="d-flex gap-2" id="formNewsletter" aria-label="Suscripción al boletín">
-              <label for="n-email" class="visually-hidden">Email</label>
-              <input type="email" id="n-email" class="form-control" placeholder="tu@email.com" required>
-              <button class="btn btn-brand" type="submit"><i class="bi bi-send"></i></button>
-            </form>
-            <small class="text-secondary d-block mt-2">Al suscribirte aceptas nuestra política de datos.</small>
-          </div>
+  <footer class="site-footer py-5">
+  <div class="container">
+    <div class="row gy-4">
+      <!-- Marca + descripción + redes -->
+      <div class="col-lg-4">
+        <div class="d-flex align-items-center mb-2">
+          <i class="bi bi-music-note-beamed me-2"></i>
+          <span class="title">Eventos</span>
         </div>
-        <hr class="my-4" />
-        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 small text-secondary">
-          <span>© <span id="year"></span> Eventos. Todos los derechos reservados.</span>
-          <div class="d-flex gap-3">
-            <a class="footer-link" href="#">Términos</a>
-            <a class="footer-link" href="#">Privacidad</a>
-            <a class="footer-link" href="#">Estado</a>
-          </div>
+        <p class="text-secondary mb-3">Encuentra y vive experiencias inolvidables.</p>
+        <div class="d-flex gap-2 social">
+          <a href="#" aria-label="Facebook"><i class="bi bi-facebook text-primary"></i></a>
+          <a href="#" aria-label="X"><i class="bi bi-twitter-x text-primary"></i></a>
+          <a href="#" aria-label="Instagram"><i class="bi bi-instagram text-primary"></i></a>
+          <a href="#" aria-label="GitHub"><i class="bi bi-github text-primary"></i></a>
         </div>
       </div>
-    </footer>
+
+      <!-- Explorar -->
+      <div class="col-6 col-lg-2">
+        <div class="title mb-2">EXPLORAR</div>
+        <ul class="list-unstyled mb-0">
+          <li><a href="#" class="link-primary">Próximos</a></li>
+          <li><a href="#" class="link-primary">FAQ</a></li>
+          <li><a href="#" class="link-primary">Contacto</a></li>
+        </ul>
+      </div>
+
+      <!-- Organizadores -->
+      <div class="col-6 col-lg-3">
+        <div class="title mb-2">ORGANIZADORES</div>
+        <ul class="list-unstyled mb-0">
+          <li><a href="#" class="link-primary">Publicar evento</a></li>
+          <li><a href="#" class="link-primary">Precios</a></li>
+          <li><a href="#" class="link-primary">Centro de ayuda</a></li>
+        </ul>
+      </div>
+
+      <!-- Boletín -->
+      <div class="col-lg-3">
+        <div class="title mb-2">BOLETÍN</div>
+        <form class="newsletter" onsubmit="event.preventDefault();">
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="tu@email.com" aria-label="Correo para boletín">
+            <button class="send-btn" type="submit" aria-label="Suscribirse">
+              <i class="bi bi-send"></i>
+            </button>
+          </div>
+          <div class="form-text mt-2 text-secondary">Al suscribirte aceptas nuestra política de datos.</div>
+        </form>
+      </div>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Franja inferior -->
+    <div class="d-flex flex-column flex-lg-row align-items-center justify-content-between small text-secondary">
+      <div>© <span id="y"></span> Eventos. Todos los derechos reservados.</div>
+      <div class="d-flex gap-3 mt-2 mt-lg-0">
+        <a href="#" class="link-primary">Términos</a>
+        <a href="#" class="link-primary">Privacidad</a>
+        <a href="#" class="link-primary">Estado</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
 
   <!-- MODAL: Autenticación (Entrar / Registrarse) -->
   <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
@@ -480,10 +503,5 @@
     mockSubmit(document.getElementById('modalSignup'), 'Cuenta creada. Bienvenido/a 👋');
 
   </script>
-  <script src="api.js"></script>
-  <script src="app.js"></script>
 </body>
 </html>
-
-
-
