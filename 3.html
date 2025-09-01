@@ -67,24 +67,27 @@
 </head>
 <body>
   <!-- NAVBAR -->
-  <nav id="topNav" class="navbar navbar-expand-lg bg-white sticky-top">
+  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Barra de navegación principal">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="#"><i class="bi bi-sun-fill text-warning me-2"></i><b>EventosUp • Piura</b></a>
-      <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navItems">
+      <a class="navbar-brand fw-bold" href="3.html" aria-label="Ir al inicio">
+        <i class="bi bi-stars text-warning"></i>
+        <span class="ms-1">Eventos</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Alternar navegación">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div id="navItems" class="collapse navbar-collapse">
-        <ul class="navbar-nav ms-auto align-items-lg-center">
-          <li class="nav-item"><a class="nav-link" href="#como-funciona">Conócenos</a></li>
-          <li class="nav-item"><a class="nav-link" href="#beneficios">Beneficios</a></li>
-          <li class="nav-item"><a class="nav-link" href="#testimonios">Testimonios</a></li>
-          <li class="nav-item"><a class="nav-link" href="#piura">Piura hoy</a></li>
+
+      <div class="collapse navbar-collapse" id="navMain">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="3.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="#home">Eventos</a></li>
+          <li class="nav-item"><a class="nav-link" href="#account">Mi cuenta</a></li>
+          <li class="nav-item"><a class="nav-link" href="#login">Ingresar</a></li>
           <li class="nav-item ms-lg-3">
-            <a class="btn btn-link me-2" href="#" data-bs-toggle="modal" data-bs-target="#authModal">Entrar</a>
-          </li>
-          <li class="nav-item">
-            <button class="btn btn-grad rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#authModal">
-              Únete gratis
+            <button class="btn btn-sm btn-gradient d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas" aria-label="Abrir carrito">
+              <i class="bi bi-bag-check me-2"></i>Carrito
+              <span id="navCartCount" class="badge ms-2 bg-dark-subtle text-dark-emphasis">0</span>
             </button>
           </li>
         </ul>
@@ -298,16 +301,60 @@
   </section>
 
   <!-- FOOTER -->
-  <footer class="footer py-4">
-    <div class="container d-flex flex-column flex-lg-row gap-3 align-items-center justify-content-between">
-      <div class="small text-secondary">© <span id="y"></span> EventosUp Piura. Hecho con ❤️ para la región.</div>
-      <div class="d-flex gap-3 small">
-        <a href="#" class="text-decoration-none">Términos</a>
-        <a href="#" class="text-decoration-none">Privacidad</a>
-        <a href="#" class="text-decoration-none">Soporte</a>
+    <!-- FOOTER -->
+    <footer class="mt-auto pt-5 pb-4">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-md-4">
+            <a class="navbar-brand d-inline-flex align-items-center gap-2 mb-2" href="#home">
+              <i class="bi bi-music-note-beamed logo-mark"></i>
+              <strong>Eventos</strong>
+            </a>
+            <p class="text-secondary">Encuentra y vive experiencias inolvidables.</p>
+            <div class="d-flex gap-2 social">
+              <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+              <a href="#" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+              <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+              <a href="#" aria-label="GitHub"><i class="bi bi-github"></i></a>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <h6 class="text-uppercase small mb-3">Explorar</h6>
+            <ul class="list-unstyled">
+              <li><a class="footer-link" href="#proximos">Próximos</a></li>
+              <li><a class="footer-link" href="#faq">FAQ</a></li>
+              <li><a class="footer-link" href="#contacto">Contacto</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3">
+            <h6 class="text-uppercase small mb-3">Organizadores</h6>
+            <ul class="list-unstyled">
+              <li><a class="footer-link" href="#">Publicar evento</a></li>
+              <li><a class="footer-link" href="#">Precios</a></li>
+              <li><a class="footer-link" href="#">Centro de ayuda</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3">
+            <h6 class="text-uppercase small mb-3">Boletín</h6>
+            <form class="d-flex gap-2" id="formNewsletter" aria-label="Suscripción al boletín">
+              <label for="n-email" class="visually-hidden">Email</label>
+              <input type="email" id="n-email" class="form-control" placeholder="tu@email.com" required>
+              <button class="btn btn-brand" type="submit"><i class="bi bi-send"></i></button>
+            </form>
+            <small class="text-secondary d-block mt-2">Al suscribirte aceptas nuestra política de datos.</small>
+          </div>
+        </div>
+        <hr class="my-4" />
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 small text-secondary">
+          <span>© <span id="year"></span> Eventos. Todos los derechos reservados.</span>
+          <div class="d-flex gap-3">
+            <a class="footer-link" href="#">Términos</a>
+            <a class="footer-link" href="#">Privacidad</a>
+            <a class="footer-link" href="#">Estado</a>
+          </div>
+        </div>
       </div>
-    </div>
-  </footer>
+    </footer>
 
   <!-- MODAL: Autenticación (Entrar / Registrarse) -->
   <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
@@ -435,3 +482,4 @@
   </script>
 </body>
 </html>
+
