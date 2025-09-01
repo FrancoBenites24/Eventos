@@ -345,6 +345,73 @@
     <div id="toasts" class="toast-container"></div>
   </div>
 
+    <footer class="site-footer py-5">
+  <div class="container">
+    <div class="row gy-4">
+      <!-- Marca + descripción + redes -->
+      <div class="col-lg-4">
+        <div class="d-flex align-items-center mb-2">
+          <i class="bi bi-music-note-beamed me-2"></i>
+          <span class="title">Eventos</span>
+        </div>
+        <p class="text-secondary mb-3">Encuentra y vive experiencias inolvidables.</p>
+        <div class="d-flex gap-2 social">
+          <a href="#" aria-label="Facebook"><i class="bi bi-facebook text-primary"></i></a>
+          <a href="#" aria-label="X"><i class="bi bi-twitter-x text-primary"></i></a>
+          <a href="#" aria-label="Instagram"><i class="bi bi-instagram text-primary"></i></a>
+          <a href="#" aria-label="GitHub"><i class="bi bi-github text-primary"></i></a>
+        </div>
+      </div>
+
+      <!-- Explorar -->
+      <div class="col-6 col-lg-2">
+        <div class="title mb-2">EXPLORAR</div>
+        <ul class="list-unstyled mb-0">
+          <li><a href="#" class="link-primary">Próximos</a></li>
+          <li><a href="#" class="link-primary">FAQ</a></li>
+          <li><a href="#" class="link-primary">Contacto</a></li>
+        </ul>
+      </div>
+
+      <!-- Organizadores -->
+      <div class="col-6 col-lg-3">
+        <div class="title mb-2">ORGANIZADORES</div>
+        <ul class="list-unstyled mb-0">
+          <li><a href="#" class="link-primary">Publicar evento</a></li>
+          <li><a href="#" class="link-primary">Precios</a></li>
+          <li><a href="#" class="link-primary">Centro de ayuda</a></li>
+        </ul>
+      </div>
+
+      <!-- Boletín -->
+      <div class="col-lg-3">
+        <div class="title mb-2">BOLETÍN</div>
+        <form class="newsletter" onsubmit="event.preventDefault();">
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="tu@email.com" aria-label="Correo para boletín">
+            <button class="send-btn" type="submit" aria-label="Suscribirse">
+              <i class="bi bi-send"></i>
+            </button>
+          </div>
+          <div class="form-text mt-2 text-secondary">Al suscribirte aceptas nuestra política de datos.</div>
+        </form>
+      </div>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Franja inferior -->
+    <div class="d-flex flex-column flex-lg-row align-items-center justify-content-between small text-secondary">
+      <div>© <span id="y"></span> Eventos. Todos los derechos reservados.</div>
+      <div class="d-flex gap-3 mt-2 mt-lg-0">
+        <a href="#" class="link-primary">Términos</a>
+        <a href="#" class="link-primary">Privacidad</a>
+        <a href="#" class="link-primary">Estado</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
   <!-- Cargar scripts al final -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="api.js"></script>
