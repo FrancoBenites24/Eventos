@@ -18,17 +18,30 @@
   </style>
 </head>
 <body>
-  <header class="py-4">
-    <div class="container app-container d-flex align-items-center justify-content-between gap-3">
-      <div class="d-flex align-items-center gap-2">
-        <i class="bi bi-calendar3 text-primary fs-3"></i>
-        <h1 class="h4 m-0">Catálogo de Eventos</h1>
-      </div>
-      <button class="btn btn-outline-secondary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtersOffcanvas" aria-controls="filtersOffcanvas">
-        <i class="bi bi-funnel me-2"></i>Filtros
+<nav class="navbar navbar-expand-lg sticky-top" aria-label="Barra de navegación principal">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="Inicio.html" aria-label="Ir al inicio">
+        <i class="bi bi-stars text-warning"></i>
+        <span class="ms-1">Eventos</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Alternar navegación">
+        <span class="navbar-toggler-icon"></span>
       </button>
+      <div class="collapse navbar-collapse" id="navMain">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link active" href="profile.html">Mi Perfil</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#login">Ingresar</a></li>
+          <li class="nav-item ms-lg-3">
+            <button class="btn btn-sm btn-gradient d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas" aria-label="Abrir carrito">
+              <i class="bi bi-bag-check me-2"></i>Carrito
+              <span id="navCartCount" class="badge ms-2 bg-dark-subtle text-dark-emphasis">0</span>
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
-  </header>
+  </nav>
 
   <main class="container app-container pb-5">
     <!-- Banner interactivo de eventos destacados -->
