@@ -1,8 +1,6 @@
 (function(){
   console.log("Iniciando profile.js");
 
-  let APPLIED_COUPON = null;
-
   // Función simple para mostrar un toast
   function showToast(type = 'info', title = 'Info', message = ''){
     const toastContainer = document.getElementById('toasts');
@@ -25,104 +23,10 @@
     toast.show();
   }
 
-  // Verificar si el usuario ha iniciado sesión
-  function checkSession() {
-    try {
-      // Intentar obtener la sesión del localStorage
-      const sessionData = localStorage.getItem('session');
-      if (!sessionData) {
-        return null;
-      }
-      
-      const session = JSON.parse(sessionData);
-      if (!session || !session.userId) {
-        return null;
-      }
-      
-      // Obtener los usuarios
-      const usersData = localStorage.getItem('users');
-      if (!usersData) {
-        return null;
-      }
-      
-      const users = JSON.parse(usersData);
-      const user = users.find(u => u.id === session.userId);
-      
-      return user || null;
-    } catch (error) {
-      console.error("Error al verificar sesión:", error);
-      return null;
-    }
-  }
-
   // Formatear moneda
   function formatP(v) {
     return new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', minimumFractionDigits: 2 }).format(v || 0);
   }
-
-  // Renderizar el carrito
-  function renderCart(){
-    const cart = API.getCart();
-    const lines = document.getElementById('cartLines');
-    if(!cart.length){
-      lines.innerHTML = `<div class="text-center text-body-secondary py-5"><i class="bi bi-bag-dash fs-1 d-block mb-3"></i>Tu carrito está vacío</div>`;
-    } else {
-      lines.innerHTML = cart.map(it => `
-        <div class="d-flex gap-2 align-items-center border rounded p-2 mb-2">
-          <img src="${it.img}" alt="${it.title}" class="rounded" style="width:64px;height:64px;object-fit:cover;">
-          <div class="flex-fill">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <strong>${it.title}</strong>
-                <div class="small text-body-secondary"><i class="bi bi-geo-alt me-1"></i>${it.place} · <i class="bi bi-calendar-event ms-2 me-1"></i>${it.when}</div>
-              </div>
-              <button class="btn btn-sm btn-outline-danger btn-rem" data-id="${it.id}" aria-label="Quitar"><i class="bi bi-x"></i></button>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-2">
-              <div class="qty" role="group" aria-label="Cantidad">
-                <button class="btn-minus" data-id="${it.id}" aria-label="Disminuir"><i class="bi bi-dash"></i></button>
-                <input class="qty-input" data-id="${it.id}" type="number" min="1" value="${it.qty}">
-                <button class="btn-plus" data-id="${it.id}" aria-label="Aumentar"><i class="bi bi-plus"></i></button>
-              </div>
-              <strong>${it.price>0?formatP(it.price):'<span class="text-success">GRATIS</span>'}</strong>
-            </div>
-          </div>
-        </div>`).join('');
-
-      lines.querySelectorAll('.btn-rem').forEach(b=> b.addEventListener('click', ()=> { API.removeCartItem(b.dataset.id); renderCart(); updateCartCount(); calcCartTotals(); }));
-      lines.querySelectorAll('.btn-minus').forEach(b=> b.addEventListener('click', ()=> { const it = API.getCart().find(x=>x.id===b.dataset.id); API.updateCartItem(b.dataset.id, (it.qty||1)-1); renderCart(); updateCartCount(); calcCartTotals(); }));
-      lines.querySelectorAll('.btn-plus').forEach(b=> b.addEventListener('click',  ()=> { const it = API.getCart().find(x=>x.id===b.dataset.id); API.updateCartItem(b.dataset.id, (it.qty||1)+1); renderCart(); updateCartCount(); calcCartTotals(); }));
-      lines.querySelectorAll('.qty-input').forEach(inp=> inp.addEventListener('change', ()=> { API.updateCartItem(inp.dataset.id, inp.value); renderCart(); updateCartCount(); calcCartTotals(); }));
-    }
-  }
-
-  // Calcular totales del carrito
-  function calcCartTotals(){
-    const cart = API.getCart();
-    const totals = API.calcTotals(cart, APPLIED_COUPON);
-    document.getElementById('cartSubtotal').textContent = formatP(totals.subtotal);
-    document.getElementById('cartQtyDiscount').textContent = `- ${formatP(totals.qtyDiscount)}`;
-    document.getElementById('cartCoupon').textContent = `- ${formatP(totals.couponDiscount)}`;
-    document.getElementById('cartTotal').textContent = formatP(totals.total);
-  }
-
-  // Actualizar contador del carrito
-  function updateCartCount(){
-    const cart = API.getCart();
-    const cartCount = document.getElementById('navCartCount');
-    if (cartCount) {
-      cartCount.textContent = cart.reduce((n, item) => n + (item.qty || 1), 0);
-    }
-  }
-
-  // Inicialización
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM cargado");
-    renderProfile();
-    renderCart();
-    updateCartCount();
-    calcCartTotals();
-  });
 
   // Obtener órdenes del usuario
   function getUserOrders(userId) {
@@ -214,34 +118,82 @@
     }
   }
 
-  // Renderizar el perfil
-  function renderProfile() {
-    console.log("Renderizando perfil");
-    
-    const profileContainer = document.getElementById('view-profile');
-    if (!profileContainer) {
-      console.error("No se encontró el contenedor del perfil");
+  // Función para cargar datos del perfil
+  function loadProfileData() {
+    console.log("Cargando datos del perfil");
+
+    // Verificar si el usuario ha iniciado sesión
+    const user = API.me();
+
+    if (!user) {
+      // Mostrar formulario de inicio de sesión
+      const viewProfile = document.getElementById('view-profile');
+      if (viewProfile) {
+        viewProfile.innerHTML = `
+          <div class="container py-5 text-center">
+            <div class="card shadow-sm mx-auto" style="max-width: 500px;">
+              <div class="card-body p-5">
+                <i class="bi bi-person-circle fs-1 text-primary mb-3"></i>
+                <h2 class="mb-3">Inicia sesión</h2>
+                <p class="text-muted mb-4">Para ver tu perfil, necesitas iniciar sesión primero.</p>
+                <a href="index.html#login" class="btn btn-primary">Iniciar Sesión</a>
+              </div>
+            </div>
+          </div>
+        `;
+      }
       return;
     }
 
-    // Verificar si el usuario ha iniciado sesión
-    const user = checkSession();
+    // Actualizar elementos del perfil con datos del usuario
+    const profilePhoto = document.getElementById('profilePhoto');
+    if (profilePhoto) {
+      profilePhoto.src = `https://picsum.photos/seed/user${user.id}/150/150.jpg`;
+    }
     
-    if (!user) {
-      // Mostrar formulario de inicio de sesión
-      profileContainer.innerHTML = `
-        <div class="container py-5 text-center">
-          <div class="card shadow-sm mx-auto" style="max-width: 500px;">
-            <div class="card-body p-5">
-              <i class="bi bi-person-circle fs-1 text-primary mb-3"></i>
-              <h2 class="mb-3">Inicia sesión</h2>
-              <p class="text-muted mb-4">Para ver tu perfil, necesitas iniciar sesión primero.</p>
-              <a href="index.html#login" class="btn btn-primary">Iniciar Sesión</a>
-            </div>
-          </div>
-        </div>
-      `;
-      return;
+    const profileNameDisplay = document.getElementById('profileNameDisplay');
+    if (profileNameDisplay) {
+      profileNameDisplay.textContent = user.name || 'Usuario';
+    }
+    
+    const profileEmailDisplay = document.getElementById('profileEmailDisplay');
+    if (profileEmailDisplay) {
+      profileEmailDisplay.textContent = user.email;
+    }
+    
+    const personalName = document.getElementById('personalName');
+    if (personalName) {
+      personalName.textContent = user.name || 'No especificado';
+    }
+    
+    const personalEmail = document.getElementById('personalEmail');
+    if (personalEmail) {
+      personalEmail.textContent = user.email;
+    }
+
+    const personalPhone = document.getElementById('personalPhone');
+    if (personalPhone) {
+      personalPhone.textContent = user.phone || 'No especificado';
+    }
+
+    const personalLocation = document.getElementById('personalLocation');
+    if (personalLocation) {
+      personalLocation.textContent = user.location || 'No especificado';
+    }
+
+    const personalBio = document.getElementById('personalBio');
+    if (personalBio) {
+      personalBio.textContent = user.bio || 'Amante de los eventos y experiencias culturales. Siempre buscando nuevas actividades para disfrutar y compartir.';
+    }
+
+    const walletBalance = document.getElementById('walletBalance');
+    if (walletBalance) {
+      walletBalance.textContent = formatP(user.wallet || 0);
+    }
+    
+    const currentBalance = document.getElementById('currentBalance');
+    if (currentBalance) {
+      currentBalance.textContent = formatP(user.wallet || 0);
     }
 
     // Obtener las órdenes del usuario
@@ -261,9 +213,51 @@
     const nextLevelPoints = level * 100;
     const progressPercentage = ((totalPoints % 100) / 100) * 100;
     
+    // Actualizar puntos y nivel
+    const totalPointsEl = document.getElementById('totalPoints');
+    if (totalPointsEl) {
+      totalPointsEl.textContent = `${totalPoints} pts`;
+    }
+    
+    const levelDisplay = document.getElementById('levelDisplay');
+    if (levelDisplay) {
+      levelDisplay.textContent = `Nivel ${level}`;
+    }
+    
+    const pointsToNextLevel = document.getElementById('pointsToNextLevel');
+    if (pointsToNextLevel) {
+      pointsToNextLevel.textContent = `${nextLevelPoints - totalPoints} pts para siguiente nivel`;
+    }
+    
+    const levelProgressBar = document.getElementById('levelProgressBar');
+    if (levelProgressBar) {
+      levelProgressBar.style.width = `${progressPercentage}%`;
+      levelProgressBar.setAttribute('aria-valuenow', progressPercentage);
+    }
+
     // Obtener todos los movimientos (billetera + compras)
     const allMovements = getAllMovements(user.id);
     
+    // Actualizar movimientos recientes
+    const recentMovements = document.getElementById('recentMovements');
+    if (recentMovements) {
+      if (allMovements.length > 0) {
+        recentMovements.innerHTML = allMovements.slice(0, 3).map(movement => `
+          <div class="d-flex justify-content-between mb-2">
+            <div>
+              <div>${movement.description}</div>
+              <small class="text-muted">${new Date(movement.date).toLocaleDateString()}</small>
+            </div>
+            <div class="${movement.amount > 0 ? 'text-success' : 'text-danger'}">
+              ${movement.amount > 0 ? '+' : ''}${formatP(movement.amount)}
+            </div>
+          </div>
+        `).join('');
+      } else {
+        recentMovements.innerHTML = '<p class="text-muted small">No hay movimientos recientes</p>';
+      }
+    }
+
     // Calcular próximos eventos
     const upcomingEvents = [];
     orders.forEach(order => {
@@ -288,227 +282,71 @@
       }
     });
 
-    // Renderizar el perfil
-    profileContainer.innerHTML = `
-      <div class="py-4">
-        <h2 id="profile-title" class="fw-bold mb-4">Mi Perfil</h2>
-        <div class="row">
-          <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm">
-              <div class="card-body text-center p-4">
-                <div class="position-relative d-inline-block mb-3">
-                  <img src="https://picsum.photos/seed/user${user.id}/150/150.jpg" class="rounded-circle border border-4 border-white shadow-sm" alt="Foto de perfil">
-                  <button class="btn btn-sm btn-light position-absolute bottom-0 end-0 rounded-circle p-2 shadow-sm" id="changePhotoBtn">
-                    <i class="bi bi-camera"></i>
-                  </button>
-                </div>
-                <h4 class="mb-1">${user.name || 'Usuario'}</h4>
-                <p class="text-muted mb-3">${user.email}</p>
-                <div class="d-flex justify-content-center mb-3">
-                  <span class="badge bg-primary me-2">Miembro</span>
-                  <span class="badge bg-success">Verificado</span>
-                </div>
-                <button class="btn btn-outline-primary w-100 mb-2" id="editProfileBtn">
-                  <i class="bi bi-pencil-square me-2"></i>Editar Perfil
-                </button>
-                <button class="btn btn-sm btn-link text-muted w-100" id="settingsBtn">
-                  <i class="bi bi-gear me-2"></i>Configuración
-                </button>
-              </div>
-            </div>
-            
-            <div class="card shadow-sm mt-4">
-              <div class="card-body">
-                <h5 class="card-title mb-3">Billetera</h5>
-                <div class="d-flex justify-content-between mb-3">
-                  <span>Saldo Actual</span>
-                  <span class="fw-bold">${formatP(user.wallet || 0)}</span>
-                </div>
-                <button class="btn btn-sm btn-outline-secondary w-100 mb-3" id="manageBalanceBtn">
-                  <i class="bi bi-wallet2 me-1"></i>Gestionar Saldo
-                </button>
-                
-                <h6 class="mb-2">Últimos Movimientos</h6>
-                <div class="small">
-                  ${allMovements.length > 0 ? allMovements.slice(0, 3).map(movement => `
-                    <div class="d-flex justify-content-between mb-2">
-                      <div>
-                        <div>${movement.description}</div>
-                        <small class="text-muted">${new Date(movement.date).toLocaleDateString()}</small>
-                      </div>
-                      <div class="${movement.amount > 0 ? 'text-success' : 'text-danger'}">
-                        ${movement.amount > 0 ? '+' : ''}${formatP(movement.amount)}
+    // Actualizar próximos eventos
+    const upcomingEventsContainer = document.getElementById('upcomingEventsContainer');
+    if (upcomingEventsContainer) {
+      if (upcomingEvents.length > 0) {
+        upcomingEventsContainer.innerHTML = `
+          <div class="swiper-container eventsSwiper">
+            <div class="swiper-wrapper">
+              ${upcomingEvents.map(event => `
+                <div class="swiper-slide">
+                  <div class="event-card h-100" data-event-id="${event.eventId}" data-order-id="${event.orderId}">
+                    <div class="position-relative">
+                      <img src="${event.img || 'https://picsum.photos/seed/event/600/300.jpg'}" class="card-img-top" alt="${event.title}">
+                      <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-success">Confirmado</span>
                       </div>
                     </div>
-                  `).join('') : '<p class="text-muted small">No hay movimientos recientes</p>'}
-                </div>
-                <button class="btn btn-sm btn-link w-100 mt-2" id="viewAllMovementsBtn">
-                  Ver todos los movimientos
-                </button>
-                
-                <hr class="my-3">
-                
-                <h6 class="mb-2">Tarjetas Guardadas</h6>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <div>
-                    <div class="fw-bold">Tarjeta de Crédito</div>
-                    <div class="text-muted small">**** **** **** 1234</div>
+                    <div class="card-body">
+                      <h5 class="card-title">${event.title}</h5>
+                      <p class="card-text">
+                        <i class="bi bi-calendar3 me-1"></i> ${event.when}
+                      </p>
+                      <p class="card-text">
+                        <i class="bi bi-geo-alt me-1"></i> ${event.place}
+                      </p>
+                      <div class="d-grid">
+                        <button class="btn btn-sm btn-outline-primary view-event-details">
+                          Ver detalles
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <button class="btn btn-sm btn-outline-danger" id="editCardBtn">
-                    <i class="bi bi-pencil"></i>
-                  </button>
                 </div>
-              </div>
+              `).join('')}
             </div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
           </div>
-          
-          <div class="col-lg-8">
-            <div class="card shadow-sm mb-4">
-              <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                  <h4 class="mb-0">Información Personal</h4>
-                  <button class="btn btn-sm btn-outline-secondary" id="editInfoBtn">
-                    <i class="bi bi-pencil me-1"></i>Editar
-                  </button>
-                </div>
-                
-                <div class="row mb-3">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label small text-muted">Nombre Completo</label>
-                    <p class="fw-bold">${user.name || 'No especificado'}</p>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label small text-muted">Email</label>
-                    <p class="fw-bold">${user.email}</p>
-                  </div>
-                </div>
-                
-                <div class="mb-3">
-                  <label class="form-label small text-muted">Biografía</label>
-                  <p>Amante de los eventos y experiencias culturales. Siempre buscando nuevas actividades para disfrutar y compartir.</p>
-                </div>
-                
-                <div class="mb-3">
-                  <label class="form-label small text-muted">Puntos y Nivel</label>
-                  <div class="d-flex align-items-center mb-2">
-                    <div class="me-3">
-                      <div class="badge bg-warning text-dark fs-6">${totalPoints} pts</div>
-                    </div>
-                    <div class="flex-fill">
-                      <div class="d-flex justify-content-between mb-1">
-                        <span>Nivel ${level}</span>
-                        <span>${nextLevelPoints - totalPoints} pts para siguiente nivel</span>
-                      </div>
-                      <div class="progress" style="height: 10px;">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: ${progressPercentage}%" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="small text-muted">
-                    Cada 1 sol gastado te da 0.5 puntos. Acumula puntos para subir de nivel.
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="card shadow-sm mb-4">
-              <div class="card-body p-4">
-                <h4 class="mb-4">Próximos Eventos</h4>
-                ${upcomingEvents.length > 0 ? `
-                  <div class="swiper-container eventsSwiper">
-                    <div class="swiper-wrapper">
-                      ${upcomingEvents.map(event => `
-                        <div class="swiper-slide">
-                          <div class="event-card h-100" data-event-id="${event.eventId}" data-order-id="${event.orderId}">
-                            <div class="position-relative">
-                              <img src="${event.img || 'https://picsum.photos/seed/event/600/300.jpg'}" class="card-img-top" alt="${event.title}">
-                              <div class="position-absolute top-0 end-0 m-2">
-                                <span class="badge bg-success">Confirmado</span>
-                              </div>
-                            </div>
-                            <div class="card-body">
-                              <h5 class="card-title">${event.title}</h5>
-                              <p class="card-text">
-                                <i class="bi bi-calendar3 me-1"></i> ${event.when}
-                              </p>
-                              <p class="card-text">
-                                <i class="bi bi-geo-alt me-1"></i> ${event.place}
-                              </p>
-                              <div class="d-grid">
-                                <button class="btn btn-sm btn-outline-primary view-event-details">
-                                  Ver detalles
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      `).join('')}
-                    </div>
-                    <div class="swiper-pagination"></div>
-                    <div class="swiper-button-next"></div>
-                    <div class="swiper-button-prev"></div>
-                  </div>
-                ` : '<p class="text-muted">No tienes próximos eventos.</p>'}
-                <div class="text-center mt-3">
-                  <a href="index.html#account" class="btn btn-sm btn-link">Ver todos mis eventos</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
+        `;
 
-    // Agregar event listeners para los botones
-    const changePhotoBtn = document.getElementById('changePhotoBtn');
-    if (changePhotoBtn) {
-      changePhotoBtn.addEventListener('click', () => {
-        showToast('info', 'Cambiar Foto', 'Función no implementada en esta demo');
-      });
+        // Inicializar Swiper si hay eventos próximos
+        setTimeout(() => {
+          const swiper = new Swiper('.eventsSwiper', {
+            slidesPerView: 1,
+            spaceBetween: 30,
+            loop: true,
+            pagination: {
+              el: '.swiper-pagination',
+              clickable: true,
+            },
+            navigation: {
+              nextEl: '.swiper-button-next',
+              prevEl: '.swiper-button-prev',
+            },
+            autoplay: {
+              delay: 5000,
+              disableOnInteraction: false,
+            },
+          });
+        }, 100);
+      } else {
+        upcomingEventsContainer.innerHTML = '<p class="text-muted">No tienes próximos eventos.</p>';
+      }
     }
-    
-    const editProfileBtn = document.getElementById('editProfileBtn');
-    if (editProfileBtn) {
-      editProfileBtn.addEventListener('click', () => {
-        showEditProfileModal(user);
-      });
-    }
-    
-    const settingsBtn = document.getElementById('settingsBtn');
-    if (settingsBtn) {
-      settingsBtn.addEventListener('click', () => {
-        showSettingsModal();
-      });
-    }
-    
-    const manageBalanceBtn = document.getElementById('manageBalanceBtn');
-    if (manageBalanceBtn) {
-      manageBalanceBtn.addEventListener('click', () => {
-        showBalanceModal(user);
-      });
-    }
-    
-    const editInfoBtn = document.getElementById('editInfoBtn');
-    if (editInfoBtn) {
-      editInfoBtn.addEventListener('click', () => {
-        showEditProfileModal(user);
-      });
-    }
-    
-    const viewAllMovementsBtn = document.getElementById('viewAllMovementsBtn');
-    if (viewAllMovementsBtn) {
-      viewAllMovementsBtn.addEventListener('click', () => {
-        showMovementsModal(user.id);
-      });
-    }
-    
-    const editCardBtn = document.getElementById('editCardBtn');
-    if (editCardBtn) {
-      editCardBtn.addEventListener('click', () => {
-        showEditCardModal();
-      });
-    }
-    
+
     // Agregar event listeners para los botones de ver detalles de evento
     document.querySelectorAll('.view-event-details').forEach(button => {
       button.addEventListener('click', function() {
@@ -518,29 +356,6 @@
         showEventDetailsModal(eventId, orderId);
       });
     });
-    
-    // Inicializar Swiper si hay eventos próximos
-    if (upcomingEvents.length > 0) {
-      setTimeout(() => {
-        const swiper = new Swiper('.eventsSwiper', {
-          slidesPerView: 1,
-          spaceBetween: 30,
-          loop: true,
-          pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-          },
-          navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-          },
-          autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
-          },
-        });
-      }, 100);
-    }
   }
 
   // Función para mostrar modal con detalles del evento
@@ -549,7 +364,7 @@
     const event = getEvent(eventId);
     
     // Obtener información de la orden
-    const user = checkSession();
+    const user = API.me();
     if (!user) return;
     
     const orders = getUserOrders(user.id);
@@ -703,9 +518,9 @@
     
     if (profileName) profileName.value = user.name || '';
     if (profileEmail) profileEmail.value = user.email || '';
-    if (profilePhone) profilePhone.value = '+51 987 654 321';
-    if (profileLocation) profileLocation.value = 'Lima, Perú';
-    if (profileBio) profileBio.value = 'Amante de los eventos y experiencias culturales. Siempre buscando nuevas actividades para disfrutar y compartir.';
+    if (profilePhone) profilePhone.value = user.phone || '';
+    if (profileLocation) profileLocation.value = user.location || '';
+    if (profileBio) profileBio.value = user.bio || '';
     
     const modal = new bootstrap.Modal(document.getElementById('editProfileModal'));
     modal.show();
@@ -716,6 +531,9 @@
       saveProfileBtn.onclick = function() {
         const name = document.getElementById('profileName').value.trim();
         const email = document.getElementById('profileEmail').value.trim();
+        const phone = document.getElementById('profilePhone').value.trim();
+        const location = document.getElementById('profileLocation').value.trim();
+        const bio = document.getElementById('profileBio').value.trim();
         
         if (!name || !email) {
           showToast('error', 'Error', 'Por favor completa todos los campos requeridos');
@@ -732,11 +550,14 @@
           if (userIndex !== -1) {
             users[userIndex].name = name;
             users[userIndex].email = email;
+            users[userIndex].phone = phone;
+            users[userIndex].location = location;
+            users[userIndex].bio = bio;
             localStorage.setItem('users', JSON.stringify(users));
             
             showToast('success', 'Perfil Actualizado', 'Tu perfil ha sido actualizado correctamente');
             modal.hide();
-            renderProfile(); // Recargar el perfil
+            loadProfileData(); // Recargar los datos del perfil
           }
         } catch (error) {
           console.error("Error al guardar perfil:", error);
@@ -767,7 +588,7 @@
           privProfile
         };
         
-        const user = checkSession();
+        const user = API.me();
         if (user) {
           localStorage.setItem(`settings_${user.id}`, JSON.stringify(settings));
         }
@@ -821,7 +642,7 @@
             }
             
             // Actualizar el perfil
-            renderProfile();
+            loadProfileData();
           }
         } catch (error) {
           console.error("Error al agregar saldo:", error);
@@ -973,9 +794,72 @@
   // Inicialización
   document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM cargado");
-    renderProfile();
-    renderCart();
-    updateCartCount();
-    calcCartTotals();
+    loadProfileData();
+    
+    // Agregar event listeners para los botones
+    const changePhotoBtn = document.getElementById('changePhotoBtn');
+    if (changePhotoBtn) {
+      changePhotoBtn.addEventListener('click', () => {
+        showToast('info', 'Cambiar Foto', 'Función no implementada en esta demo');
+      });
+    }
+    
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    if (editProfileBtn) {
+      editProfileBtn.addEventListener('click', () => {
+        const user = API.me();
+        if (user) showEditProfileModal(user);
+      });
+    }
+    
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+      settingsBtn.addEventListener('click', () => {
+        showSettingsModal();
+      });
+    }
+    
+    const manageBalanceBtn = document.getElementById('manageBalanceBtn');
+    if (manageBalanceBtn) {
+      manageBalanceBtn.addEventListener('click', () => {
+        const user = API.me();
+        if (user) showBalanceModal(user);
+      });
+    }
+    
+    const editInfoBtn = document.getElementById('editInfoBtn');
+    if (editInfoBtn) {
+      editInfoBtn.addEventListener('click', () => {
+        const user = API.me();
+        if (user) showEditProfileModal(user);
+      });
+    }
+    
+    const viewAllMovementsBtn = document.getElementById('viewAllMovementsBtn');
+    if (viewAllMovementsBtn) {
+      viewAllMovementsBtn.addEventListener('click', () => {
+        const user = API.me();
+        if (user) showMovementsModal(user.id);
+      });
+    }
+    
+    const editCardBtn = document.getElementById('editCardBtn');
+    if (editCardBtn) {
+      editCardBtn.addEventListener('click', () => {
+        showEditCardModal();
+      });
+    }
+    
+    // Actualizar contador del carrito
+    try {
+      const cartData = localStorage.getItem('cart');
+      const cart = cartData ? JSON.parse(cartData) : [];
+      const cartCount = document.getElementById('navCartCount');
+      if (cartCount) {
+        cartCount.textContent = cart.reduce((n, item) => n + (item.qty || 1), 0);
+      }
+    } catch (error) {
+      console.error("Error al actualizar contador del carrito:", error);
+    }
   });
 })();
