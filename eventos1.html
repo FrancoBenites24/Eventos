@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Catálogo de Eventos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg sticky-top bg-white shadow-sm" aria-label="Barra de navegación principal">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="index.html" aria-label="Ir al inicio">
+      <i class="bi bi-stars text-warning"></i>
+      <span class="ms-1">Eventos</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Alternar navegación">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+        <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link active" href="profile.html">Mi Perfil</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#login">Ingresar</a></li>
+        <li class="nav-item ms-lg-3">
+          <button class="btn btn-sm btn-gradient d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas" aria-label="Abrir carrito">
+            <i class="bi bi-bag-check me-2"></i>Carrito
+            <span id="navCartCount" class="badge ms-2 bg-dark-subtle text-dark-emphasis">0</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container app-container pb-5 mt-4">
+  <!-- Carrusel destacado -->
+  <div id="featuredCarousel" class="carousel slide mb-4" data-bs-ride="carousel" aria-label="Eventos destacados">
+    <div class="carousel-inner"></div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev" aria-label="Anterior">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next" aria-label="Siguiente">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <div class="row g-3">
+    <!-- Sidebar / filtros -->
+    <aside class="col-12 col-lg-3">
+      <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="filtersOffcanvas" aria-labelledby="filtersLabel">
+        <div class="offcanvas-header border-bottom">
+          <h2 class="offcanvas-title h5" id="filtersLabel"><i class="bi bi-funnel me-2"></i>Filtros</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#filtersOffcanvas" aria-label="Cerrar"></button>
+        </div>
+        <div class="offcanvas-body">
+          <div class="card shadow-sm sticky-lg">
+            <div class="card-body">
+              <form id="filtersForm" onsubmit="event.preventDefault()" class="d-grid gap-3">
+                <div>
+                  <label for="q" class="form-label">Búsqueda</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="search" id="q" class="form-control" placeholder="Título o etiquetas…">
+                  </div>
+                </div>
+                <div>
+                  <label class="form-label">Categorías</label>
+                  <div class="row row-cols-2 g-2">
+                    <div class="form-check col"><input class="form-check-input" type="checkbox" value="tech" id="cat-tech"><label for="cat-tech" class="form-check-label">Tech</label></div>
+                    <div class="form-check col"><input class="form-check-input" type="checkbox" value="music" id="cat-music"><label for="cat-music" class="form-check-label">Música</label></div>
+                    <div class="form-check col"><input class="form-check-input" type="checkbox" value="business" id="cat-business"><label for="cat-business" class="form-check-label">Negocios</label></div>
+                    <div class="form-check col"><input class="form-check-input" type="checkbox" value="sports" id="cat-sports"><label for="cat-sports" class="form-check-label">Deportes</label></div>
+                    <div class="form-check col"><input class="form-check-input" type="checkbox" value="art" id="cat-art"><label for="cat-art" class="form-check-label">Arte</label></div>
+                    <div class="form-check col"><input class="form-check-input" type="checkbox" value="education" id="cat-education"><label for="cat-education" class="form-check-label">Educación</label></div>
+                  </div>
+                </div>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label for="from" class="form-label">Desde</label>
+                    <input type="date" id="from" class="form-control">
+                  </div>
+                  <div class="col-6">
+                    <label for="to" class="form-label">Hasta</label>
+                    <input type="date" id="to" class="form-control">
+                  </div>
+                </div>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label for="min" class="form-label">Precio mínimo (S/)</label>
+                    <input type="number" id="min" class="form-control" inputmode="decimal" placeholder="0">
+                  </div>
+                  <div class="col-6">
+                    <label for="max" class="form-label">Precio máximo (S/)</label>
+                    <input type="number" id="max" class="form-control" inputmode="decimal" placeholder="500">
+                  </div>
+                </div>
+                <div>
+                  <label for="location" class="form-label">Ubicación</label>
+                  <select id="location" class="form-select">
+                    <option value="">Cualquiera</option>
+                    <option value="lima">Lima</option>
+                    <option value="arequipa">Arequipa</option>
+                    <option value="cusco">Cusco</option>
+                    <option value="virtual">Virtual</option>
+                  </select>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-primary" id="apply" type="button"><i class="bi bi-check2 me-1"></i>Aplicar</button>
+                  <button class="btn btn-outline-secondary" id="clear" type="button"><i class="bi bi-eraser me-1"></i>Limpiar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Catalogo -->
+    <section class="col-12 col-lg-9" aria-live="polite">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="h5 m-0">Eventos</h3>
+        <span class="text-secondary small">(<span id="count">0</span> resultados)</span>
+      </div>
+      <div id="grid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" role="list"></div>
+      <div id="empty" class="d-none" role="status" aria-live="polite">
+        <i class="bi bi-info-circle me-2"></i>No se encontraron eventos que coincidan con los filtros.
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- Modal Vista Rápida -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="eventModalLabel">Detalles del evento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <img id="m-hero" alt="Imagen del evento" loading="lazy" />
+        <p id="m-meta" class="mb-2 text-muted small"></p>
+        <h5 id="m-title" class="mb-2"></h5>
+        <p id="m-brief"></p>
+        <div id="m-tags" class="d-flex flex-wrap gap-2 mt-3"></div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Carrito-->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel" role="dialog" aria-modal="true">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title d-flex align-items-center" id="cartOffcanvasLabel">
+      <i class="bi bi-bag me-2" aria-hidden="true"></i>Tu carrito
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar carrito"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column">
+    <div id="cartLines" class="flex-grow-1 small" aria-live="polite" aria-relevant="additions removals">
+      <div class="text-center text-body-secondary py-5" id="cartEmptyMessage">
+        <i class="bi bi-bag-dash fs-1 d-block mb-3" aria-hidden="true"></i>
+        <p class="mb-0">Tu carrito está vacío</p>
+      </div>
+      <!-- Aquí se insertan dinámicamente las líneas del carrito -->
+    </div>
+    <div class="border-top pt-3">
+      <div class="input-group input-group-sm mb-2">
+        <span class="input-group-text"><i class="bi bi-ticket-perforated"></i></span>
+        <input id="couponInput" type="text" class="form-control" placeholder="Cupón (FIESTA20)" aria-label="Código de cupón">
+        <button id="applyCouponBtn" class="btn btn-outline-secondary" type="button" aria-label="Aplicar cupón">Aplicar</button>
+      </div>
+      <div class="d-flex justify-content-between"><span>Subtotal</span><strong id="cartSubtotal">S/ 0.00</strong></div>
+      <div class="d-flex justify-content-between small text-body-secondary"><span>Desc. por cantidad</span><span id="cartQtyDiscount">S/ 0.00</span></div>
+      <div class="d-flex justify-content-between small text-body-secondary"><span>Cupones</span><span id="cartCoupon">S/ 0.00</span></div>
+      <div class="d-flex justify-content-between mt-2 fs-5"><span>Total</span><strong id="cartTotal">S/ 0.00</strong></div>
+      <button id="btnGoCheckout" class="btn btn-primary w-100 mt-3" aria-label="Ir al checkout">
+        <i class="bi bi-cash-coin me-2"></i>Continuar al pago
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer py-5">
+  <div class="container">
+    <div class="row gy-4">
+      <!-- Marca + descripción + redes -->
+      <div class="col-lg-4">
+        <div class="d-flex align-items-center mb-2">
+          <i class="bi bi-music-note-beamed me-2"></i>
+          <span class="title">Eventos</span>
+        </div>
+        <p class="text-secondary mb-3">Encuentra y vive experiencias inolvidables.</p>
+        <div class="d-flex gap-2 social">
+          <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="#" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+          <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="#" aria-label="GitHub"><i class="bi bi-github"></i></a>
+        </div>
+      </div>
+
+      <!-- Explorar -->
+      <div class="col-6 col-lg-2">
+        <div class="title mb-2">EXPLORAR</div>
+        <ul class="list-unstyled mb-0">
+          <li><a href="#" class="link-primary">Próximos</a></li>
+          <li><a href="#" class="link-primary">FAQ</a></li>
+          <li><a href="#" class="link-primary">Contacto</a></li>
+        </ul>
+      </div>
+
+      <!-- Organizadores -->
+      <div class="col-6 col-lg-3">
+        <div class="title mb-2">ORGANIZADORES</div>
+        <ul class="list-unstyled mb-0">
+          <li><a href="#" class="link-primary">Publicar evento</a></li>
+          <li><a href="#" class="link-primary">Precios</a></li>
+          <li><a href="#" class="link-primary">Centro de ayuda</a></li>
+        </ul>
+      </div>
+
+      <!-- Boletín -->
+      <div class="col-lg-3">
+        <div class="title mb-2">BOLETÍN</div>
+        <form class="newsletter" onsubmit="event.preventDefault();">
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="tu@email.com" aria-label="Correo para boletín" required>
+            <button class="send-btn" type="submit" aria-label="Suscribirse">
+              <i class="bi bi-send"></i>
+            </button>
+          </div>
+          <div class="form-text mt-2 text-secondary">Al suscribirte aceptas nuestra política de datos.</div>
+        </form>
+      </div>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Franja inferior -->
+    <div class="d-flex flex-column flex-lg-row align-items-center justify-content-between small text-secondary">
+      <div>© <span id="y"></span> Eventos. Todos los derechos reservados.</div>
+      <div class="d-flex gap-3 mt-2 mt-lg-0">
+        <a href="#" class="link-primary">Términos</a>
+        <a href="#" class="link-primary">Privacidad</a>
+        <a href="#" class="link-primary">Estado</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="api.js"></script>
+
+<script>
+  document.getElementById('y').textContent = new Date().getFullYear();
+
+  const EVENTS = [
+    { id:1, title:'Tech Summit 2025', date:'2025-09-20', location:'lima', price:120, category:'tech', tags:['cloud','ai','devops'], brief:'Conferencia sobre IA aplicada y arquitecturas cloud nativas.', image:'https://images.unsplash.com/photo-1517059224940-d4af9eec41e5?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1517059224940-d4af9eec41e5?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e1' },
+    { id:2, title:'Festival de Música Andina', date:'2025-10-05', location:'cusco', price:60, category:'music', tags:['folk','tradicional'], brief:'Artistas locales e internacionales celebran la música de los Andes.', image:'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e2' },
+    { id:3, title:'Expo Negocios & Startups', date:'2025-09-28', location:'lima', price:0, category:'business', tags:['networking','pitch'], brief:'Feria de innovación, stands y ruedas de negocio para startups.', image:'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e3' },
+    { id:4, title:'Maratón Costa Verde', date:'2025-11-12', location:'lima', price:40, category:'sports', tags:['running','salud'], brief:'Recorrido de 21K junto al mar. Cupos limitados.', image:'https://images.unsplash.com/photo-1496302662116-85c3c06a6b35?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1496302662116-85c3c06a6b35?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e4' },
+    { id:5, title:'Bienal de Arte Contemporáneo', date:'2025-12-03', location:'arequipa', price:25, category:'art', tags:['exposición','galería'], brief:'Obras de artistas emergentes y consagrados en espacios históricos.', image:'https://images.unsplash.com/photo-1526318472351-c75fcf070305?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1526318472351-c75fcf070305?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e5' },
+    { id:6, title:'Taller de Data Science', date:'2025-09-10', location:'virtual', price:15, category:'education', tags:['python','ml'], brief:'Introducción práctica a modelos supervisados con Python.', image:'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e6' },
+    { id:7, title:'Noche de Jazz en el Parque', date:'2025-09-18', location:'lima', price:30, category:'music', tags:['jazz','live'], brief:'Concierto al aire libre con solistas invitados.', image:'https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e7' },
+    { id:8, title:'Hackathon Universitaria', date:'2025-09-25', location:'lima', price:0, category:'tech', tags:['estudiantes','hackathon'], brief:'48 horas para crear soluciones a retos reales.', image:'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e8' },
+    { id:9, title:'Cumbre de Emprendimiento Social', date:'2025-10-22', location:'cusco', price:45, category:'business', tags:['impacto','ong'], brief:'Casos de éxito y workshops de innovación social.', image:'https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e9' },
+  ];
+
+  const FEATURED_EVENTS = EVENTS.slice(0, 3);
+
+  // Funciones auxiliares
+  const $ = (s, el=document) => el.querySelector(s);
+  const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+
+  function formatPrice(v) {
+    return v === 0 ? 'Gratis' : new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', maximumFractionDigits: 0 }).format(v);
+  }
+  function formatDate(iso) {
+    const d = new Date(iso + 'T00:00:00');
+    return new Intl.DateTimeFormat('es-PE', { dateStyle: 'medium' }).format(d);
+  }
+
+  // Función para mostrar toasts (copiada de app.js para consistencia)
+  function showToast(type = 'info', title = 'Info', message = ''){
+    const toastC = () => document.getElementById('toasts'); // Asegúrate de tener un div con id="toasts" en tu HTML
+    if (!toastC()) {
+        const container = document.createElement('div');
+        container.id = 'toasts';
+        container.className = 'position-fixed top-0 end-0 p-3';
+        container.style.zIndex = '1090';
+        document.body.appendChild(container);
+    }
+
+    const icons = { success: 'check-circle', info: 'info-circle', error: 'exclamation-octagon' };
+    const classes = { success: 'toast-success', info: 'toast-info', error: 'toast-error' };
+    const el = document.createElement('div');
+    el.className = `toast align-items-center ${classes[type] ?? ''}`;
+    el.setAttribute('role','status');
+    el.setAttribute('aria-live','polite');
+    el.innerHTML = `
+      <div class="toast-header">
+        <i class="bi bi-${icons[type] ?? icons.info}"></i>
+        <strong class="me-auto">${title}</strong>
+        <small class="text-muted">ahora</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+      <div class="toast-body">${message}</div>`;
+    toastC().appendChild(el);
+    new bootstrap.Toast(el, { delay: 3500 }).show();
+  }
+
+  // Renderizar tarjetas de eventos
+  function render(events) {
+    const grid = $('#grid');
+    grid.innerHTML = '';
+    if(events.length === 0){
+      $('#empty').classList.remove('d-none');
+    } else {
+      $('#empty').classList.add('d-none');
+    }
+    events.forEach(ev => {
+      const col = document.createElement('div');
+      col.className = 'col';
+      col.innerHTML = `
+        <article class="card h-100" role="listitem" tabindex="0" aria-label="${ev.title}, ${formatDate(ev.date)}, ${formatPrice(ev.price)}">
+          <img src="${ev.image}" alt="${ev.title}" class="event-thumb" loading="lazy" />
+          <div class="card-body">
+            <h4 class="card-title">${ev.title}</h4>
+            <p class="card-subtitle">${formatDate(ev.date)} • ${ev.location.toUpperCase()}</p>
+            <p class="card-text">${ev.brief}</p>
+            <div class="tags" aria-label="Etiquetas">${ev.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>
+            <div class="d-flex justify-content-between align-items-center mt-auto">
+              <strong class="fs-5">${ev.price > 0 ? formatPrice(ev.price) : '<span class="text-success">GRATIS</span>'}</strong>
+              <div class="btn-group" role="group" aria-label="Acciones">
+                <button class="btn btn-outline-secondary btn-quick-view" data-quick="${ev.id}" aria-label="Vista rápida de ${ev.title}">
+                  <i class="bi bi-eye"></i> Vista rápida
+                </button>
+                <button class="btn btn-primary btn-add-cart" data-id="${ev.id}" aria-label="Agregar ${ev.title} al carrito" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar al carrito">
+                  <i class="bi bi-bag-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+      grid.appendChild(col);
+    });
+    $('#count').textContent = String(events.length);
+
+    // Re-inicializar tooltips después de renderizar
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }
+
+  // Renderizar carrusel destacado
+  function renderFeatured(){
+    const carouselInner = document.querySelector('#featuredCarousel .carousel-inner');
+    carouselInner.innerHTML = '';
+    FEATURED_EVENTS.forEach((ev, idx) => {
+      const active = idx === 0 ? 'active' : '';
+      const item = document.createElement('div');
+      item.className = `carousel-item ${active}`;
+      item.innerHTML = `
+        <a href="#" data-quick="${ev.id}" class="d-block position-relative" aria-label="Evento destacado: ${ev.title}">
+          <img src="${ev.image}" class="d-block w-100 rounded" alt="${ev.title}" loading="lazy" />
+          <div class="carousel-caption d-none d-md-block">
+            <h5>${ev.title}</h5>
+            <p>${formatDate(ev.date)} • ${ev.location.toUpperCase()} • ${formatPrice(ev.price)}</p>
+          </div>
+        </a>
+      `;
+      carouselInner.appendChild(item);
+    });
+  }
+
+  // Lógica del modal de vista rápida
+  const modalEl = $('#eventModal');
+  const modal = new bootstrap.Modal(modalEl);
+
+  function openModal(data) {
+    $('#m-hero').src = data.image;
+    $('#m-hero').alt = data.title;
+    $('#m-title').textContent = data.title;
+    $('#m-meta').textContent = `${formatDate(data.date)} • ${data.location.toUpperCase()} • ${formatPrice(data.price)}`;
+    $('#m-brief').textContent = data.brief;
+    $('#m-tags').innerHTML = data.tags.map(t => `<span class='badge rounded-pill bg-body-secondary border'>#${t}</span>`).join('');
+    modal.show();
+  }
+
+  // Funciones del carrito (renderizado y cálculo de totales)
+  function renderCart(){
+    const cart = API.getCart();
+    const lines = $('#cartLines');
+    if(!cart.length){
+      lines.innerHTML = `<div class="text-center text-body-secondary py-5"><i class="bi bi-bag-dash fs-1 d-block mb-3"></i>Tu carrito está vacío</div>`;
+    } else {
+      lines.innerHTML = cart.map(it => `
+        <div class="d-flex gap-2 align-items-center border rounded p-2 mb-2">
+          <img src="${it.img}" alt="${it.title}" class="rounded" style="width:64px;height:64px;object-fit:cover;">
+          <div class="flex-fill">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <strong>${it.title}</strong>
+                <div class="small text-body-secondary"><i class="bi bi-geo-alt me-1"></i>${it.place || ''} · <i class="bi bi-calendar-event ms-2 me-1"></i>${it.when || ''}</div>
+              </div>
+              <button class="btn btn-sm btn-outline-danger btn-rem" data-id="${it.id}" aria-label="Quitar"><i class="bi bi-x"></i></button>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <div class="qty" role="group" aria-label="Cantidad">
+                <button class="btn-minus" data-id="${it.id}" aria-label="Disminuir"><i class="bi bi-dash"></i></button>
+                <input class="qty-input" data-id="${it.id}" type="number" min="1" value="${it.qty}">
+                <button class="btn-plus" data-id="${it.id}" aria-label="Aumentar"><i class="bi bi-plus"></i></button>
+              </div>
+              <strong>${it.price > 0 ? formatPrice(it.price) : '<span class="text-success">GRATIS</span>'}</strong>
+            </div>
+          </div>
+        </div>`).join('');
+
+      // Event listeners para los botones del carrito
+      lines.querySelectorAll('.btn-rem').forEach(b=> b.addEventListener('click', ()=> { API.removeCartItem(b.dataset.id); renderCart(); updateCartCount(); calcCartTotals(); }));
+      lines.querySelectorAll('.btn-minus').forEach(b=> b.addEventListener('click', ()=> { const it = API.getCart().find(x=>x.id===b.dataset.id); API.updateCartItem(b.dataset.id, (it.qty||1)-1); renderCart(); updateCartCount(); calcCartTotals(); }));
+      lines.querySelectorAll('.btn-plus').forEach(b=> b.addEventListener('click',  ()=> { const it = API.getCart().find(x=>x.id===b.dataset.id); API.updateCartItem(b.dataset.id, (it.qty||1)+1); renderCart(); updateCartCount(); calcCartTotals(); }));
+      lines.querySelectorAll('.qty-input').forEach(inp=> inp.addEventListener('change', ()=> { API.updateCartItem(inp.dataset.id, inp.value); renderCart(); updateCartCount(); calcCartTotals(); }));
+    }
+  }
+
+  function calcCartTotals(){
+    const cart = API.getCart();
+    // Aquí puedes definir un código de cupón si lo tienes, por ahora es null
+    const APPLIED_COUPON = null;
+    const totals = API.calcTotals(cart, APPLIED_COUPON);
+    $('#cartSubtotal').textContent = formatPrice(totals.subtotal);
+    $('#cartQtyDiscount').textContent = `- ${formatPrice(totals.qtyDiscount)}`;
+    $('#cartCoupon').textContent = `- ${formatPrice(totals.couponDiscount)}`;
+    $('#cartTotal').textContent = formatPrice(totals.total);
+  }
+
+  function updateCartCount(){
+    const c = API.getCart();
+    $('#navCartCount').textContent = c.reduce((n,i)=>n+(i.qty||1),0);
+  }
+
+  // Delegación de click para modal y agregar al carrito
+  document.addEventListener('click', e => {
+    // Vista rápida
+    const quickBtn = e.target.closest('.btn-quick-view');
+    if (quickBtn) {
+      const id = Number(quickBtn.dataset.quick); // Asegúrate de que el ID sea numérico
+      const ev = EVENTS.find(x => x.id === id);
+      if (ev) openModal(ev);
+      return;
+    }
+
+    // Añadir al carrito
+    const addBtn = e.target.closest('.btn-add-cart');
+    if (addBtn) {
+      const id = Number(addBtn.dataset.id); // Asegúrate de que el ID sea numérico
+      const ev = EVENTS.find(x => x.id === id);
+      if (ev) {
+        // API.addCartItem espera el ID del evento y la cantidad (por defecto 1)
+        API.addCartItem(ev.id, 1);
+        updateCartCount();
+        renderCart(); // Vuelve a renderizar el contenido del offcanvas
+        calcCartTotals(); // Recalcula los totales del carrito
+        showToast('success', 'Añadido', `"${ev.title}" se agregó al carrito.`);
+      }
+    }
+
+    // Ir al checkout
+    if (e.target.matches('#btnGoCheckout')) {
+      window.location.href = 'DetalleCarrito.html'; // Redirige a checkout.html
+    }
+
+    // Aplicar cupón
+    if (e.target.matches('#applyCouponBtn')) {
+      const couponCode = $('#couponInput').value.trim();
+      const cart = API.getCart();
+      const totalsBeforeCoupon = API.calcTotals(cart); // Calcula totales sin cupón para la base
+      const res = API.applyCoupon(couponCode, totalsBeforeCoupon.total);
+      if (res.valid) {
+        // Aquí deberías guardar el cupón aplicado en una variable global si quieres que persista
+        // Por simplicidad, solo recalculamos los totales con el cupón
+        calcCartTotals(); // Esto ya usará el cupón si lo pasas como argumento o lo guardas globalmente
+        showToast('success', 'Cupón aplicado', `Se aplicó el cupón: - ${formatPrice(res.amount)}`);
+      } else {
+        showToast('error', 'Cupón inválido', 'El código de cupón no es válido.');
+      }
+      calcCartTotals(); // Recalcula los totales para reflejar el cambio del cupón
+    }
+  });
+
+  // Filtros
+  function getFilters(){
+    const q = $('#q').value.trim().toLowerCase();
+    const from = $('#from').value ? new Date($('#from').value+'T00:00:00') : null;
+    const to   = $('#to').value ? new Date($('#to').value+'T23:59:59') : null;
+    const min  = $('#min').value!=='' ? Number($('#min').value) : null;
+    const max  = $('#max').value!=='' ? Number($('#max').value) : null;
+    const location = $('#location').value;
+    const cats = $$('#filtersForm input[type="checkbox"]:checked').map(i=>i.value);
+    return {q, from, to, min, max, location, cats};
+  }
+
+  function applyFilters(){
+    const {q, from, to, min, max, location, cats} = getFilters();
+    const out = EVENTS.filter(ev=>{
+      if(q){ const hay = (ev.title + ' ' + ev.tags.join(' ')).toLowerCase(); if(!hay.includes(q)) return false; }
+      if(cats.length && !cats.includes(ev.category)) return false;
+      if(location && ev.location !== location) return false;
+      if(from && new Date(ev.date) < from) return false;
+      if(to && new Date(ev.date) > to) return false;
+      if(min!=null && ev.price < min) return false;
+      if(max!=null && ev.price > max) return false;
+      return true;
+    });
+    render(out);
+  }
+
+  function clearFilters(){
+    $('#filtersForm').reset();
+    render(EVENTS);
+  }
+
+  $('#apply').addEventListener('click', applyFilters);
+  $('#clear').addEventListener('click', clearFilters);
+  $$('#filtersForm input, #filtersForm select').forEach(el=>{
+    el.addEventListener('change', applyFilters);
+    if(el.type==='search' || el.type==='number') el.addEventListener('input', ()=>{/* opcional: debounced */});
+  });
+
+  // Eventos destacados clic
+  document.querySelector('#featuredCarousel').addEventListener('click', e=>{
+    const link = e.target.closest('[data-quick]');
+    if(!link) return;
+    const id = Number(link.dataset.quick);
+    const ev = EVENTS.find(x=>x.id===id);
+    if(ev) openModal(ev);
+  });
+
+  // Inicializar al cargar la página
+  document.addEventListener('DOMContentLoaded', () => {
+    render(EVENTS);
+    renderFeatured();
+    updateCartCount(); // Actualiza el contador del carrito al cargar
+    renderCart();      // Renderiza el contenido del offcanvas del carrito
+    calcCartTotals();  // Calcula los totales del carrito
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+/* Profile page layout fixes */
+#view-profile > .container {
+  max-width: 1140px;
+}
+
+#view-profile .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+#view-profile .col-lg-4,
+#view-profile .col-lg-8 {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Ensure cards take full height in columns */
+#view-profile .col-lg-4 > .card,
+#view-profile .col-lg-8 > .card {
+  height: 100%;
+}
+
+/* Fix margin and padding for wallet and profile sections */
+#view-profile .card-body {
+  padding: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  #view-profile .col-lg-4,
+  #view-profile .col-lg-8 {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
