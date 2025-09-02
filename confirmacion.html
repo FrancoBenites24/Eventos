@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Compra Exitosa</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f4f4; /* Fondo gris muy suave */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    h1 {
+      color: #2ecc71; /* Verde de éxito */
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 25px;
+    }
+
+    .resumen {
+      text-align: left;
+      margin-bottom: 25px;
+    }
+
+    .resumen h3 {
+      margin-bottom: 15px;
+      color: #444;
+    }
+
+    .resumen p {
+      margin: 6px 0;
+      font-size: 15px;
+    }
+
+    .resumen p strong {
+      color: #000;
+    }
+
+    .total {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e74c3c; /* Rojo para el total */
+    }
+
+    .actions {
+      margin-top: 20px;
+    }
+
+    .actions a {
+      display: inline-block;
+      margin: 0 10px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .explorar {
+      background: #3498db; /* Azul */
+      color: #fff;
+    }
+
+    .explorar:hover {
+      background: #2980b9;
+    }
+
+    .pedido {
+      background: #2ecc71; /* Verde */
+      color: #fff;
+    }
+
+    .pedido:hover {
+      background: #27ae60;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>¡Compra Exitosa! 🎉</h1>
+    <p>Gracias por tu compra 🛒. Tu pedido ha sido procesado correctamente.</p>
+
+    <div class="resumen">
+      <h3>Resumen del Pedido</h3>
+      <p><strong>Evento:</strong> Festival de Sabores</p>
+      <p><strong>Cantidad:</strong> 2 entradas</p>
+      <p><strong>Precio Unitario:</strong> S/ 55.00</p>
+      <p class="total">Total: S/ 110.00</p>
+    </div>
+
+    <div class="actions">
+      <a href="index.html" class="explorar">Seguir explorando</a>
+      <a href="mipedido.html" class="pedido">Ver mi pedido</a>
+    </div>
+  </div>
+</body>
+</html>
