@@ -5,18 +5,28 @@
     set(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
   };
 
-  if(!LS.get('events')){
-    LS.set('events', [
-      {id:1, cat:'Música',   title:'Festival Andino 2025', desc:'Bandas indie y folk.', place:'Cusco',   when:'2025-09-20 18:00', price:120, img:'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1400&auto=format&fit=crop', rating:4.6},
-      {id:2, cat:'Tech',     title:'JS Summit Lima',       desc:'Charlas y workshops JS.', place:'Lima',    when:'2025-10-05 09:00', price:0,   img:'https://images.unsplash.com/photo-1555255707-c07966088b7b?q=80&w=1400&auto=format&fit=crop', rating:4.8},
-      {id:3, cat:'Cultural', title:'Noche de Museos',      desc:'Museos abiertos y guiados.', place:'Arequipa', when:'2025-09-28 19:00', price:35,  img:'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1400&auto=format&fit=crop', rating:4.4},
-      {id:4, cat:'Deporte',  title:'Maratón del Pacífico', desc:'42k, 21k y 10k.', place:'Trujillo', when:'2025-11-10 06:00', price:90,  img:'https://images.unsplash.com/photo-1546483875-ad9014c88eba?q=80&w=1400&auto=format&fit=crop', rating:4.7},
-      {id:5, cat:'Música',   title:'Jazz en la Plaza',     desc:'Jam session al aire libre.', place:'Lima',    when:'2025-09-12 20:00', price:0,   img:'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=1400&auto=format&fit=crop', rating:4.2},
-      {id:6, cat:'Tech',     title:'IA para Todos',        desc:'Intro práctica a IA.', place:'Virtual', when:'2025-09-22 18:30', price:50,  img:'https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=1400&auto=format&fit=crop', rating:4.5},
-      {id:7, cat:'Cultural', title:'Feria del Libro',      desc:'Autores y firmas.', place:'Lima', when:'2025-10-15 10:00', price:10,  img:'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1400&auto=format&fit=crop', rating:4.1},
-      {id:8, cat:'Deporte',  title:'Copa Ciudad',          desc:'Torneo amistoso.', place:'Piura', when:'2025-09-30 15:00', price:25,  img:'https://images.unsplash.com/photo-1502877338535-766e1452684a?q=80&w=1400&auto=format&fit=crop', rating:4.0}
-    ]);
-  }
+  LS.set('events', [
+    {id:1, title:'Tech Summit 2025', date:'2025-09-20', location:'lima', price:120, category:'tech', tags:['cloud', 'ai', 'devops'], brief:'Conferencia sobre IA aplicada y arquitecturas cloud nativas.', image:'https://www.politico.com/dims4/default/resize/1040/quality/90/?url=https%3A%2F%2Fstatic.politico.com%2F02%2F02%2Fe305d48b4877ade360e1c694268a%2F20240917-tech-cms-shared-graphic.png', url:'evento.html?id=e1'},
+    {id:2, title:'Festival de Música Andina', date:'2025-10-05', location:'cusco', price:60, category:'music', tags:['folk', 'tradicional'], brief:'Artistas locales e internacionales celebran la música de los Andes.', image:'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e2'},
+    {id:3, title:'Expo Negocios & Startups', date:'2025-09-28', location:'lima', price:0, category:'business', tags:['networking', 'pitch'], brief:'Feria de innovación, stands y ruedas de negocio para startups.', image:'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e3'},
+    {id:4, title:'Maratón Costa Verde', date:'2025-11-12', location:'lima', price:40, category:'sports', tags:['running', 'salud'], brief:'Recorrido de 21K junto al mar. Cupos limitados.', image:'', url:'evento.html?id=e4'},
+    {id:5, title:'Bienal de Arte Contemporáneo', date:'2025-12-03', location:'arequipa', price:25, category:'art', tags:['exposicion', 'galeria'], brief:'Obras de artistas emergentes y consagrados en espacios históricos.', image:'https://pixnio.com/free-images/2022/04/19/2022-04-19-09-14-10-1350x971.jpg', url:'evento.html?id=e5'},
+    {id:6, title:'Taller de Data Science', date:'2025-09-10', location:'virtual', price:15, category:'education', tags:['python', 'ml'], brief:'Introducción práctica a modelos supervisados con Python.', image:'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e6'},
+    {id:7, title:'Noche de Jazz en el Parque', date:'2025-09-18', location:'lima', price:30, category:'music', tags:['jazz', 'live'], brief:'Concierto al aire libre con solistas invitados.', image:'https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e7'},
+    {id:8, title:'Hackathon Universitaria', date:'2025-09-25', location:'lima', price:0, category:'tech', tags:['estudiantes', 'hackathon'], brief:'48 horas para crear soluciones a retos reales.', image:'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e8'},
+    {id:9, title:'Cumbre de Emprendimiento Social', date:'2025-10-22', location:'cusco', price:45, category:'business', tags:['impacto', 'ong'], brief:'Casos de éxito y workshops de innovación social.', image:'https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=1600&auto=format&fit=crop', url:'evento.html?id=e9'},
+    {id:10, title:'Festival de Cómic y Manga', date:'2025-10-15', location:'lima', price:20, category:'art', tags:['ilustracion', 'cultura'], brief:'Exposiciones, talleres y meet & greets con artistas.', image:'https://festivalcomicmanga.com/wp-content/uploads/2024/07/logo2.png', url:'evento.html?id=e10'},
+    {id:11, title:'Taller de Fotografía Urbana', date:'2025-11-01', location:'arequipa', price:55, category:'education', tags:['fotografia', 'workshop'], brief:'Aprende a capturar la esencia de la ciudad.', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZWFlFba-W2H2KVQO2rw-rVsbESdoTwlXKvA&s', url:'evento.html?id=e11'},
+    {id:12, title:'Cena Solidaria', date:'2025-12-10', location:'lima', price:150, category:'business', tags:['gala', 'solidario'], brief:'Evento benéfico para recaudar fondos para una causa social.', image:'https://caretas.pe/wp-content/uploads/2024/12/banco-2-1153x768.jpg', url:'evento.html?id=e12'},
+    {id:13, title:'Campeonato de Ajedrez Nacional', date:'2025-10-29', location:'lima', price:0, category:'sports', tags:['ajedrez', 'competencia'], brief:'Torneo abierto para jugadores de todas las edades.', image:'https://federacionperuanadeajedrez.org/wp-content/uploads/2024/05/Imagen-de-WhatsApp-2024-05-20-a-las-13.23.01_e052eefa.jpg', url:'evento.html?id=e13'},
+    {id:14, title:'Clínica de Béisbol para Niños', date:'2025-11-20', location:'lima', price:20, category:'sports', tags:['niños', 'deporte'], brief:'Taller gratuito para iniciarse en este deporte.', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgnX24RqkV0I0iOxKa7VHN2MRhLjLJ8Ml1fw&s', url:'evento.html?id=e14'},
+    {id:15, title:'WebDev Conference', date:'2025-11-25', location:'virtual', price:75, category:'tech', tags:['frontend', 'backend', 'ux'], brief:'Charla de expertos en desarrollo web full-stack.', image:'https://ct-webdev.com/wp-content/uploads/2025/04/MG_0080_heinz_1_1.jpg', url:'evento.html?id=e15'},
+    {id:16, title:'Taller de Robótica para Niños', date:'2025-11-15', location:'piura', price:50, category:'education', tags:['robotica', 'steam'], brief:'Aprende a construir y programar tu propio robot desde cero.', image:'https://portal.andina.pe/EDPfotografia3/Thumbnail/2022/12/21/000920659W.jpg', url:'evento.html?id=e16'},
+    {id:17, title:'Festival de la Cumbia Piurana', date:'2025-12-08', location:'piura', price:20, category:'music', tags:['cumbia', 'tropical'], brief:'Una noche para bailar y disfrutar de los mejores exponentes de la cumbia local.', image:'https://i.scdn.co/image/ab67616d0000b2736697c5cde5b6a5cc9582c588', url:'evento.html?id=e17'},
+    {id:18, title:'Seminario de Marketing Digital', date:'2025-10-01', location:'virtual', price:150, category:'business', tags:['marketing', 'seo', 'rrss'], brief:'Descubre las últimas tendencias y estrategias para crecer en línea.', image:'https://www.feedough.com/wp-content/uploads/2020/08/what-is-marketing.png', url:'evento.html?id=e18'},
+    {id:19, title:'Exposición de Arte Moche', date:'2025-11-05', location:'lima', price:0, category:'art', tags:['cultura', 'historia'], brief:'Un recorrido por la iconografía y el legado de la cultura Moche.', image:'https://detrujillo.com/wp-content/uploads/2018/03/unt-realiza-exhibicion-de-textiles-post-mochicas-en-museo-huachas-de-moche.jpg', url:'evento.html?id=e19'},
+    {id:20, title:'Campeonato de Surf Mancora', date:'2025-11-28', location:'piura', price:80, category:'sports', tags:['surf', 'mar'], brief:'Competencia de surf en la reconocida playa del norte del Perú.', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9H-z7hfm67jukdxLEOcEqRukrDl5e3t1Pvg&s', url:'evento.html?id=e20'}
+  ]);
   if(!LS.get('users')) LS.set('users', []);
   if(!LS.get('cart')) LS.set('cart', []);
   if(!LS.get('orders')) LS.set('orders', []);
@@ -31,7 +41,7 @@
       const ev = this.getEvent(eventId); if(!ev) return this.getCart();
       const cart = this.getCart();
       const existing = cart.find(i=>i.eventId===ev.id);
-      if(existing) existing.qty += qty; else cart.push({ id: crypto.randomUUID(), eventId: ev.id, title: ev.title, price: ev.price, qty, img: ev.img, place: ev.place, when: ev.when });
+      if(existing) existing.qty += qty; else cart.push({ id: crypto.randomUUID(), eventId: ev.id, title: ev.title, price: ev.price, qty, img: ev.image, place: ev.location, when: ev.date });
       LS.set('cart', cart); return cart;
     },
     updateCartItem(id, qty){
@@ -74,7 +84,7 @@
       const users = LS.get('users', []);
       const exists = users.some(u=> u.email.toLowerCase()===String(email).toLowerCase());
       if(exists) return { ok:false, msg:'El email ya está registrado.' };
-      const user = { id: crypto.randomUUID(), name, email, passHash: btoa(pass), wallet: 100.00 };
+      const user = { id: crypto.randomUUID(), name, email, passHash: btoa(pass), wallet: 100.00, phone: '', location: '', bio: '' };
       users.push(user); LS.set('users', users);
       LS.set('session', { userId: user.id });
       return { ok:true, user };
@@ -90,7 +100,6 @@
     me(){ const s = LS.get('session'); if(!s) return null; return LS.get('users', []).find(u=> u.id===s.userId) || null; },
     addWallet(amount){ const me = this.me(); if(!me) return null; const users = LS.get('users', []); const u = users.find(x=>x.id===me.id); u.wallet = (u.wallet||0) + Number(amount||0); LS.set('users', users); return u.wallet; },
 
-    // ===== Órdenes =====
     getOrders(userId){ return LS.get('orders', []).filter(o=> o.userId===userId); },
     createOrder({ userId, items, couponCode, payMethod }){
       const cart = items.map(it=> ({...it}));
