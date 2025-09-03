@@ -20,9 +20,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navMain">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
-          <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="eventos1.html">Eventos</a></li>
-          <li class="nav-item"><a class="nav-link" href="profile.html">Mi perfil</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link active" href="profile.html">Mi Perfil</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#login">Ingresar</a></li>
         <li class="nav-item ms-lg-3">
           <button class="btn btn-sm btn-gradient d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas" aria-label="Abrir carrito">
             <i class="bi bi-bag-check me-2"></i>Carrito
@@ -122,14 +122,208 @@
       <div class="d-flex align-items-center justify-content-between mb-3">
         <h3 class="h5 m-0">Eventos</h3>
         <span class="text-secondary small">(<span id="count">0</span> resultados)</span>
+        <div>
+          <button id="btnGridView" class="btn btn-outline-primary btn-sm active" aria-label="Vista en cuadrícula" title="Vista en cuadrícula">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+          </button>
+          <button id="btnListView" class="btn btn-outline-primary btn-sm" aria-label="Vista en lista" title="Vista en lista">
+            <i class="bi bi-list-ul"></i>
+          </button>
+        </div>
       </div>
       <div id="grid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" role="list"></div>
+      <nav aria-label="Paginación de eventos" class="mt-3">
+        <ul id="pagination" class="pagination justify-content-center"></ul>
+      </nav>
       <div id="empty" class="d-none" role="status" aria-live="polite">
         <i class="bi bi-info-circle me-2"></i>No se encontraron eventos que coincidan con los filtros.
       </div>
     </section>
   </div>
 </main>
+
+<script>
+  // Variables para paginación y vista
+  let currentPage = 1;
+  const itemsPerPage = 9;
+  let currentView = 'grid'; // 'grid' o 'list'
+  let filteredEvents = [];
+
+  // Función para renderizar eventos con paginación y vista
+  function render(events) {
+    filteredEvents = events;
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
+    const count = document.getElementById('count');
+    const pagination = document.getElementById('pagination');
+
+    // Calcular paginación
+    const totalItems = events.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    if (currentPage > totalPages) currentPage = totalPages || 1;
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pageItems = events.slice(start, end);
+
+    // Mostrar mensaje si no hay eventos
+    if (totalItems === 0) {
+      empty.classList.remove('d-none');
+      grid.innerHTML = '';
+      count.textContent = '0';
+      pagination.innerHTML = '';
+      return;
+    } else {
+      empty.classList.add('d-none');
+    }
+
+    // Renderizar eventos según vista
+    grid.innerHTML = '';
+    if (currentView === 'grid') {
+      grid.className = 'row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4';
+      pageItems.forEach(ev => {
+        const col = document.createElement('div');
+        col.className = 'col';
+        col.innerHTML = `
+          <article class="card h-100" role="listitem" tabindex="0" aria-label="${ev.title}, ${formatDate(ev.date)}, ${formatPrice(ev.price)}">
+            <img src="${ev.image}" alt="${ev.title}" class="event-thumb" loading="lazy" />
+            <div class="card-body">
+              <h4 class="card-title">${ev.title}</h4>
+              <p class="card-subtitle">${formatDate(ev.date)} • ${ev.location.toUpperCase()}</p>
+              <p class="card-text">${ev.brief}</p>
+              <div class="tags" aria-label="Etiquetas">${ev.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>
+              <div class="d-flex justify-content-between align-items-center mt-auto">
+                <strong class="fs-5">${ev.price > 0 ? formatPrice(ev.price) : '<span class="text-success">GRATIS</span>'}</strong>
+                <div class="btn-group" role="group" aria-label="Acciones">
+                  <button class="btn btn-outline-secondary btn-quick-view" data-quick="${ev.id}" aria-label="Vista rápida de ${ev.title}">
+                    <i class="bi bi-eye"></i> Vista rápida
+                  </button>
+                  <button class="btn btn-primary btn-add-cart" data-id="${ev.id}" aria-label="Agregar ${ev.title} al carrito" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar al carrito">
+                    <i class="bi bi-bag-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+        grid.appendChild(col);
+      });
+    } else if (currentView === 'list') {
+      grid.className = 'list-group';
+      pageItems.forEach(ev => {
+        const item = document.createElement('div');
+        item.className = 'list-group-item d-flex gap-3 py-3';
+        item.setAttribute('role', 'listitem');
+        item.setAttribute('tabindex', '0');
+        item.setAttribute('aria-label', `${ev.title}, ${formatDate(ev.date)}, ${formatPrice(ev.price)}`);
+        item.innerHTML = `
+          <img src="${ev.image}" alt="${ev.title}" class="flex-shrink-0 event-thumb-list" loading="lazy" style="width: 96px; height: 96px; object-fit: cover; border-radius: 0.375rem;">
+          <div class="d-flex flex-column flex-grow-1">
+            <h4 class="mb-1">${ev.title}</h4>
+            <p class="mb-1 text-muted">${formatDate(ev.date)} • ${ev.location.toUpperCase()}</p>
+            <p class="mb-1">${ev.brief}</p>
+            <div class="tags mb-2" aria-label="Etiquetas">${ev.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>
+            <div class="d-flex justify-content-between align-items-center mt-auto">
+              <strong class="fs-5">${ev.price > 0 ? formatPrice(ev.price) : '<span class="text-success">GRATIS</span>'}</strong>
+              <div class="btn-group" role="group" aria-label="Acciones">
+                <button class="btn btn-outline-secondary btn-quick-view" data-quick="${ev.id}" aria-label="Vista rápida de ${ev.title}">
+                  <i class="bi bi-eye"></i> Vista rápida
+                </button>
+                <button class="btn btn-primary btn-add-cart" data-id="${ev.id}" aria-label="Agregar ${ev.title} al carrito" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar al carrito">
+                  <i class="bi bi-bag-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    // Actualizar contador
+    count.textContent = String(totalItems);
+
+    // Renderizar paginación
+    pagination.innerHTML = '';
+    if (totalPages > 1) {
+      // Botón anterior
+      const prevLi = document.createElement('li');
+      prevLi.className = 'page-item' + (currentPage === 1 ? ' disabled' : '');
+      prevLi.innerHTML = `<button class="page-link" aria-label="Página anterior">&laquo;</button>`;
+      prevLi.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          render(filteredEvents);
+        }
+      });
+      pagination.appendChild(prevLi);
+
+      // Botones de páginas
+      for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = 'page-item' + (i === currentPage ? ' active' : '');
+        li.innerHTML = `<button class="page-link">${i}</button>`;
+        li.addEventListener('click', () => {
+          currentPage = i;
+          render(filteredEvents);
+        });
+        pagination.appendChild(li);
+      }
+
+      // Botón siguiente
+      const nextLi = document.createElement('li');
+      nextLi.className = 'page-item' + (currentPage === totalPages ? ' disabled' : '');
+      nextLi.innerHTML = `<button class="page-link" aria-label="Página siguiente">&raquo;</button>`;
+      nextLi.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          render(filteredEvents);
+        }
+      });
+      pagination.appendChild(nextLi);
+    }
+
+    // Inicializar tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }
+
+  // Actualizar filtros para reiniciar paginación
+  function applyFilters() {
+    const {q, from, to, min, max, location, cats} = getFilters();
+    const out = EVENTS.filter(ev=>{
+      if(q){ const hay = (ev.title + ' ' + ev.tags.join(' ')).toLowerCase(); if(!hay.includes(q)) return false; }
+      if(cats.length && !cats.includes(ev.category)) return false;
+      if(location && ev.location !== location) return false;
+      if(from && new Date(ev.date) < from) return false;
+      if(to && new Date(ev.date) > to) return false;
+      if(min!=null && ev.price < min) return false;
+      if(max!=null && ev.price > max) return false;
+      return true;
+    });
+    currentPage = 1;
+    render(out);
+  }
+
+  // Cambiar vista
+  document.getElementById('btnGridView').addEventListener('click', () => {
+    if (currentView !== 'grid') {
+      currentView = 'grid';
+      document.getElementById('btnGridView').classList.add('active');
+      document.getElementById('btnListView').classList.remove('active');
+      render(filteredEvents);
+    }
+  });
+  document.getElementById('btnListView').addEventListener('click', () => {
+    if (currentView !== 'list') {
+      currentView = 'list';
+      document.getElementById('btnListView').classList.add('active');
+      document.getElementById('btnGridView').classList.remove('active');
+      render(filteredEvents);
+    }
+  });
+</script>
 
 <!-- Modal Vista Rápida -->
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
@@ -260,21 +454,10 @@
 <script>
   document.getElementById('y').textContent = new Date().getFullYear();
 
-  const EVENTS = [
-    { id:1, title:'Tech Summit 2025', date:'2025-09-20', location:'lima', price:120, category:'tech', tags:['cloud','ai','devops'], brief:'Conferencia sobre IA aplicada y arquitecturas cloud nativas.', image:'https://images.unsplash.com/photo-1517059224940-d4af9eec41e5?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1517059224940-d4af9eec41e5?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e1' },
-    { id:2, title:'Festival de Música Andina', date:'2025-10-05', location:'cusco', price:60, category:'music', tags:['folk','tradicional'], brief:'Artistas locales e internacionales celebran la música de los Andes.', image:'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e2' },
-    { id:3, title:'Expo Negocios & Startups', date:'2025-09-28', location:'lima', price:0, category:'business', tags:['networking','pitch'], brief:'Feria de innovación, stands y ruedas de negocio para startups.', image:'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e3' },
-    { id:4, title:'Maratón Costa Verde', date:'2025-11-12', location:'lima', price:40, category:'sports', tags:['running','salud'], brief:'Recorrido de 21K junto al mar. Cupos limitados.', image:'https://images.unsplash.com/photo-1496302662116-85c3c06a6b35?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1496302662116-85c3c06a6b35?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e4' },
-    { id:5, title:'Bienal de Arte Contemporáneo', date:'2025-12-03', location:'arequipa', price:25, category:'art', tags:['exposición','galería'], brief:'Obras de artistas emergentes y consagrados en espacios históricos.', image:'https://images.unsplash.com/photo-1526318472351-c75fcf070305?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1526318472351-c75fcf070305?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e5' },
-    { id:6, title:'Taller de Data Science', date:'2025-09-10', location:'virtual', price:15, category:'education', tags:['python','ml'], brief:'Introducción práctica a modelos supervisados con Python.', image:'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e6' },
-    { id:7, title:'Noche de Jazz en el Parque', date:'2025-09-18', location:'lima', price:30, category:'music', tags:['jazz','live'], brief:'Concierto al aire libre con solistas invitados.', image:'https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e7' },
-    { id:8, title:'Hackathon Universitaria', date:'2025-09-25', location:'lima', price:0, category:'tech', tags:['estudiantes','hackathon'], brief:'48 horas para crear soluciones a retos reales.', image:'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e8' },
-    { id:9, title:'Cumbre de Emprendimiento Social', date:'2025-10-22', location:'cusco', price:45, category:'business', tags:['impacto','ong'], brief:'Casos de éxito y workshops de innovación social.', image:'https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=1600&auto=format&fit=crop', img:'https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=1400&auto=format&fit=crop', url:'evento.html?id=e9' },
-  ];
-
+  // Obtener eventos desde API
+  const EVENTS = API.getEvents();
   const FEATURED_EVENTS = EVENTS.slice(0, 3);
 
-  // Funciones auxiliares
   const $ = (s, el=document) => el.querySelector(s);
   const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
 
@@ -286,9 +469,8 @@
     return new Intl.DateTimeFormat('es-PE', { dateStyle: 'medium' }).format(d);
   }
 
-  // Función para mostrar toasts (copiada de app.js para consistencia)
   function showToast(type = 'info', title = 'Info', message = ''){
-    const toastC = () => document.getElementById('toasts'); // Asegúrate de tener un div con id="toasts" en tu HTML
+    const toastC = () => document.getElementById('toasts');
     if (!toastC()) {
         const container = document.createElement('div');
         container.id = 'toasts';
@@ -315,52 +497,8 @@
     new bootstrap.Toast(el, { delay: 3500 }).show();
   }
 
-  // Renderizar tarjetas de eventos
-  function render(events) {
-    const grid = $('#grid');
-    grid.innerHTML = '';
-    if(events.length === 0){
-      $('#empty').classList.remove('d-none');
-    } else {
-      $('#empty').classList.add('d-none');
-    }
-    events.forEach(ev => {
-      const col = document.createElement('div');
-      col.className = 'col';
-      col.innerHTML = `
-        <article class="card h-100" role="listitem" tabindex="0" aria-label="${ev.title}, ${formatDate(ev.date)}, ${formatPrice(ev.price)}">
-          <img src="${ev.image}" alt="${ev.title}" class="event-thumb" loading="lazy" />
-          <div class="card-body">
-            <h4 class="card-title">${ev.title}</h4>
-            <p class="card-subtitle">${formatDate(ev.date)} • ${ev.location.toUpperCase()}</p>
-            <p class="card-text">${ev.brief}</p>
-            <div class="tags" aria-label="Etiquetas">${ev.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>
-            <div class="d-flex justify-content-between align-items-center mt-auto">
-              <strong class="fs-5">${ev.price > 0 ? formatPrice(ev.price) : '<span class="text-success">GRATIS</span>'}</strong>
-              <div class="btn-group" role="group" aria-label="Acciones">
-                <button class="btn btn-outline-secondary btn-quick-view" data-quick="${ev.id}" aria-label="Vista rápida de ${ev.title}">
-                  <i class="bi bi-eye"></i> Vista rápida
-                </button>
-                <button class="btn btn-primary btn-add-cart" data-id="${ev.id}" aria-label="Agregar ${ev.title} al carrito" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar al carrito">
-                  <i class="bi bi-bag-plus"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </article>
-      `;
-      grid.appendChild(col);
-    });
-    $('#count').textContent = String(events.length);
 
-    // Re-inicializar tooltips después de renderizar
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-  }
 
-  // Renderizar carrusel destacado
   function renderFeatured(){
     const carouselInner = document.querySelector('#featuredCarousel .carousel-inner');
     carouselInner.innerHTML = '';
@@ -493,11 +631,10 @@
       } else {
         showToast('error', 'Cupón inválido', 'El código de cupón no es válido.');
       }
-      calcCartTotals(); // Recalcula los totales para reflejar el cambio del cupón
+      calcCartTotals();
     }
   });
 
-  // Filtros
   function getFilters(){
     const q = $('#q').value.trim().toLowerCase();
     const from = $('#from').value ? new Date($('#from').value+'T00:00:00') : null;
@@ -509,20 +646,7 @@
     return {q, from, to, min, max, location, cats};
   }
 
-  function applyFilters(){
-    const {q, from, to, min, max, location, cats} = getFilters();
-    const out = EVENTS.filter(ev=>{
-      if(q){ const hay = (ev.title + ' ' + ev.tags.join(' ')).toLowerCase(); if(!hay.includes(q)) return false; }
-      if(cats.length && !cats.includes(ev.category)) return false;
-      if(location && ev.location !== location) return false;
-      if(from && new Date(ev.date) < from) return false;
-      if(to && new Date(ev.date) > to) return false;
-      if(min!=null && ev.price < min) return false;
-      if(max!=null && ev.price > max) return false;
-      return true;
-    });
-    render(out);
-  }
+
 
   function clearFilters(){
     $('#filtersForm').reset();
@@ -547,7 +671,8 @@
 
   // Inicializar al cargar la página
   document.addEventListener('DOMContentLoaded', () => {
-    render(EVENTS);
+    filteredEvents = EVENTS;
+    render(filteredEvents);
     renderFeatured();
     updateCartCount(); // Actualiza el contador del carrito al cargar
     renderCart();      // Renderiza el contenido del offcanvas del carrito
