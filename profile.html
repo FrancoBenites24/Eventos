@@ -74,16 +74,15 @@
   box-shadow: 0 10px 30px rgba(2, 8, 23, .06);
 }
     
-    .btn-gradient {
-      background: var(--gradient);
-      color: white;
-      border: none;
-    }
-    
-    .btn-gradient:hover {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, #d9146c 100%);
-      color: white;
-    }
+.btn-grad {
+  background: var(--brand);
+  border: 0;
+}
+
+.btn-grad:hover {
+  background: var(--primary-dark);
+  color: white;
+}
     
     .card {
       border: none;
@@ -189,24 +188,20 @@
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Barra de navegación principal">
+  <nav id="topNav" class="navbar navbar-expand-lg bg-white sticky-top">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="Inicio.html" aria-label="Ir al inicio">
-        <i class="bi bi-stars text-warning"></i>
-        <span class="ms-1">Eventos</span>
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Alternar navegación">
+      <a class="navbar-brand fw-bold" href="#"><i class="bi text-warning me-2"></i><b>Pievi</b></a>
+      <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navItems">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navMain">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+      <div id="navItems" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto align-items-lg-center">          
           <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link active" href="profile.html">Mi Perfil</a></li>
-          <li class="nav-item"><a class="nav-link" href="index.html#login">Ingresar</a></li>
-          <li class="nav-item ms-lg-3">
-            <button class="btn btn-sm btn-gradient d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas" aria-label="Abrir carrito">
-              <i class="bi bi-bag-check me-2"></i>Carrito
-              <span id="navCartCount" class="badge ms-2 bg-dark-subtle text-dark-emphasis">0</span>
+          <li class="nav-item"><a class="nav-link" href="eventos1.html">Eventos</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.html">Mi perfil</a></li>          
+          <li class="nav-item">
+            <button class="btn btn-grad rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#authModal">
+              Cerrar Sesion
             </button>
           </li>
         </ul>
