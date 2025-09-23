@@ -1,0 +1,297 @@
+<footer th:fragment="footer" class="site-footer py-5" xmlns:th="http://www.thymeleaf.org">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-lg-4">
+        <div class="d-flex align-items-center mb-3">
+          <i class="bi bi-calendar-event text-primary me-2 fs-4"></i>
+          <span class="title fw-bold fs-4">Pievi</span>
+        </div>
+        <p class="text-muted mb-4 lh-base">Encuentra y vive experiencias inolvidables en Piura. La agenda moderna de la región con eventos culturales, gastronómicos y de entretenimiento.</p>
+        <div class="d-flex gap-3 social">
+          <a href="#" class="social-link" aria-label="Facebook" data-tooltip="Facebook">
+            <i class="bi bi-facebook"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="Twitter X" data-tooltip="Twitter X">
+            <i class="bi bi-twitter-x"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="Instagram" data-tooltip="Instagram">
+            <i class="bi bi-instagram"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="YouTube" data-tooltip="YouTube">
+            <i class="bi bi-youtube"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <div class="title fw-semibold mb-3 text-uppercase small text-primary">EXPLORAR</div>
+        <ul class="list-unstyled mb-0">
+          <li class="mb-2">
+            <a href="/eventos" th:href="@{/eventos}" class="footer-link">
+              <i class="bi bi-calendar-event me-2"></i>Próximos
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="footer-link">
+              <i class="bi bi-question-circle me-2"></i>FAQ
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="footer-link">
+              <i class="bi bi-envelope me-2"></i>Contacto
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <div class="title fw-semibold mb-3 text-uppercase small text-primary">ORGANIZADORES</div>
+        <ul class="list-unstyled mb-0">
+          <li class="mb-2">
+            <a href="#" class="footer-link">
+              <i class="bi bi-plus-circle me-2"></i>Publicar evento
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="footer-link">
+              <i class="bi bi-tag me-2"></i>Precios
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="footer-link">
+              <i class="bi bi-headset me-2"></i>Centro de ayuda
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-lg-3">
+        <div class="title fw-semibold mb-3 text-uppercase small text-primary">BOLETÍN</div>
+        <p class="text-muted small mb-3">Recibe el resumen semanal de eventos por distrito y categoría.</p>
+        <form class="newsletter" onsubmit="event.preventDefault();">
+          <div class="input-group mb-2">
+            <input type="email" class="form-control newsletter-input" placeholder="tu@email.com" aria-label="Correo para boletín">
+            <button class="btn btn-primary send-btn" type="submit" aria-label="Suscribirse">
+              <i class="bi bi-send"></i>
+            </button>
+          </div>
+          <div class="form-text small text-muted">Al suscribirte aceptas nuestra política de datos.</div>
+        </form>
+      </div>
+    </div>
+
+    <hr class="my-4 footer-divider">
+
+    <div class="d-flex flex-column flex-lg-row align-items-center justify-content-between small text-muted">
+      <div class="mb-2 mb-lg-0">
+        © <span id="y"></span> Pievi - Eventos Piura. Todos los derechos reservados.
+      </div>
+      <div class="d-flex gap-3 mt-2 mt-lg-0">
+        <a href="#" class="footer-link">Términos</a>
+        <a href="#" class="footer-link">Privacidad</a>
+        <a href="#" class="footer-link">Estado</a>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    :root {
+      --footer-bg: #f8fafc;
+      --footer-text: #475569;
+      --footer-text-light: #64748b;
+      --footer-border: #e2e8f0;
+      --primary-color: #00D2D3;
+      --primary-dark: #00a0a0;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --transition: all 0.2s ease;
+    }
+
+    /* Footer Base Styles */
+    .site-footer {
+      background: var(--footer-bg);
+      border-top: 1px solid var(--footer-border);
+      margin-top: auto;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* Title Styles */
+    .site-footer .title {
+      color: var(--footer-text);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* Text Styles */
+    .site-footer .text-muted {
+      color: var(--footer-text-light) !important;
+      line-height: 1.6;
+    }
+
+    /* Social Links */
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: white;
+      color: var(--primary-color);
+      border: 1px solid var(--footer-border);
+      transition: var(--transition);
+      text-decoration: none;
+      position: relative;
+    }
+
+    .social-link:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .social-link i {
+      font-size: 1.1rem;
+    }
+
+    /* Footer Links */
+    .footer-link {
+      color: var(--footer-text-light);
+      text-decoration: none;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+
+    .footer-link:hover {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .footer-link i {
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+
+    /* Newsletter Styles */
+    .newsletter-input {
+      border: 1px solid var(--footer-border);
+      border-radius: 8px 0 0 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      background: white;
+      transition: var(--transition);
+    }
+
+    .newsletter-input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 210, 211, 0.1);
+      outline: none;
+    }
+
+    .send-btn {
+      border-radius: 0 8px 8px 0;
+      border: 1px solid var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+      padding: 0.75rem 1rem;
+      transition: var(--transition);
+    }
+
+    .send-btn:hover {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .send-btn i {
+      font-size: 0.9rem;
+    }
+
+    /* Footer Divider */
+    .footer-divider {
+      border-color: var(--footer-border);
+      opacity: 0.5;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 991.98px) {
+      .site-footer {
+        text-align: center;
+      }
+
+      .social {
+        justify-content: center;
+      }
+
+      .site-footer .row > div {
+        margin-bottom: 2rem;
+      }
+
+      .site-footer .row > div:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: 575.98px) {
+      .site-footer {
+        padding: 3rem 0;
+      }
+
+      .social-link {
+        width: 40px;
+        height: 40px;
+      }
+
+      .social-link i {
+        font-size: 1rem;
+      }
+    }
+
+    /* Animation for social links */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .social-link:hover {
+      animation: float 0.6s ease-in-out;
+    }
+
+    /* Tooltip functionality */
+    .social-link[data-tooltip] {
+      position: relative;
+    }
+
+    .social-link[data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--footer-text);
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      z-index: 1000;
+      margin-bottom: 8px;
+    }
+
+    .social-link[data-tooltip]:hover::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: var(--footer-text);
+      z-index: 1001;
+      margin-bottom: 3px;
+    }
+  </style>
+</footer>

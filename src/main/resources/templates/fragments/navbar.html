@@ -1,0 +1,209 @@
+<nav th:fragment="navbar" id="topNav" class="navbar navbar-expand-lg bg-white sticky-top" xmlns:th="http://www.thymeleaf.org">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/"><i class="bi bi-calendar-event text-primary me-2"></i><b>Pievi</b></a>
+      <button class="navbar-toggler border-0" data-bs-toggle="collapse" data-bs-target="#navItems" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div id="navItems" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item">
+            <a class="nav-link" href="/" th:href="@{/}">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/eventos" th:href="@{/eventos}">Eventos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/profile" th:href="@{/profile}">Mi perfil</a>
+          </li>
+
+          <li class="nav-item ms-lg-2">
+            <a class="btn btn-grad rounded-pill px-4 fw-semibold" href="/login" th:href="@{/login}">
+              <i class="bi bi-person-plus me-1"></i>Únete gratis
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <style>
+      :root {
+        --navbar-height: 70px;
+        --primary-color: #00D2D3;
+        --primary-dark: #00a0a0;
+        --text-dark: #0f172a;
+        --text-muted: #64748b;
+        --border-light: #e2e8f0;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+        --transition: all 0.2s ease;
+      }
+
+      /* Navbar Base Styles */
+      .navbar {
+        min-height: var(--navbar-height);
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95) !important;
+        border-bottom: 1px solid rgba(0, 210, 211, 0.1);
+        transition: var(--transition);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+
+      .navbar.scrolled {
+        background: rgba(255, 255, 255, 0.98) !important;
+        box-shadow: var(--shadow-md);
+        border-bottom-color: rgba(0, 210, 211, 0.2);
+      }
+
+      /* Brand Styles */
+      .navbar-brand {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text-dark) !important;
+        letter-spacing: -0.025em;
+        transition: var(--transition);
+      }
+
+      .navbar-brand:hover {
+        color: var(--primary-color) !important;
+        transform: translateY(-1px);
+      }
+
+      .navbar-brand i {
+        font-size: 1.5rem;
+        transition: var(--transition);
+      }
+
+      .navbar-brand:hover i {
+        transform: scale(1.1);
+      }
+
+      /* Navigation Links */
+      .nav-link {
+        font-weight: 500;
+        color: var(--text-dark) !important;
+        padding: 0.5rem 1rem !important;
+        margin: 0 0.25rem;
+        border-radius: 8px;
+        transition: var(--transition);
+        position: relative;
+      }
+
+      .nav-link:hover {
+        color: var(--primary-color) !important;
+        background-color: rgba(0, 210, 211, 0.05);
+        transform: translateY(-1px);
+      }
+
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: var(--primary-color);
+        transition: var(--transition);
+        transform: translateX(-50%);
+      }
+
+      .nav-link:hover::after {
+        width: 80%;
+      }
+
+      /* Button Styles */
+      .btn-grad {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        border: none;
+        color: white !important;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: var(--transition);
+        box-shadow: 0 4px 15px rgba(0, 210, 211, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-grad::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      .btn-grad:hover::before {
+        left: 100%;
+      }
+
+      .btn-grad:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 210, 211, 0.4);
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+      }
+
+      .btn-grad:active {
+        transform: translateY(0);
+      }
+
+      /* Toggler Styles */
+      .navbar-toggler {
+        border: none;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: var(--transition);
+      }
+
+      .navbar-toggler:hover {
+        background-color: rgba(0, 210, 211, 0.1);
+      }
+
+      .navbar-toggler:focus {
+        box-shadow: 0 0 0 3px rgba(0, 210, 211, 0.2);
+      }
+
+      /* Mobile Responsive */
+      @media (max-width: 991.98px) {
+        .navbar-nav {
+          padding-top: 1rem;
+          border-top: 1px solid var(--border-light);
+        }
+
+        .nav-link {
+          padding: 0.75rem 1rem !important;
+          margin: 0.25rem 0;
+        }
+
+        .btn-grad {
+          margin-top: 0.5rem;
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+      /* Active state */
+      .nav-link.active {
+        color: var(--primary-color) !important;
+        background-color: rgba(0, 210, 211, 0.1);
+      }
+
+      .nav-link.active::after {
+        width: 80%;
+      }
+
+      /* Loading animation for brand */
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+
+      .navbar-brand.loading {
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+    </style>
+  </nav>
