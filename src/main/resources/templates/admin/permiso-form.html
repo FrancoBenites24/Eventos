@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: *}">
+<section>
+    <h2 th:text="${permiso.id != null} ? 'Editar Permiso' : 'Crear Permiso'"></h2>
+
+    <form th:action="@{${permiso.id} != null ? '/admin/permisos/edit/' + ${permiso.id} : '/admin/permisos/crear'}"
+          th:object="${permiso}" method="post">
+
+        <!-- Campo oculto solo cuando el permiso ya existe -->
+        <input type="hidden" th:if="${permiso.id != null}" th:field="*{id}" />
+
+        <div class="mb-3">
+            <label>Nombre</label>
+            <input type="text" th:field="*{nombre}" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label>Descripción</label>
+            <input type="text" th:field="*{descripcion}" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a th:href="@{/admin/permisos}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</section>
+</html>
