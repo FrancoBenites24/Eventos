@@ -14,7 +14,7 @@ public class AdminController {
         return "admin/dashboard";
     }
 
-    @GetMapping("/usuarios")
+    /*/@GetMapping("/usuarios")
     public String usuarios(Model model) {
         return "admin/usuarios";
     }
@@ -27,5 +27,5 @@ public class AdminController {
     @GetMapping("/permisos")
     public String permisos(Model model) {
         return "admin/permisos";
-    }
+    }*/
 }
