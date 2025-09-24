@@ -18,4 +18,11 @@ public class Evento {
     public String getTitulo() { return titulo; }
     public String getDescripcion() { return descripcion; }
     public String getFecha() { return fecha; }
+
+    //setters
+    
+     public void setId(Long id) { this.id = id; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public void setFecha(String fecha) { this.fecha = fecha; }
 }
