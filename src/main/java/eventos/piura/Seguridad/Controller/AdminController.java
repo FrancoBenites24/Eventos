@@ -28,4 +28,5 @@ public class AdminController {
     public String permisos(Model model) {
         return "admin/permisos";
     }
+    
 }
