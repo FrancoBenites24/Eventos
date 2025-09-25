@@ -7,80 +7,64 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link rel="stylesheet" th:href="@{/main.css}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
-  <style>
-:root{
-  --color-primary:#00D2D3;
-  --color-accent:#00D2D3;
-  --color-bg:#f8fafc;
-  --color-text:#0f172a;
-  --shadow-md:0 10px 30px rgba(12, 8, 24, .08);
-  --accent-soft: rgba(0,210,211,.12);
-}
-html,body{
-  font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  background:var(--color-bg); color:var(--color-text);
-}
-a { text-decoration: none; }
-
-.navbar {
-  --bs-navbar-brand-color: var(--color-text);
-  --bs-navbar-active-color: var(--color-primary);
-  box-shadow: none; transition: box-shadow .2s ease, border-color .2s ease;
-  border-bottom: 2px solid transparent; background: #fff;
-}
-.navbar.scrolled { box-shadow: var(--shadow-md); border-bottom-color: var(--color-accent); }
-.navbar .btn-gradient{
-  background: var(--color-primary);
-  color:#fff; border:0; box-shadow: 0 8px 20px rgba(0,210,211,.25);
-}
-.navbar .btn-gradient:focus{ outline: 3px solid var(--color-accent); box-shadow: 0 0 0 .25rem rgba(0,210,211,.25); }
-
-.form-control:focus, .form-select:focus{ border-color: var(--color-accent); box-shadow: 0 0 0 .25rem rgba(0,210,211,.25); }
-
-.badge-outline { background: var(--accent-soft); color: #0d6066; border: 1px solid rgba(0,210,211,.35); }
-
-.glass{ backdrop-filter: blur(8px); background: rgba(255,255,255,.6); border:1px solid rgba(255,255,255,.5); }
-.card-event{ transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease; border-bottom: 2px solid transparent; }
-.card-event:hover{ transform: translateY(-2px); box-shadow: var(--shadow-md); border-bottom-color: var(--color-accent); }
-
-.toast-header i{ margin-right: .5rem; }
-.toast-success { border-left: 4px solid var(--color-accent); }
-.toast-info    { border-left: 4px solid var(--color-primary); }
-.toast-error   { border-left: 4px solid #dc2626; }
-
-.ticket-badge{ border-left: 3px solid var(--color-accent); }
-
-.success-header {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-  color: white;
-}
-
-.confirmation-card {
-  border: 2px solid var(--color-accent);
-  box-shadow: var(--shadow-md);
-}
-  </style>
 </head>
 <body>
-    <nav th:replace="fragments/navbar :: navbar"></nav>
+  <nav th:replace="fragments/navbar :: navbar"></nav>
 
-    <main class="container py-5">
-        <div id="confirmationContent">
-            <div class="text-center mb-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-                <p class="mt-2">Cargando confirmación...</p>
-            </div>
+  <main class="container py-5">
+    <div class="card confirmation-card shadow">
+      <div class="card-header success-header text-white">
+        <h5 class="mb-0">
+          <i class="bi bi-check-circle me-2"></i> ¡Compra confirmada!
+        </h5>
+      </div>
+      <div class="card-body">
+        <!-- Código de pedido -->
+        <p class="mb-1">
+          <span class="text-muted">Código de pedido:</span>
+          <span class="fw-semibold" th:text="${codigo}">ORD-XXXX</span>
+        </p>
+
+        <!-- Datos del cliente -->
+        <p class="mb-1">
+          <span class="text-muted">Cliente:</span>
+          <span th:text="${nombre}">Nombre Cliente</span>
+          (<span th:text="${correo}">correo@example.com</span>)
+        </p>
+
+        <!-- Método de pago -->
+        <p class="mb-3">
+          <span class="text-muted">Método de pago:</span>
+          <span th:text="${metodo}">No especificado</span>
+        </p>
+
+        <!-- Mensaje -->
+        <p class="mb-4" th:text="${mensaje}">Mensaje de confirmación…</p>
+
+        <!-- Total -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Total</h5>
+          <h5 class="mb-0 text-success">
+            <span th:text="${moneda}">S/</span>
+            <span th:text="${#numbers.formatDecimal(total,1,2)}">0.00</span>
+          </h5>
         </div>
-    </main>
+
+        <!-- Acciones -->
+        <div class="mt-4 d-flex gap-2">
+          <a href="/profile" class="btn btn-outline-secondary">
+            <i class="bi bi-person"></i> Ir a mi perfil
+          </a>
+          <a href="/carrito" class="btn btn-gradient">
+            <i class="bi bi-bag"></i> Ver mis entradas
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
 
   <footer th:replace="fragments/footer :: footer"></footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="api.js"></script>
-  <script src="confirmacion.js"></script>
 </body>
 </html>
-
-
