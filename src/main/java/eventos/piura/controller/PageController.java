@@ -13,15 +13,11 @@ import java.util.Map;
 @Controller
 public class PageController {
 
-    // Perfil (sin cambios)
     @GetMapping("/profile")
     public String profile() {
         return "profile";
     }
 
-    // =========================================
-    // CONFIRMACIÓN (lee método de pago opcional)
-    // =========================================
     @GetMapping("/confirmacion")
     public String confirmacion(
             @RequestParam(value = "metodo", required = false) String metodo,
@@ -32,18 +28,14 @@ public class PageController {
         model.addAttribute("correo", "rubi@example.com");
         model.addAttribute("total", new BigDecimal("150.80").setScale(2, RoundingMode.HALF_UP));
         model.addAttribute("mensaje", "¡Tu compra se realizó con éxito!");
-        model.addAttribute("moneda", "S/"); // usa la misma moneda que en carrito
+        model.addAttribute("moneda", "S/");
         model.addAttribute("metodo", (metodo != null && !metodo.isBlank()) ? metodo : "No especificado");
 
-        return "confirmacion"; // ↔ templates/confirmacion.html
+        return "confirmacion";
     }
 
-    // ==========================
-    // CARRITO (dinámico servidor)
-    // ==========================
     @GetMapping("/carrito")
     public String carrito(Model model) {
-        // Items de ejemplo (sin models)
         Map<String,Object> i1 = Map.of(
                 "titulo", "Entrada Concierto",
                 "lugar", "Coliseo Piura",
@@ -84,10 +76,9 @@ public class PageController {
         model.addAttribute("moneda", "S/");
         model.addAttribute("metodosPago", List.of("Tarjeta", "Yape/Plin", "Transferencia"));
 
-        return "DetalleCarrito"; // ↔ templates/DetalleCarrito.html
+        return "DetalleCarrito";
     }
 
-    // Auth (sin cambios)
     @GetMapping("/login")
     public String login() {
         return "login";
