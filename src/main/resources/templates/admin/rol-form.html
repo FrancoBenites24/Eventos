@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: *}">
+<section>
+    <h2 th:text="${rol.id != null} ? 'Editar Rol' : 'Crear Rol'"></h2>
+
+    <form th:action="@{${rol.id} != null ? '/admin/roles/edit/' + ${rol.id} : '/admin/roles/crear'}"
+          th:object="${rol}" method="post">
+
+        <input type="hidden" th:if="${rol.id != null}" th:field="*{id}" />
+
+        <div class="mb-3">
+            <label>Nombre</label>
+            <input type="text" th:field="*{nombre}" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label>Descripción</label>
+            <input type="text" th:field="*{descripcion}" class="form-control" />
+        </div>
+
+        <!-- Aquí reemplazas lo que tenías -->
+        <div class="mb-3">
+            <label>Permisos</label>
+            <select multiple class="form-select" name="permisosIds">
+                <option th:each="permiso : ${permisos}"
+                        th:value="${permiso.id}"
+                        th:text="${permiso.nombre}"
+                        th:selected="${rol.permisos.contains(permiso)}">
+                </option>
+            </select>
+            <small class="form-text text-muted">Mantén presionada Ctrl (o Cmd en Mac) para seleccionar varios.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a th:href="@{/admin/roles}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</section>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: *}">
+<section>
+    <h2 class="mb-4">Usuarios</h2>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Roles</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="usuario : ${usuarios}">
+            <td th:text="${usuario.id}"></td>
+            <td th:text="${usuario.username}"></td>
+            <td th:text="${usuario.email}"></td>
+            <td>
+                <span th:each="rol : ${usuario.roles}" 
+                      class="badge bg-info" 
+                      th:text="${rol.nombre}"></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</html>

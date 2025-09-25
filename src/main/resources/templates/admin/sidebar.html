@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="sidebar">
+    <div id="sidebar" class="d-flex flex-column p-3" style="min-width:220px;max-width:220px;background:#0d6efd;color:#fff;">
+        <h3 class="text-center mb-4">Admin Pievi</h3>
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item"><a th:href="@{/admin/dashboard}" class="nav-link text-white"><i class="fa fa-home"></i> Dashboard</a></li>
+            <li class="nav-item"><a th:href="@{/admin/usuarios}" class="nav-link text-white"><i class="fa fa-users"></i> Usuarios</a></li>
+            <li class="nav-item"><a th:href="@{/admin/roles}" class="nav-link text-white"><i class="fa fa-id-badge"></i> Roles</a></li>
+            <li class="nav-item"><a th:href="@{/admin/permisos}" class="nav-link text-white"><i class="fa fa-key"></i> Permisos</a></li>
+        </ul>
+        <hr>
+        <a th:href="@{/}" class="btn btn-light btn-sm mt-auto">Volver al sitio</a>
+    </div>
+</div>
+</body>
+</html>
