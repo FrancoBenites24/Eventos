@@ -4,26 +4,26 @@
 <section>
     <h2 class="mb-4">Dashboard</h2>
 
-    <div class="row g-4">
+    <!-- Grid responsivo -->
+    <div class="row g-4 row-cols-1 row-cols-md-2 row-cols-lg-3">
 
-     <!-- Usuarios -->
-<div class="col-md-4">
-    <div class="card shadow-sm h-100">
-        <div class="card-body">
-            <h5 class="card-title text-primary">
-                <i class="fa fa-users"></i> Usuarios
-            </h5>
-            <p class="card-text">Gestión de todos los usuarios registrados.</p>
-            <div class="d-flex justify-content-between">
-                <a th:href="@{/admin/usuarios}" class="btn btn-outline-primary btn-sm">Ver</a>
+        <!-- Usuarios -->
+        <div class="col">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">
+                        <i class="fa fa-users"></i> Usuarios
+                    </h5>
+                    <p class="card-text">Gestión de todos los usuarios registrados.</p>
+                    <div class="d-flex justify-content-between">
+                        <a th:href="@{/admin/usuarios}" class="btn btn-outline-primary btn-sm">Ver</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
 
         <!-- Roles -->
-        <div class="col-md-4">
+        <div class="col">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h5 class="card-title text-success">
@@ -39,7 +39,7 @@
         </div>
 
         <!-- Permisos -->
-        <div class="col-md-4">
+        <div class="col">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h5 class="card-title text-warning">
