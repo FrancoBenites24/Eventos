@@ -1,142 +1,225 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" data-bs-theme="light" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Perfil</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f5f5f5; color: #333; line-height: 1.6; }
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
-        .profile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .profile-header h1 { font-size: 28px; color: #333; }
-        .edit-btn { background-color: #4a6fdc; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; transition: background-color 0.3s; text-decoration: none; display: inline-block; }
-        .edit-btn:hover { background-color: #3a5dc9; }
-        .profile-content { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); margin-bottom: 20px; }
-        .user-info { display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .profile-pic { width: 120px; height: 120px; border-radius: 50%; background-color: #e0e0e0; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
-        .user-name { font-size: 22px; font-weight: 600; margin-bottom: 5px; }
-        .user-email { color: #666; margin-bottom: 15px; }
-        .user-details { margin-bottom: 15px; text-align: left; width: 100%; }
-        .user-details p { margin-bottom: 8px; font-size: 14px; color: #555; }
-        .user-bio { font-size: 14px; color: #555; line-height: 1.5; text-align: left; width: 100%; }
-        .points-section { text-align: center; margin-top: 20px; }
-        .points { font-size: 24px; font-weight: bold; color: #4a6fdc; margin-bottom: 5px; }
-        .level { font-size: 16px; color: #666; margin-bottom: 5px; }
-        .next-level { font-size: 14px; color: #888; }
-        .wallet-section h2 { font-size: 20px; margin-bottom: 15px; color: #333; }
-        .balance { font-size: 28px; font-weight: bold; margin-bottom: 15px; color: #333; }
-        .manage-btn { background-color: #4a6fdc; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; transition: background-color 0.3s; }
-        .manage-btn:hover { background-color: #3a5dc9; }
-        .section-title { font-size: 18px; margin-bottom: 15px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .no-events, .empty-section { text-align: center; color: #888; font-style: italic; padding: 15px 0; }
-        .sidebar { display: flex; flex-direction: column; }
-        @media (max-width: 768px) { .profile-content { grid-template-columns: 1fr; } }
-        .alert { padding: 10px 15px; margin-bottom: 20px; border-radius: 4px; }
-        .alert-success { background-color: #d4edda; color: #155724; }
-        .alert-danger { background-color: #f8d7da; color: #721c24; }
-        .error-container { text-align: center; padding: 50px 20px; }
-        .error-container h2 { color: #dc3545; margin-bottom: 20px; }
-        .error-container p { margin-bottom: 20px; }
-        .home-btn { background-color: #4a6fdc; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; display: inline-block; }
-        .home-btn:hover { background-color: #3a5dc9; }
-        .debug-info { background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; padding: 15px; margin-top: 20px; }
-        .debug-info h3 { margin-bottom: 10px; color: #495057; }
-        .debug-info p { margin-bottom: 5px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mi Perfil</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{css/main.css}">
 </head>
 <body>
-    <div class="container">
-        <div class="profile-header">
-            <h1>Mi Perfil</h1>
-            <a th:if="${user != null}" th:href="@{'/profile/' + ${user.id} + '/edit'}" class="edit-btn">Editar</a>
-        </div>
-        
-        <div th:if="${success}" class="alert alert-success">
-            <span th:text="${success}"></span>
-        </div>
-        
-        <div th:if="${error}" class="alert alert-danger">
-            <span th:text="${error}"></span>
-        </div>
+<nav th:replace="fragments/navbar :: navbar"></nav>
 
-        <!-- Si el user existe -->
-        <div th:if="${user != null}" class="profile-content">
-            <div class="main-content">
-                <div class="card user-info">
-                    <div class="profile-pic">
-                        <!-- Ícono de usuario SVG como en la imagen -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#888888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                    </div>
-                    <h2 class="user-name" th:text="${user.name} ?: 'No especificado'">No especificado</h2>
-                    <p class="user-email" th:text="${user.user.email}">usuario@example.com</p>
-                    
-                    <div class="user-details">
-                        <p><strong>Teléfono:</strong> <span th:text="${user.phone} ?: 'No especificado'">No especificado</span></p>
-                        <p><strong>Ubicación:</strong> <span th:text="${user.location} ?: 'No especificado'">No especificado</span></p>
-                    </div>
-                    
-                    <div class="user-bio">
-                        <p th:text="${user.bio} ?: 'Amante de los eventos y experiencias culturales. Siempre buscando nuevas formas de disfrutar y compartir.'">Amante de los eventos y experiencias culturales. Siempre buscando nuevas formas de disfrutar y compartir.</p>
-                    </div>
-                    
-                    <div class="points-section">
-                        <div class="points" th:text="${user.points != null ? user.points + ' pts' : '0 pts'}">0 pts</div>
-                        <div class="level" th:text="${user.level != null ? 'Level ' + user.level : 'Level 1'}">Level 1</div>
-                        <div class="next-level" th:text="${user.points != null ? (100 - user.points) + ' pts para el siguiente nivel' : '100 pts para el siguiente nivel'}">100 pts para el siguiente nivel</div>
-                    </div>
-                </div>
+<main class="container app-container pb-5 mt-4">
+  <!-- Mensaje de error si existe -->
+  <div th:if="${error != null}" class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    <span th:text="${error}">Error al cargar el perfil</span>
+  </div>
+
+  <!-- Verificar si el perfil existe antes de mostrar el contenido -->
+  <div th:if="${perfil != null}">
+    <div class="row g-4">
+      <!-- Columna izquierda -->
+      <div class="col-12 col-lg-4">
+        <!-- Información del usuario -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <div class="position-relative">
+                <img th:src="${perfil.fotoPerfil != null ? perfil.fotoPerfil : 'https://via.placeholder.com/80'}" 
+                     class="rounded-circle border border-2 border-white shadow-sm" 
+                     alt="Foto de perfil" width="80" height="80">
+                <span class="position-absolute bottom-0 end-0 badge bg-success rounded-circle p-2" title="Verificado">
+                  <i class="bi bi-check-lg"></i>
+                </span>
+              </div>
+              <div class="ms-3">
+                <h4 class="mb-0" th:text="${perfil.nombreCompleto != null ? perfil.nombreCompleto : perfil.username}">Usuario</h4>
+                <p class="text-muted small mb-0" th:text="${perfil.email != null ? perfil.email : 'correo@ejemplo.com'}">correo@ejemplo.com</p>
+                <span class="badge bg-primary mt-1">Miembro</span>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary flex-fill">
+                <i class="bi bi-pencil-square me-1"></i> Editar perfil
+              </button>
+              <button class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-gear"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Billetera -->
+        <div class="card shadow-sm">
+          <div class="card-header bg-white py-3">
+            <h5 class="mb-0"><i class="bi bi-wallet2 me-2"></i>Billetera</h5>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <span class="text-muted">Saldo disponible</span>
+              <h3 class="mb-0" th:text="'S/ ' + ${#numbers.formatDecimal(perfil.saldo != null ? perfil.saldo : 0.0, 1, 2, 'POINT', 'COMMA')}">S/ 0.00</h3>
             </div>
             
-            <div class="sidebar">
-                <div class="card wallet-section">
-                    <h2>Billetera</h2>
-                    <div class="balance" th:text="${user.balance != null ? 'S/ ' + #numbers.formatDecimal(user.balance, 1, 2) : 'S/ 0.00'}">S/ 0.00</div>
-                    <button class="manage-btn">Gestionar Saldo</button>
+            <h6 class="text-muted mb-3">Transacciones recientes</h6>
+            <div class="d-flex flex-column gap-3">
+              <!-- Iteración con Thymeleaf para movimientos -->
+              <div th:if="${perfil.movimientosRecientes != null and not #lists.isEmpty(perfil.movimientosRecientes)}" 
+                   th:each="movimiento : ${perfil.movimientosRecientes}" class="d-flex align-items-center">
+                <div class="rounded-circle bg-light p-2 me-3">
+                  <i th:class="${movimiento.tipo == 'recarga' ? 'bi bi-arrow-down-circle text-success' : (movimiento.tipo == 'compra' ? 'bi bi-arrow-up-circle text-danger' : 'bi bi-arrow-left-right text-primary')}" 
+                     class="bi"></i>
                 </div>
-                
-                <div class="card">
-                    <h3 class="section-title">Últimos Movimientos</h3>
-                    <div class="empty-section">No hay movimientos recientes</div>
+                <div class="flex-grow-1">
+                  <p class="mb-0 small fw-medium" th:text="${movimiento.descripcion != null ? movimiento.descripcion : movimiento.tipo}">Transacción</p>
+                  <p class="mb-0 text-muted small" th:text="${#temporals.format(movimiento.creadoEn, 'dd/MM/yyyy HH:mm')}">Fecha</p>
                 </div>
-                
-                <div class="card">
-                    <h3 class="section-title">Tarjetas Guardadas</h3>
-                    <div class="empty-section">No tienes tarjetas guardadas</div>
-                </div>
-                
-                <div class="card">
-                    <h3 class="section-title">Próximos Eventos</h3>
-                    <div class="no-events">No tienes próximos eventos</div>
-                </div>
+                <span th:class="${movimiento.tipo == 'recarga' ? 'text-success' : (movimiento.tipo == 'compra' ? 'text-danger' : 'text-primary')}" 
+                      class="fw-medium" 
+                      th:text="${movimiento.tipo == 'recarga' ? '+' : (movimiento.tipo == 'compra' ? '-' : '')} + 'S/ ' + ${#numbers.formatDecimal(movimiento.monto, 1, 2, 'POINT', 'COMMA')}">
+                  Monto
+                </span>
+              </div>
+              
+              <!-- Mensaje si no hay movimientos -->
+              <div th:if="${perfil.movimientosRecientes == null or #lists.isEmpty(perfil.movimientosRecientes)}" class="text-center text-muted py-3">
+                <p class="mb-0">No hay transacciones recientes</p>
+              </div>
             </div>
+            
+            <div class="d-grid gap-2 mt-4">
+              <button class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Recargar saldo
+              </button>
+              <button class="btn btn-outline-secondary">
+                <i class="bi bi-clock-history me-1"></i> Ver historial
+              </button>
+            </div>
+          </div>
         </div>
-
-        <!-- Si no existe el user -->
-        <div th:if="${user == null}" class="error-container">
-            <div class="card">
-                <h2>Perfil no encontrado</h2>
-                <p>No se encontró el perfil solicitado. Es posible que el usuario no exista o no tengas permisos para verlo.</p>
-                <a th:href="@{/}" class="home-btn">Volver a la página principal</a>
+      </div>
+      
+      <!-- Columna derecha -->
+      <div class="col-12 col-lg-8">
+        <!-- Información Personal -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-white py-3">
+            <h5 class="mb-0"><i class="bi bi-person-vcard me-2"></i>Información Personal</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-12 col-md-6 mb-3 mb-md-0">
+                <label class="text-muted small">Nombre completo</label>
+                <p class="mb-0 fw-medium" th:text="${perfil.nombreCompleto != null ? perfil.nombreCompleto : perfil.username}">Usuario</p>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="text-muted small">Correo electrónico</label>
+                <p class="mb-0 fw-medium" th:text="${perfil.email != null ? perfil.email : 'correo@ejemplo.com'}">correo@ejemplo.com</p>
+              </div>
             </div>
+            
+            <div class="mb-3">
+              <label class="text-muted small">Biografía</label>
+              <p class="mb-0" th:text="${perfil.biografia != null ? perfil.biografia : 'Sin biografía'}">
+                Amante de la tecnología y los eventos. Siempre buscando nuevas experiencias.
+              </p>
+            </div>
+            
+            <div class="card bg-light">
+              <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <span class="fw-medium">Puntos de lealtad</span>
+                  <span class="badge bg-primary" th:text="${perfil.puntos != null ? perfil.puntos + ' pts' : '0 pts'}">0 pts</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <small class="text-muted">Nivel actual</small>
+                  <span class="badge bg-secondary" th:text="${perfil.nivel != null ? 'Nivel ' + perfil.nivel : 'Nivel 0'}">Nivel 0</span>
+                </div>
+                <div class="progress mb-1" style="height: 10px;">
+                  <div class="progress-bar bg-success" role="progressbar" 
+                       th:style="'width: ' + ${((perfil.puntos != null ? perfil.puntos : 0) * 100 / ((perfil.puntos != null ? perfil.puntos : 0) + (perfil.puntosParaSiguienteNivel != null ? perfil.puntosParaSiguienteNivel : 40))) + '%'}"
+                       aria-valuenow="${perfil.puntos != null ? perfil.puntos : 0}" 
+                       aria-valuemin="0" 
+                       th:attr="aria-valuemax=${(perfil.puntos != null ? perfil.puntos : 0) + (perfil.puntosParaSiguienteNivel != null ? perfil.puntosParaSiguienteNivel : 40)}">
+                  </div>
+                </div>
+                <small class="text-muted" th:text="'Necesitas ' + ${perfil.puntosParaSiguienteNivel != null ? perfil.puntosParaSiguienteNivel : 40} + ' puntos para subir de nivel'">
+                  Necesitas 40 puntos para subir de nivel
+                </small>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <!-- Información de depuración -->
-        <div class="debug-info">
-            <h3>Información de depuración</h3>
-            <p><strong>¿El objeto user es nulo?:</strong> <span th:text="${user == null}"></span></p>
-            <div th:if="${user != null}">
-                <p><strong>ID del perfil:</strong> <span th:text="${user.id}"></span></p>
-                <p><strong>Nombre:</strong> <span th:text="${user.name}"></span></p>
-                <p><strong>Usuario asociado:</strong> <span th:text="${user.user.username}"></span></p>
-                <p><strong>Email del usuario:</strong> <span th:text="${user.user.email}"></span></p>
+        <!-- Próximos Eventos -->
+        <div class="card shadow-sm">
+          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Próximos Eventos</h5>
+            <a href="#" class="btn btn-sm btn-outline-primary">Ver todos</a>
+          </div>
+          <div class="card-body">
+            <div th:if="${perfil.proximosEventos == null or #lists.isEmpty(perfil.proximosEventos)}" class="alert alert-info mb-3" role="alert">
+              <i class="bi bi-info-circle me-2"></i>No tienes próximos eventos.
             </div>
+            
+            <div class="row g-3">
+              <!-- Iteración con Thymeleaf para próximos eventos -->
+              <div th:if="${perfil.proximosEventos != null and not #lists.isEmpty(perfil.proximosEventos)}" 
+                   th:each="evento : ${perfil.proximosEventos}" class="col-12">
+                <div class="card border-0 shadow-sm">
+                  <div class="row g-0">
+                    <div class="col-4 col-md-3">
+                      <img th:src="${evento.banner != null ? evento.banner : 'https://via.placeholder.com/300x200'}" 
+                           class="img-fluid rounded-start h-100 object-fit-cover" 
+                           alt="Imagen del evento">
+                    </div>
+                    <div class="col-8 col-md-9">
+                      <div class="card-body">
+                        <h5 class="card-title" th:text="${evento.titulo != null ? evento.titulo : 'Evento sin título'}">Evento</h5>
+                        <div class="d-flex flex-wrap gap-3 mb-2">
+                          <div class="d-flex align-items-center text-muted small">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            <span th:text="${evento.fechaInicio != null ? #temporals.format(evento.fechaInicio, 'dd/MM/yyyy HH:mm') : 'Fecha no definida'}">Fecha</span>
+                          </div>
+                          <div class="d-flex align-items-center text-muted small">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            <span th:text="${evento.direccion != null ? evento.direccion : (evento.distrito != null ? evento.distrito + ', ' + (evento.ciudad != null ? evento.ciudad : '') : 'Ubicación no definida')}">Ubicación</span>
+                          </div>
+                        </div>
+                        <p class="card-text small text-muted" th:text="${evento.descripcion != null ? evento.descripcion : 'Sin descripción'}">
+                          Descripción del evento
+                        </p>
+                        <div class="d-flex gap-2">
+                          <a th:href="@{/detalle-evento/{id}(id=${evento.id})}" class="btn btn-sm btn-primary">
+                            Ver detalles
+                          </a>
+                          <button class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-share"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+  
+  <!-- Mensaje si el perfil es nulo y no hay error -->
+  <div th:if="${perfil == null and (error == null or error == '')}" class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    No se pudo cargar la información del perfil. Por favor, inténtalo de nuevo más tarde.
+  </div>
+</main>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
