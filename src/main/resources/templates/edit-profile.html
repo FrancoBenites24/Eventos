@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 26px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        textarea {
+            resize: none;
+            height: 80px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            font-size: 16px;
+            border-radius: 4px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #4a6fdc;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3a5dc9;
+        }
+
+        .btn-secondary {
+            background-color: #ccc;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .error {
+            color: #d9534f;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Editar Perfil</h1>
+
+    <form th:action="@{'/profile/' + ${user.id} + '/update'}" th:object="${user}" method="post">
+        <div>
+            <label for="name">Nombre completo</label>
+            <input type="text" id="name" th:field="*{name}" placeholder="Ingresa tu nombre completo">
+            <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        </div>
+
+        <div>
+            <label for="phone">Teléfono</label>
+            <input type="text" id="phone" th:field="*{phone}" placeholder="Número de teléfono">
+        </div>
+
+        <div>
+            <label for="location">Ubicación</label>
+            <input type="text" id="location" th:field="*{location}" placeholder="Ciudad / Dirección">
+        </div>
+
+        <div>
+            <label for="bio">Biografía</label>
+            <textarea id="bio" th:field="*{bio}" placeholder="Escribe algo sobre ti..."></textarea>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            <a th:href="@{'/profile/' + ${user.id}}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>
