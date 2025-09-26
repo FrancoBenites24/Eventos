@@ -44,10 +44,11 @@ public class AuthController {
 
     // POST - Procesar registro
     @PostMapping("/register")
-    public String registrar(@RequestParam String firstName,
-                            @RequestParam String lastName,
+    public String registrar(@RequestParam String nombre,
+                            @RequestParam String apellido,
                             @RequestParam String username,
                             @RequestParam String email,
+                            @RequestParam String telefono,
                             @RequestParam String password,
                             @RequestParam String confirmPassword,
                             Model model) {
@@ -66,11 +67,17 @@ public class AuthController {
             return "register";
         }
 
+        if (!telefono.matches("\\d{9}")) {
+            model.addAttribute("error", "El teléfono debe tener 9 dígitos");
+            return "register";
+        }
+
         Usuario usuario = new Usuario();
-        usuario.setNombre(firstName);
-        usuario.setApellido(lastName);
+        usuario.setNombre(nombre);
+        usuario.setApellido(apellido);
         usuario.setUsername(username);
         usuario.setEmail(email);
+        usuario.setTelefono(telefono);
         usuario.setPassword(password);
 
         usuarioService.registrar(usuario);
