@@ -5,6 +5,9 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import eventos.piura.model.UsuarioRol;
 
 @Entity
 @Table(
@@ -59,4 +62,7 @@ public class Usuario {
 
     @Column(name = "creado_en", nullable = false, updatable = false)
     private LocalDateTime creadoEn = LocalDateTime.now();
+
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER)
+    private List<UsuarioRol> usuarioRoles;
 }

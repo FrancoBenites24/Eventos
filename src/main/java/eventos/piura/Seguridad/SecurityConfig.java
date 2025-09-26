@@ -1,6 +1,9 @@
 package eventos.piura.Seguridad;
 
-import eventos.piura.repository.UserRepository;
+import eventos.piura.model.Usuario;
+import eventos.piura.repository.UsuarioRepository;
+
+import org.springframework.security.core.userdetails.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,10 +16,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-    private final UserRepository userRepository;
+    private final UsuarioRepository UsuarioRepository;
 
-    public SecurityConfig(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public SecurityConfig(UsuarioRepository UsuarioRepository) {
+        this.UsuarioRepository = UsuarioRepository;
     }
 
     @Bean
@@ -26,11 +29,13 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .map(user -> org.springframework.security.core.userdetails.User.builder()
-                        .username(user.getUsername())
-                        .password(user.getPassword())
-                        .roles(user.getRole().name())
+        return username -> UsuarioRepository.findByUsernameWithRoles(username)
+                .map(usuario -> User.builder()
+                        .username(usuario.getUsername())
+                        .password(usuario.getPassword())
+                        .roles(usuario.getUsuarioRoles().stream()
+                                .map(ur -> ur.getRol().getNombre())
+                                .toArray(String[]::new))
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
@@ -53,7 +58,7 @@ public class SecurityConfig {
 
         // For H2 console access
         http.csrf(csrf -> csrf.disable());
-        http.headers(headers -> headers.frameOptions().disable());
+        http.headers(headers -> headers.frameOptions(fo -> fo.disable()));
 
         return http.build();
     }
