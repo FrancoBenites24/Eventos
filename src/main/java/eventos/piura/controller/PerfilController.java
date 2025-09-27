@@ -1,7 +1,6 @@
 package eventos.piura.controller;
 
-import eventos.piura.dto.EventoDTO;
-import eventos.piura.dto.MovimientoBilleteraDTO;
+import eventos.piura.model.Usuario;
 import eventos.piura.dto.PerfilDTO;
 import eventos.piura.services.PerfilService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +9,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.time.LocalDateTime;
+import java.net.URLEncoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +29,9 @@ public class PerfilController {
     @Autowired
     private PerfilService perfilService;
 
-
-   @GetMapping("/perfil")
+    @Autowired
+    private eventos.piura.repository.UsuarioRepository usuarioRepository;
+@GetMapping("/perfil")
 public String mostrarPerfil(Model model) {
     try {
         // Obtener usuario autenticado
@@ -53,6 +56,18 @@ public String mostrarPerfil(Model model) {
         
         // Agregar datos al modelo
         model.addAttribute("perfil", perfil);
+        
+        // Agregar datos individuales para mayor seguridad
+        model.addAttribute("nombreCompleto", perfil.getNombreCompleto() != null ? perfil.getNombreCompleto() : "");
+        model.addAttribute("email", perfil.getEmail() != null ? perfil.getEmail() : "");
+        model.addAttribute("biografia", perfil.getBiografia() != null ? perfil.getBiografia() : "");
+        model.addAttribute("puntos", perfil.getPuntos() != null ? perfil.getPuntos() : 0);
+        model.addAttribute("nivel", perfil.getNivel() != null ? perfil.getNivel() : 0);
+        model.addAttribute("puntosParaSiguienteNivel", perfil.getPuntosParaSiguienteNivel() != null ? perfil.getPuntosParaSiguienteNivel() : 40);
+        model.addAttribute("saldo", perfil.getSaldo() != null ? perfil.getSaldo() : 0.0);
+        model.addAttribute("movimientosRecientes", perfil.getMovimientosRecientes() != null ? perfil.getMovimientosRecientes() : new ArrayList<>());
+        model.addAttribute("proximosEventos", perfil.getProximosEventos() != null ? perfil.getProximosEventos() : new ArrayList<>());
+        
         logger.info("Perfil cargado exitosamente para el usuario: {}", username);
         
         return "profile";
@@ -62,115 +77,75 @@ public String mostrarPerfil(Model model) {
         return "profile";
     }
 }
-    @GetMapping("/debug-perfil-dto")
-@ResponseBody
-public String debugPerfilDTO() {
+   @GetMapping("/perfil/editar")
+public String mostrarFormularioEditarPerfil(Model model) {
     try {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         
-        logger.info("Depurando perfil DTO para el usuario: {}", username);
+        Usuario usuario = usuarioRepository.findByUsernameWithRoles(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
         
-        PerfilDTO perfil = perfilService.obtenerPerfil(username);
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("biografia", "Amante de la tecnología y los eventos. Siempre buscando nuevas experiencias.");
         
-        StringBuilder sb = new StringBuilder();
-        sb.append("=== PERFIL DTO ===\n");
-        sb.append("ID: ").append(perfil.getId()).append("\n");
-        sb.append("Username: ").append(perfil.getUsername()).append("\n");
-        sb.append("Nombre: ").append(perfil.getNombre()).append("\n");
-        sb.append("Apellido: ").append(perfil.getApellido()).append("\n");
-        sb.append("Nombre Completo: ").append(perfil.getNombreCompleto()).append("\n");
-        sb.append("Email: ").append(perfil.getEmail()).append("\n");
-        sb.append("Saldo: ").append(perfil.getSaldo()).append("\n");
-        sb.append("Puntos: ").append(perfil.getPuntos()).append("\n");
-        sb.append("Nivel: ").append(perfil.getNivel()).append("\n");
-        sb.append("Roles: ").append(String.join(", ", perfil.getRoles())).append("\n");
-        sb.append("=== MOVIMIENTOS ===\n");
-        
-        for (MovimientoBilleteraDTO movimiento : perfil.getMovimientosRecientes()) {
-            sb.append("- ").append(movimiento.getTipo()).append(": ").append(movimiento.getMonto()).append("\n");
-        }
-        
-        sb.append("=== EVENTOS ===\n");
-        for (EventoDTO evento : perfil.getProximosEventos()) {
-            sb.append("- ").append(evento.getTitulo()).append(": ").append(evento.getFechaInicio()).append("\n");
-        }
-        
-        return sb.toString();
+        return "editarperfil";
     } catch (Exception e) {
-        logger.error("Error en debug-perfil-dto: {}", e.getMessage(), e);
-        return "Error: " + e.getMessage();
+        logger.error("Error al cargar formulario de edición: {}", e.getMessage(), e);
+        return "redirect:/perfil?error=" + URLEncoder.encode("Error al cargar el formulario de edición", StandardCharsets.UTF_8);
     }
 }
-    @GetMapping("/crear-perfil-prueba")
-public String crearPerfilPrueba(Model model) {
+
+@PostMapping("/perfil/editar")
+public String editarPerfil(
+        @RequestParam("nombre") String nombre,
+        @RequestParam("apellido") String apellido,
+        @RequestParam("username") String username,
+        @RequestParam("email") String email,
+        @RequestParam(value = "telefono", required = false) String telefono,
+        @RequestParam(value = "biografia", required = false) String biografia,
+        @RequestParam(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
+        RedirectAttributes redirectAttributes) {
+    
     try {
-        logger.info("Creando perfil de prueba...");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = auth.getName();
         
-        // Crear un perfil de prueba
-        PerfilDTO perfil = new PerfilDTO();
-        perfil.setId(1L);
-        perfil.setUsername("usuario_prueba");
-        perfil.setNombre("Usuario");
-        perfil.setApellido("Prueba");
-        perfil.setEmail("prueba@ejemplo.com");
-        perfil.setNombreCompleto("Usuario Prueba");
-        perfil.setBiografia("Este es un perfil de prueba");
-        perfil.setPuntos(60);
-        perfil.setNivel(1);
-        perfil.setPuntosParaSiguienteNivel(40);
-        perfil.setVerificado(true);
-        perfil.setMiembro(true);
-        perfil.setSaldo(20100.0);
+        Usuario usuario = usuarioRepository.findByUsernameWithRoles(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + currentUsername));
         
-        // Crear algunos movimientos de prueba
-        List<MovimientoBilleteraDTO> movimientos = new ArrayList<>();
+        // Actualizar datos del usuario
+        usuario.setNombre(nombre);
+        usuario.setApellido(apellido);
+        usuario.setUsername(username);
+        usuario.setEmail(email);
         
-        MovimientoBilleteraDTO movimiento1 = new MovimientoBilleteraDTO();
-        movimiento1.setId(1L);
-        movimiento1.setMonto(500.0);
-        movimiento1.setTipo("recarga");
-        movimiento1.setDescripcion("Recarga de saldo");
-        movimiento1.setCreadoEn(LocalDateTime.now().minusDays(1));
-        movimientos.add(movimiento1);
+        if (telefono != null && !telefono.isEmpty()) {
+            usuario.setTelefono(telefono);
+        }
         
-        MovimientoBilleteraDTO movimiento2 = new MovimientoBilleteraDTO();
-        movimiento2.setId(2L);
-        movimiento2.setMonto(150.0);
-        movimiento2.setTipo("compra");
-        movimiento2.setDescripcion("Compra de boletos");
-        movimiento2.setCreadoEn(LocalDateTime.now().minusDays(3));
-        movimientos.add(movimiento2);
+        // Guardar la foto de perfil si se proporcionó
+        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+            // Aquí deberías implementar la lógica para guardar la imagen
+            // Por ahora, solo guardamos el nombre del archivo
+            String fileName = System.currentTimeMillis() + "_" + fotoPerfil.getOriginalFilename();
+            usuario.setFotoPerfil(fileName);
+            
+            // Aquí guardarías el archivo en el sistema de archivos o en la nube
+            // Path path = Paths.get("uploads/" + fileName);
+            // Files.copy(fotoPerfil.getInputStream(), path);
+        }
         
-        perfil.setMovimientosRecientes(movimientos);
+        usuarioRepository.save(usuario);
         
-        // Crear algunos eventos de prueba
-        List<EventoDTO> eventos = new ArrayList<>();
+        redirectAttributes.addFlashAttribute("success", "Perfil actualizado correctamente");
+        return "redirect:/perfil";
         
-        EventoDTO evento1 = new EventoDTO();
-        evento1.setId(1L);
-        evento1.setTitulo("JS Summit Lima");
-        evento1.setDescripcion("El evento más importante de JavaScript en Lima");
-        evento1.setFechaInicio(LocalDateTime.now().plusDays(10));
-        evento1.setFechaFin(LocalDateTime.now().plusDays(10).plusHours(8));
-        evento1.setDireccion("Av. Javier Prado Este 1234");
-        evento1.setDistrito("San Borja");
-        evento1.setCiudad("Lima");
-        evento1.setEsGratuito(false);
-        evento1.setBanner("https://via.placeholder.com/300x200");
-        eventos.add(evento1);
-        
-        perfil.setProximosEventos(eventos);
-        
-        // Agregar datos al modelo
-        model.addAttribute("perfil", perfil);
-        
-        logger.info("Perfil de prueba creado exitosamente");
-        return "profile";
     } catch (Exception e) {
-        logger.error("Error al crear perfil de prueba: {}", e.getMessage(), e);
-        model.addAttribute("error", "Error al crear perfil de prueba: " + e.getMessage());
-        return "profile";
+        logger.error("Error al editar perfil: {}", e.getMessage(), e);
+        redirectAttributes.addFlashAttribute("error", "Error al actualizar el perfil: " + e.getMessage());
+        return "redirect:/perfil/editar";
     }
 }
+
 }
