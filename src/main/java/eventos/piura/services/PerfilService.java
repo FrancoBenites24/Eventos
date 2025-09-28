@@ -5,169 +5,116 @@ import eventos.piura.dto.MovimientoBilleteraDTO;
 import eventos.piura.dto.PerfilDTO;
 import eventos.piura.model.*;
 import eventos.piura.repository.UsuarioRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Objects;
-
 @Service
 public class PerfilService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PerfilService.class);
-    
     @Autowired
     private UsuarioRepository usuarioRepository;
-    
+
     @Autowired
     private BilleteraService billeteraService;
-    
+
     @Autowired
     private EventoService eventoService;
 
     @Transactional(readOnly = true)
-public PerfilDTO obtenerPerfil(String username) {
-    logger.info("Iniciando obtención de perfil para el usuario: {}", username);
-    
-    try {
-        // 1. Obtener usuario con roles
-        logger.info("Buscando usuario en la base de datos...");
+    public PerfilDTO obtenerPerfil(String username) {
         Usuario usuario = usuarioRepository.findByUsernameWithRoles(username)
-                .orElseThrow(() -> {
-                    logger.error("Usuario no encontrado en la base de datos: {}", username);
-                    return new RuntimeException("Usuario no encontrado: " + username);
-                });
-        
-        logger.info("Usuario encontrado: {}", usuario.getUsername());
-        logger.info("ID del usuario: {}", usuario.getId());
-        logger.info("Nombre: {}", usuario.getNombre());
-        logger.info("Apellido: {}", usuario.getApellido());
-        logger.info("Email: {}", usuario.getEmail());
-        
-        // 2. Crear el DTO básico con datos del usuario
-        PerfilDTO perfilDTO = new PerfilDTO();
-        perfilDTO.setId(usuario.getId());
-        perfilDTO.setUsername(usuario.getUsername());
-        perfilDTO.setNombre(usuario.getNombre() != null ? usuario.getNombre() : "");
-        perfilDTO.setApellido(usuario.getApellido() != null ? usuario.getApellido() : "");
-        perfilDTO.setEmail(usuario.getEmail());
-        perfilDTO.setTelefono(usuario.getTelefono());
-        perfilDTO.setFotoPerfil(usuario.getFotoPerfil());
-        perfilDTO.setCreadoEn(usuario.getCreadoEn());
-        
-        // Construir nombre completo
-        String nombreCompleto = "";
-        if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
-            nombreCompleto += usuario.getNombre();
-        }
-        if (usuario.getApellido() != null && !usuario.getApellido().isEmpty()) {
-            if (!nombreCompleto.isEmpty()) {
-                nombreCompleto += " ";
-            }
-            nombreCompleto += usuario.getApellido();
-        }
-        perfilDTO.setNombreCompleto(nombreCompleto.isEmpty() ? usuario.getUsername() : nombreCompleto);
-        
-        // Roles del usuario
-        perfilDTO.setRoles(usuario.getUsuarioRoles().stream()
-                .map(ur -> ur.getRol().getNombre())
-                .collect(Collectors.toList()));
-        
-        // 3. Datos adicionales (no están en la base de datos)
-        perfilDTO.setBiografia("Amante de la tecnología y los eventos. Siempre buscando nuevas experiencias.");
-        perfilDTO.setPuntos(60);
-        perfilDTO.setNivel(1);
-        perfilDTO.setPuntosParaSiguienteNivel(40);
-        perfilDTO.setVerificado(true);
-        perfilDTO.setMiembro(true);
-        
-        // 4. Obtener billetera
-        logger.info("Buscando billetera del usuario...");
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
+
+        PerfilDTO perfil = new PerfilDTO();
+
+        // Datos básicos
+        perfil.setId(usuario.getId());
+        perfil.setUsername(usuario.getUsername() != null ? usuario.getUsername() : "Usuario");
+        perfil.setNombre(usuario.getNombre() != null ? usuario.getNombre() : "");
+        perfil.setApellido(usuario.getApellido() != null ? usuario.getApellido() : "");
+        perfil.setEmail(usuario.getEmail() != null ? usuario.getEmail() : "correo@ejemplo.com");
+        perfil.setTelefono(usuario.getTelefono() != null ? usuario.getTelefono() : "");
+        perfil.setFotoPerfil(usuario.getFotoPerfil() != null ? usuario.getFotoPerfil() : "https://via.placeholder.com/80");
+        perfil.setCreadoEn(usuario.getCreadoEn());
+
+        // Nombre completo
+        String nombreCompleto = (perfil.getNombre() + " " + perfil.getApellido()).trim();
+        perfil.setNombreCompleto(!nombreCompleto.isEmpty() ? nombreCompleto : perfil.getUsername());
+
+        // Roles
+        perfil.setRoles(usuario.getUsuarioRoles() != null ?
+                usuario.getUsuarioRoles().stream().map(ur -> ur.getRol().getNombre()).collect(Collectors.toList()) :
+                new ArrayList<>());
+
+        // Datos adicionales
+        perfil.setBiografia("Sin biografía");
+        perfil.setPuntos(0);
+        perfil.setNivel(0);
+        perfil.setPuntosParaSiguienteNivel(40);
+        perfil.setVerificado(true);
+        perfil.setMiembro(true);
+
+        // Billetera y movimientos
         try {
             Billetera billetera = billeteraService.obtenerPorUsuarioId(usuario.getId())
-                    .orElseGet(() -> {
-                        logger.info("No se encontró billetera, creando una nueva...");
-                        return billeteraService.crearBilleteraParaUsuario(usuario);
-                    });
-            
-            perfilDTO.setSaldo(billetera.getSaldo() != null ? billetera.getSaldo() : 0.0);
-            logger.info("Saldo de la billetera: {}", perfilDTO.getSaldo());
-            
-            // 5. Obtener movimientos recientes
-            logger.info("Buscando movimientos recientes...");
+                    .orElseGet(() -> billeteraService.crearBilleteraParaUsuario(usuario));
+            perfil.setSaldo(billetera.getSaldo() != null ? billetera.getSaldo() : 0.0);
+
             List<MovimientoBilletera> movimientos = billeteraService.obtenerMovimientosRecientes(usuario.getId());
-            logger.info("Se encontraron {} movimientos recientes", movimientos.size());
-            
-            perfilDTO.setMovimientosRecientes(movimientos.stream()
-                    .map(this::convertirMovimientoADTO)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList()));
+            perfil.setMovimientosRecientes(movimientos != null ?
+                    movimientos.stream().map(this::convertirMovimientoADTO).collect(Collectors.toList()) :
+                    new ArrayList<>());
         } catch (Exception e) {
-            logger.error("Error al obtener billetera o movimientos: {}", e.getMessage(), e);
-            perfilDTO.setSaldo(0.0);
-            perfilDTO.setMovimientosRecientes(Collections.emptyList());
+            perfil.setSaldo(0.0);
+            perfil.setMovimientosRecientes(new ArrayList<>());
         }
-        
-        // 6. Obtener próximos eventos
-        logger.info("Buscando próximos eventos...");
+
+        // Próximos eventos
         try {
             List<Evento> eventos = eventoService.obtenerProximosEventos(usuario.getId());
-            logger.info("Se encontraron {} próximos eventos", eventos.size());
-            
-            perfilDTO.setProximosEventos(eventos.stream()
-                    .map(this::convertirEventoADTO)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList()));
+            perfil.setProximosEventos(eventos != null ?
+                    eventos.stream().map(this::convertirEventoADTO).collect(Collectors.toList()) :
+                    new ArrayList<>());
         } catch (Exception e) {
-            logger.error("Error al obtener próximos eventos: {}", e.getMessage(), e);
-            perfilDTO.setProximosEventos(Collections.emptyList());
+            perfil.setProximosEventos(new ArrayList<>());
         }
-        
-        logger.info("Perfil creado exitosamente para el usuario: {}", username);
-        return perfilDTO;
-        
-    } catch (Exception e) {
-        logger.error("Error al obtener el perfil para el usuario {}: {}", username, e.getMessage(), e);
-        throw e;
+
+        // **Garantizar valores no nulos para la columna derecha**
+        if (perfil.getPuntos() == null) perfil.setPuntos(0);
+        if (perfil.getNivel() == null) perfil.setNivel(0);
+        if (perfil.getPuntosParaSiguienteNivel() == null) perfil.setPuntosParaSiguienteNivel(40);
+        if (perfil.getProximosEventos() == null) perfil.setProximosEventos(new ArrayList<>());
+
+        return perfil;
+    }
+
+    private MovimientoBilleteraDTO convertirMovimientoADTO(MovimientoBilletera m) {
+        MovimientoBilleteraDTO dto = new MovimientoBilleteraDTO();
+        dto.setId(m.getId());
+        dto.setMonto(m.getMonto() != null ? m.getMonto() : 0.0);
+        dto.setTipo(m.getTipo() != null ? m.getTipo() : "desconocido");
+        dto.setDescripcion(m.getDescripcion() != null ? m.getDescripcion() : dto.getTipo());
+        dto.setCreadoEn(m.getCreadoEn() != null ? m.getCreadoEn() : java.time.LocalDateTime.now());
+        return dto;
+    }
+
+    private EventoDTO convertirEventoADTO(Evento e) {
+        EventoDTO dto = new EventoDTO();
+        dto.setId(e.getId());
+        dto.setTitulo(e.getTitulo() != null ? e.getTitulo() : "Evento");
+        dto.setDescripcion(e.getDescripcion() != null ? e.getDescripcion() : "Sin descripción");
+        dto.setFechaInicio(e.getFechaInicio() != null ? e.getFechaInicio() : java.time.LocalDateTime.now());
+        dto.setFechaFin(e.getFechaFin() != null ? e.getFechaFin() : dto.getFechaInicio());
+        dto.setDireccion(e.getDireccion() != null ? e.getDireccion() : "-");
+        dto.setDistrito(e.getDistrito() != null ? e.getDistrito() : "-");
+        dto.setCiudad(e.getCiudad() != null ? e.getCiudad() : "-");
+        dto.setEsGratuito(e.getEsGratuito() != null ? e.getEsGratuito() : false);
+        dto.setBanner(e.getBanner() != null ? e.getBanner() : "https://via.placeholder.com/150");
+        return dto;
     }
 }
-    private MovimientoBilleteraDTO convertirMovimientoADTO(MovimientoBilletera movimiento) {
-        try {
-            MovimientoBilleteraDTO dto = new MovimientoBilleteraDTO();
-            dto.setId(movimiento.getId());
-            dto.setMonto(movimiento.getMonto());
-            dto.setTipo(movimiento.getTipo());
-            dto.setDescripcion(movimiento.getDescripcion());
-            dto.setCreadoEn(movimiento.getCreadoEn());
-            return dto;
-        } catch (Exception e) {
-            logger.error("Error al convertir movimiento a DTO: {}", e.getMessage(), e);
-            return null;
-        }
-    }
-    
-    private EventoDTO convertirEventoADTO(Evento evento) {
-        try {
-            EventoDTO dto = new EventoDTO();
-            dto.setId(evento.getId());
-            dto.setTitulo(evento.getTitulo());
-            dto.setDescripcion(evento.getDescripcion());
-            dto.setFechaInicio(evento.getFechaInicio());
-            dto.setFechaFin(evento.getFechaFin());
-            dto.setDireccion(evento.getDireccion());
-            dto.setDistrito(evento.getDistrito());
-            dto.setCiudad(evento.getCiudad());
-            dto.setEsGratuito(evento.getEsGratuito());
-            dto.setBanner(evento.getBanner());
-            return dto;
-        } catch (Exception e) {
-            logger.error("Error al convertir evento a DTO: {}", e.getMessage(), e);
-            return null;
-        }
-    }
-}
+
