@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 
 import eventos.piura.model.Usuario;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
@@ -14,4 +15,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.usuarioRoles ur LEFT JOIN FETCH ur.rol WHERE u.username = :username")
     Optional<Usuario> findByUsernameWithRoles(@Param("username") String username);
+
+    //dashboard
+    List<Usuario> findTop5ByOrderByCreadoEnDesc();
 }
