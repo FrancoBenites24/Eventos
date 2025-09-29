@@ -1,34 +1,39 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: *}">
 <section>
-    <h2 class="mb-4">Roles</h2>
+    <h2 class="mb-4">Gestión de Roles</h2>
 
-    <!-- Botón para crear -->
-    <a th:href="@{/admin/roles/crear}" class="btn btn-primary mb-3">+ Crear Rol</a>
+    <div class="mb-3">
+        <a th:href="@{/admin/roles/crear}" class="btn btn-primary">
+            <i class="fa fa-plus"></i> Nuevo Rol
+        </a>
+    </div>
 
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Permisos</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="rol : ${roles}">
-            <td th:text="${rol.id}"></td>
-            <td th:text="${rol.nombre}"></td>
-            <td>
-                <span th:each="permiso : ${rol.permisos}" class="badge bg-secondary"
-                      th:text="${permiso.nombre}"></span>
-            </td>
-            <td>
-                <a th:href="@{/admin/roles/edit/{id}(id=${rol.id})}" class="btn btn-sm btn-warning">Editar</a>
-                <a th:href="@{/admin/roles/delete/{id}(id=${rol.id})}" class="btn btn-sm btn-danger">Eliminar</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="rol : ${roles}">
+                        <td th:text="${rol.id}">1</td>
+                        <td th:text="${rol.nombre}">Organizador</td>
+                        <td class="text-center">
+                            <a th:href="@{'/admin/roles/editar/' + ${rol.id}}" class="btn btn-sm btn-outline-success">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a th:href="@{'/admin/roles/eliminar/' + ${rol.id}}" 
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('¿Eliminar este rol?')">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </section>
-</html>
