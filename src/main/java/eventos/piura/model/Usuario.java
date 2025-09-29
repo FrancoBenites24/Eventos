@@ -63,6 +63,6 @@ public class Usuario {
     @Column(name = "creado_en", nullable = false, updatable = false)
     private LocalDateTime creadoEn = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER)
-    private List<UsuarioRol> usuarioRoles;
+   @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)   
+   private List<UsuarioRol> usuarioRoles;
 }
