@@ -21,15 +21,69 @@
                     <tr th:each="rol : ${roles}">
                         <td th:text="${rol.id}">1</td>
                         <td th:text="${rol.nombre}">Organizador</td>
-                        <td class="text-center">
-                            <a th:href="@{'/admin/roles/editar/' + ${rol.id}}" class="btn btn-sm btn-outline-success">
-                                <i class="fa fa-edit"></i>
-                            </a>
-                            <a th:href="@{'/admin/roles/eliminar/' + ${rol.id}}" 
-                               class="btn btn-sm btn-outline-danger"
-                               onclick="return confirm('¿Eliminar este rol?')">
-                                <i class="fa fa-trash"></i>
-                            </a>
+                        
+                        <td class="text-center position-static">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light border dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <!-- Editar -->
+                                    <li>
+                                        <a class="dropdown-item"
+                                           th:href="@{'/admin/roles/editar/' + ${rol.id}}">
+                                            <i class="fa fa-edit me-2"></i> Editar
+                                        </a>
+                                    </li>
+
+                                    <!-- Asignar permisos -->
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                           th:attr="data-bs-target='#modalPermisos-' + ${rol.id}">
+                                            <i class="fa fa-key me-2"></i> Asignar permisos
+                                        </a>
+                                    </li>
+
+                                    <!-- Eliminar -->
+                                    <li>
+                                        <a class="dropdown-item text-danger"
+                                           th:href="@{'/admin/roles/eliminar/' + ${rol.id}}"
+                                           onclick="return confirm('¿Eliminar este rol?')">
+                                            <i class="fa fa-trash me-2"></i> Eliminar
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Modal Asignar Permisos -->
+                            <div class="modal fade" th:id="'modalPermisos-' + ${rol.id}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form th:action="@{'/admin/roles/asignar-permisos/' + ${rol.id}}" method="post">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Asignar permisos a [[${rol.nombre}]]</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="form-check" th:each="p : ${permisos}">
+                                                    <input class="form-check-input" type="checkbox" name="permisos"
+                                                           th:value="${p.id}"
+                                                           th:checked="${permisosPorRol[rol.id]?.contains(p.id)}"
+>
+                                                    <label class="form-check-label" th:text="${p.nombre}">Permiso</label>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-primary">Guardar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
                         </td>
                     </tr>
                 </tbody>
