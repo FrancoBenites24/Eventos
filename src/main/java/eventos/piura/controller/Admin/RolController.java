@@ -29,15 +29,16 @@ public String listarRoles(Model model) {
     List<Rol> roles = rolRepository.findAll();
     List<Permiso> permisos = permisoRepository.findAll();
 
-    // Mapeo rolId -> lista de ids de permisos asignados
-    Map<Long, List<Long>> permisosPorRol = new HashMap<>();
-    for (Rol r : roles) {
-        List<Long> ids = rolPermisoRepository.findByRolId(r.getId())
-                                             .stream()
-                                             .map(rp -> rp.getPermiso().getId())
-                                             .toList();
-        permisosPorRol.put(r.getId(), ids);
-    }
+    // Mapeo rolId -> lista de permisos asignados
+Map<Long, List<Permiso>> permisosPorRol = new HashMap<>();
+for (Rol r : roles) {
+    List<Permiso> permisosAsignados = rolPermisoRepository.findByRolId(r.getId())
+                                                          .stream()
+                                                          .map(RolPermiso::getPermiso)
+                                                          .toList();
+    permisosPorRol.put(r.getId(), permisosAsignados);
+}
+
 
     model.addAttribute("roles", roles);
     model.addAttribute("permisos", permisos);

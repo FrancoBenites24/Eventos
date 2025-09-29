@@ -14,6 +14,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
+                        <th>Permisos</th> <!-- 👈 Nueva columna -->
                         <th class="text-center">Acciones</th>
                     </tr>
                 </thead>
@@ -21,7 +22,15 @@
                     <tr th:each="rol : ${roles}">
                         <td th:text="${rol.id}">1</td>
                         <td th:text="${rol.nombre}">Organizador</td>
-                        
+
+                        <!-- Columna de permisos -->
+                        <td>
+                            <span class="badge bg-secondary me-1"
+                                  th:each="p : ${permisosPorRol[rol.id]}"
+                                  th:text="${p.nombre}">Permiso</span>
+                        </td>
+
+                        <!-- Acciones -->
                         <td class="text-center position-static">
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-light border dropdown-toggle" type="button"
@@ -69,8 +78,7 @@
                                                 <div class="form-check" th:each="p : ${permisos}">
                                                     <input class="form-check-input" type="checkbox" name="permisos"
                                                            th:value="${p.id}"
-                                                           th:checked="${permisosPorRol[rol.id]?.contains(p.id)}"
->
+                                                           th:checked="${permisosPorRol[rol.id]?.contains(p)}">
                                                     <label class="form-check-label" th:text="${p.nombre}">Permiso</label>
                                                 </div>
                                             </div>
