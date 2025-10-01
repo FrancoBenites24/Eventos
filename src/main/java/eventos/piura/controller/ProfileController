@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.validation.BindingResult;
+
 @Controller
 @RequestMapping("/profile")
 public class ProfileController {
@@ -30,7 +34,6 @@ public class ProfileController {
         this.userService = userService;
     }
 
-    // Mostrar perfil del usuario actual (autenticado)
     @GetMapping
     public String showCurrentProfile(Model model, RedirectAttributes redirectAttributes) {
         try {
@@ -65,7 +68,6 @@ public class ProfileController {
         }
     }
 
-    // Mostrar perfil por ID
     @GetMapping("/{id}")
     public String showProfile(@PathVariable Long id, Model model) {
         UserProfile profile = profileService.findById(id)
@@ -75,7 +77,6 @@ public class ProfileController {
         return "profile";
     }
 
-    // Mostrar formulario de edición
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {
         UserProfile profile = profileService.findById(id)
@@ -85,12 +86,11 @@ public class ProfileController {
         return "edit-profile";
     }
 
-    // Procesar actualización del perfil
     @PostMapping("/{id}/update")
     public String updateProfile(@PathVariable Long id,
-                               @Valid @ModelAttribute("user") UserProfile updatedProfile,
-                               BindingResult result,
-                               RedirectAttributes redirectAttributes) {
+            @Valid @ModelAttribute("user") UserProfile updatedProfile,
+            BindingResult result,
+            RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
             return "edit-profile";
@@ -99,7 +99,6 @@ public class ProfileController {
         UserProfile existingProfile = profileService.findById(id)
                 .orElseThrow(() -> new RuntimeException("Perfil no encontrado con ID: " + id));
 
-        // Actualizar solo los campos editables del perfil
         existingProfile.setName(updatedProfile.getName());
         existingProfile.setPhone(updatedProfile.getPhone());
         existingProfile.setLocation(updatedProfile.getLocation());

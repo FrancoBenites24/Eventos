@@ -2,3 +2,19 @@
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]USUARIOS"; se esperaba "UPDATE"
 Syntax error in SQL statement "[*]USUARIOS"; expected "UPDATE"; SQL statement:
 USUARIOS [42001-232]
+2025-09-30 17:23:03.941855-05:00 jdbc[14]: exception
+org.h2.jdbc.JdbcSQLTimeoutException: Tiempo vencido intentando trabar (lock) la tabla {0}
+Timeout trying to lock table {0}; SQL statement:
+insert into usuarios (apellido,creado_en,email,foto_perfil,nombre,password,telefono,username,id) values (?,?,?,?,?,?,?,?,default) [50200-232]
+2025-09-30 17:23:32.157205-05:00 jdbc[15]: exception
+org.h2.jdbc.JdbcSQLTimeoutException: Tiempo vencido intentando trabar (lock) la tabla {0}
+Timeout trying to lock table {0}; SQL statement:
+insert into usuarios (apellido,creado_en,email,foto_perfil,nombre,password,telefono,username,id) values (?,?,?,?,?,?,?,?,default) [50200-232]
+2025-09-30 17:23:03.941855-05:00 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLTimeoutException: Tiempo vencido intentando trabar (lock) la tabla {0}
+Timeout trying to lock table {0}; SQL statement:
+insert into usuarios (apellido,creado_en,email,foto_perfil,nombre,password,telefono,username,id) values (?,?,?,?,?,?,?,?,default) [50200-232]
+2025-09-30 17:23:03.941855-05:00 jdbc[8]: exception
+org.h2.jdbc.JdbcSQLTimeoutException: Tiempo vencido intentando trabar (lock) la tabla {0}
+Timeout trying to lock table {0}; SQL statement:
+insert into usuarios (apellido,creado_en,email,foto_perfil,nombre,password,telefono,username,id) values (?,?,?,?,?,?,?,?,default) [50200-232]
