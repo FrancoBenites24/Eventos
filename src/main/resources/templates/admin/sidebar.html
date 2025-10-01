@@ -1,37 +1,19 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
-<div th:fragment="sidebar">
-<div class="d-flex flex-column flex-shrink-0 p-3 text-white h-100">
-    <h3 class="fs-4 mb-3">Admin Pievi</h3>
-    <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item">
-            <a th:href="@{/admin/dashboard}" class="nav-link text-white">
-                <i class="fa fa-home"></i> Dashboard
-            </a>
-        </li>
-        <li>
-            <a th:href="@{/admin/usuarios}" class="nav-link text-white">
-                <i class="fa fa-users"></i> Usuarios
-            </a>
-        </li>
-        <li>
-            <a th:href="@{/admin/roles}" class="nav-link text-white">
-                <i class="fa fa-id-badge"></i> Roles
-            </a>
-        </li>
-        <li>
-            <a th:href="@{/admin/permisos}" class="nav-link text-white">
-                <i class="fa fa-key"></i> Permisos
-            </a>
-        </li>
+<div id="sidebar" class="sidebar bg-light expanded d-flex flex-column p-2" th:fragment="sidebar">
+    <div class="d-flex align-items-center mb-3">
+        <button class="btn btn-sm btn-outline-secondary me-2" onclick="toggleSidebar()">
+            <i class="fa fa-bars"></i>
+        </button>
+        <span class="fw-bold d-none d-md-inline">Eventos</span>
+    </div>
+    <ul class="nav flex-column mb-auto">
+        <li><a th:href="@{/admin/dashboard}" class="nav-link"><i class="fa fa-home me-2"></i><span class="d-none d-md-inline">Dashboard</span></a></li>
+        <li><a th:href="@{/admin/usuarios}" class="nav-link"><i class="fa fa-users me-2"></i><span class="d-none d-md-inline">Usuarios</span></a></li>
+        <li><a th:href="@{/admin/roles}" class="nav-link"><i class="fa fa-id-badge me-2"></i><span class="d-none d-md-inline">Roles</span></a></li>
+        <li><a th:href="@{/admin/permisos}" class="nav-link"><i class="fa fa-key me-2"></i><span class="d-none d-md-inline">Permisos</span></a></li>
     </ul>
-    <hr>
-    <div>
-        <a th:href="@{/}" class="btn btn-light w-100">Volver al sitio</a>
+    <div class="mt-auto">
+        <button class="btn btn-sm btn-outline-dark w-100" onclick="toggleTheme()">
+            <i class="fa fa-moon"></i> <span class="d-none d-md-inline">Modo oscuro</span>
+        </button>
     </div>
 </div>
-
-</div>
-</body>
-</html>
