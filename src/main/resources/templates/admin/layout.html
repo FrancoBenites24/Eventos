@@ -1,5 +1,8 @@
 <!DOCTYPE html>
+
 <html xmlns:th="http://www.thymeleaf.org" lang="es" data-bs-theme="light">
+< xmlns:th="http://www.thymeleaf.org" lang="es" th:fragment="*">
+
 <head>
     <meta charset="UTF-8">
     <title th:text="${title} ?: 'Panel Admin - Eventos'"></title>
@@ -11,6 +14,7 @@
 <div class="d-flex">
     <!-- Sidebar -->
     <div th:replace="~{admin/sidebar :: sidebar}"></div>
+< class="d-flex flex-column flex-md-row">
 
     <!-- Main Content -->
     <main class="flex-grow-1 p-4">
@@ -34,6 +38,12 @@
         const html = document.documentElement;
         html.dataset.bsTheme = (html.dataset.bsTheme === "light") ? "dark" : "light";
     }
+    <!-- Contenido dinámico -->
+    <div id="content" class="p-4 flex-grow-1">
+        <div th:replace="~{::section}"></div>
+    </div>
+        <!-- Footer -->
+    <div th:replace="fragments/footer :: footer"></div>
 
     // Inicialización defensiva para dropdowns
     document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(el => {
