@@ -1,56 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: *}">
+
 <section>
     <h2 class="mb-4">Dashboard</h2>
 
-    <div class="row g-4">
+    <!-- Grid responsivo -->
+    <div class="row g-4 row-cols-1 row-cols-md-2 row-cols-lg-3">
+
         <!-- Usuarios -->
-        <div class="col-md-4">
-            <div class="card shadow-sm text-center">
+        <div class="col">
+            <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h5 class="card-title text-primary"><i class="fa fa-users"></i> Usuarios</h5>
-                    <p class="fs-4 fw-bold" th:text="${totalUsuarios}">0</p>
+                    <h5 class="card-title text-primary">
+                        <i class="fa fa-users"></i> Usuarios
+                    </h5>
+                    <p class="card-text">Gestión de todos los usuarios registrados.</p>
+                    <div class="d-flex justify-content-between">
+                        <a th:href="@{/admin/usuarios}" class="btn btn-outline-primary btn-sm">Ver</a>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Roles -->
-        <div class="col-md-4">
-            <div class="card shadow-sm text-center">
+        <div class="col">
+            <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h5 class="card-title text-success"><i class="fa fa-id-badge"></i> Roles</h5>
-                    <p class="fs-4 fw-bold" th:text="${totalRoles}">0</p>
+                    <h5 class="card-title text-success">
+                        <i class="fa fa-id-badge"></i> Roles
+                    </h5>
+                    <p class="card-text">Define y asigna roles a los usuarios.</p>
+                    <div class="d-flex justify-content-between">
+                        <a th:href="@{/admin/roles}" class="btn btn-outline-success btn-sm">Ver</a>
+                        <a th:href="@{/admin/roles/crear}" class="btn btn-success btn-sm">+ Crear</a>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Permisos -->
-        <div class="col-md-4">
-            <div class="card shadow-sm text-center">
+        <div class="col">
+            <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h5 class="card-title text-warning"><i class="fa fa-key"></i> Permisos</h5>
-                    <p class="fs-4 fw-bold" th:text="${totalPermisos}">0</p>
+                    <h5 class="card-title text-warning">
+                        <i class="fa fa-key"></i> Permisos
+                    </h5>
+                    <p class="card-text">Configura los accesos del sistema.</p>
+                    <div class="d-flex justify-content-between">
+                        <a th:href="@{/admin/permisos}" class="btn btn-outline-warning btn-sm">Ver</a>
+                        <a th:href="@{/admin/permisos/crear}" class="btn btn-warning btn-sm text-white">+ Crear</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Últimos usuarios -->
-    <div class="mt-5">
-        <h4>Últimos usuarios registrados</h4>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Creado en</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="u : ${ultimosUsuarios}">
-                    <td th:text="${u.username}">usuario</td>
-                    <td th:text="${u.email}">correo@example.com</td>
-                    <td th:text="${#temporals.format(u.creadoEn, 'dd/MM/yyyy HH:mm')}">fecha</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 </section>
+</html>

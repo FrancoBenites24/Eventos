@@ -84,4 +84,14 @@ public class PageController {
         return "DetalleCarrito"; // ↔ templates/DetalleCarrito.html
     }
 
+    // Auth (sin cambios)
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
+    @GetMapping("/register")
+    public String register() {
+        return "registro";
+    }
 }

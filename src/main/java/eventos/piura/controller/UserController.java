@@ -1,7 +1,7 @@
 package eventos.piura.controller;
 
-import eventos.piura.model.Usuario;
-import eventos.piura.repository.UsuarioRepository;
+import eventos.piura.model.User;
+import eventos.piura.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,19 +10,19 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UsuarioRepository UsuarioRepository;
+    private final UserRepository userRepository;
 
-    public UserController(UsuarioRepository UsuarioRepository) {
-        this.UsuarioRepository = UsuarioRepository;
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @GetMapping
-    public List<Usuario> getAllUsers() {
-        return UsuarioRepository.findAll();
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public Usuario getUserById(@PathVariable Long id) {
-        return UsuarioRepository.findById(id).orElseThrow();
+    public User getUserById(@PathVariable Long id) {
+        return userRepository.findById(id).orElseThrow();
     }
 }
