@@ -1,31 +1,39 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: *}">
 <section>
-    <h2 class="mb-4">Permisos</h2>
+    <h2 class="mb-4">Gestión de Permisos</h2>
 
-    <!-- Botón para crear -->
-    <a th:href="@{/admin/permisos/crear}" class="btn btn-primary mb-3">+ Crear Permiso</a>
+    <div class="mb-3">
+        <a th:href="@{/admin/permisos/crear}" class="btn btn-primary">
+            <i class="fa fa-plus"></i> Nuevo Permiso
+        </a>
+    </div>
 
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="permiso : ${permisos}">
-            <td th:text="${permiso.id}"></td>
-            <td th:text="${permiso.nombre}"></td>
-            <td th:text="${permiso.descripcion}"></td>
-            <td>
-                <a th:href="@{/admin/permisos/edit/{id}(id=${permiso.id})}" class="btn btn-sm btn-warning">Editar</a>
-                <a th:href="@{/admin/permisos/delete/{id}(id=${permiso.id})}" class="btn btn-sm btn-danger">Eliminar</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${permisos}">
+                        <td th:text="${p.id}">1</td>
+                        <td th:text="${p.nombre}">Crear evento</td>
+                        <td class="text-center">
+                            <a th:href="@{'/admin/permisos/editar/' + ${p.id}}" class="btn btn-sm btn-outline-success">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a th:href="@{'/admin/permisos/eliminar/' + ${p.id}}" 
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('¿Eliminar este permiso?')">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </section>
-</html>

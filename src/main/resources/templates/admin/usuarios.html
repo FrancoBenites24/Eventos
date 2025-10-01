@@ -1,29 +1,119 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: *}">
 <section>
-    <h2 class="mb-4">Usuarios</h2>
+    <h2 class="mb-4">Gestión de Usuarios</h2>
 
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Roles</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="usuario : ${usuarios}">
-            <td th:text="${usuario.id}"></td>
-            <td th:text="${usuario.username}"></td>
-            <td th:text="${usuario.email}"></td>
-            <td>
-                <span th:each="rol : ${usuario.roles}" 
-                      class="badge bg-info" 
-                      th:text="${rol.nombre}"></span>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Username</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="u : ${usuarios}">
+                        <td th:text="${u.username}">usuario</td>
+                        <td th:text="${u.nombre}">nombre</td>
+                        <td th:text="${u.apellido}">apellido</td>
+                        <td th:text="${u.email}">correo@example.com</td>
+                        <td>
+                            <span th:each="ur : ${u.usuarioRoles}" th:text="${ur.rol.nombre}"
+                                class="badge bg-primary me-1">Rol</span>
+                        </td>
+                        <td class="text-center position-static">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light border dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <!-- Ver detalles -->
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                            th:attr="data-bs-target='#modalDetalle-' + ${u.id}">
+                                            <i class="fa fa-eye me-2"></i> Ver detalles
+                                        </a>
+                                    </li>
+
+                                    <!-- Asignar roles -->
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                            th:attr="data-bs-target='#modalRoles-' + ${u.id}">
+                                            <i class="fa fa-user-shield me-2"></i> Asignar roles
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Modal Detalles -->
+                            <div class="modal fade" th:id="'modalDetalle-' + ${u.id}" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Detalles de [[${u.username}]]</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <ul class="list-group">
+                                                <li class="list-group-item"><strong>Username:</strong> <span
+                                                        th:text="${u.username}"></span></li>
+                                                <li class="list-group-item"><strong>Nombre:</strong> <span
+                                                        th:text="${u.nombre}"></span></li>
+                                                <li class="list-group-item"><strong>Apellido:</strong> <span
+                                                        th:text="${u.apellido}"></span></li>
+                                                <li class="list-group-item"><strong>Email:</strong> <span
+                                                        th:text="${u.email}"></span></li>
+                                                <li class="list-group-item">
+                                                    <strong>Roles:</strong>
+                                                    <span th:each="ur : ${u.usuarioRoles}" th:text="${ur.rol.nombre}"
+                                                        class="badge bg-primary me-1">Rol</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal Roles -->
+                            <div class="modal fade" th:id="'modalRoles-' + ${u.id}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form th:action="@{'/admin/usuarios/asignar-roles/' + ${u.id}}" method="post">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Asignar roles a [[${u.username}]]</h5>
+                                                <button type="button" class="btn-close"
+                                                    data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="form-check" th:each="rol : ${roles}">
+                                                    <input class="form-check-input" type="checkbox" name="roles"
+                                                        th:value="${rol.id}"
+                                                        th:checked="${#lists.contains(u.usuarioRoles.?[rol != null].![rol.id], rol.id)}">
+                                                    <label class="form-check-label" th:text="${rol.nombre}">Rol</label>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-primary">Guardar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </section>
-</html>
