@@ -6,7 +6,7 @@
   <title>Catálogo de Eventos</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" th:href="@{/main.css}">
+  <link rel="stylesheet" th:href="@{css/main.css}">
 </head>
 <body>
 <nav th:replace="fragments/navbar :: navbar"></nav>
@@ -94,232 +94,47 @@
       </div>
     </aside>
 
-    <!-- Catalogo -->
+    <!-- Catálogo -->
     <section class="col-12 col-lg-9" aria-live="polite">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h3 class="h5 m-0">Eventos</h3>
-    <span class="text-secondary small">(<span id="count">0</span> resultados)</span>
-    <div>
-      <button id="btnGridView" class="btn btn-outline-primary btn-sm active" aria-label="Vista en cuadrícula" title="Vista en cuadrícula">
-        <i class="bi bi-grid-3x3-gap-fill"></i>
-      </button>
-      <button id="btnListView" class="btn btn-outline-primary btn-sm" aria-label="Vista en lista" title="Vista en lista">
-        <i class="bi bi-list-ul"></i>
-      </button>
-    </div>
-  </div>
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="h5 m-0">Eventos</h3>
+        <span class="text-secondary small">(<span th:text="${#lists.size(eventos)}"></span> resultados)</span>
+      </div>
 
-  
-  <div id="grid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" role="list">
-    <div class="col" th:each="evento : ${eventos}">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title" th:text="${evento.titulo}"></h5>
-          <h6 class="card-subtitle mb-2 text-muted" th:text="${evento.fecha}"></h6>
-          <p class="card-text" th:text="${evento.descripcion}"></p>
-          <a class="btn btn-primary btn-sm" th:href="@{/detalle-evento/{id}(id=${evento.id})}">
-            Ver detalle
-          </a>
+      <div id="grid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" role="list">
+        <!-- Iteración con Thymeleaf -->
+        <div th:each="evento : ${eventos}" class="col">
+          <div class="card h-100 shadow-sm">
+            <img th:src="${evento.banner != null ? evento.banner : 'https://imgmedia.larepublica.pe/640x371/larepublica/original/2021/12/28/61cb8e57fbf8e55de83325bc.webp'}"
+                 class="card-img-top" alt="Imagen del evento">
+
+            <div class="card-body">
+              <h5 class="card-title" th:text="${evento.titulo}"></h5>
+              <h6 class="card-subtitle mb-2 text-muted"
+                  th:text="${#temporals.format(evento.fechaInicio, 'dd/MM/yyyy HH:mm')}"></h6>
+              <p class="card-text" th:text="${evento.descripcion}"></p>
+              <p class="card-text small text-muted"
+                 th:text="'Ubicación: ' + ${evento.direccion}"></p>
+
+              <span th:if="${evento.esGratuito}" class="badge bg-success">GRATIS</span>
+
+              <a class="btn btn-primary btn-sm mt-2"
+                 th:href="@{/detalle-evento/{id}(id=${evento.id})}">
+                Ver detalle
+              </a>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <nav aria-label="Paginación de eventos" class="mt-3">
-    <ul id="pagination" class="pagination justify-content-center"></ul>
-  </nav>
-
-  <div id="empty" class="d-none" role="status" aria-live="polite">
-    <i class="bi bi-info-circle me-2"></i>No se encontraron eventos que coincidan con los filtros.
-  </div>
-</section>
+      <!-- Mensaje si no hay eventos -->
+      <div th:if="${#lists.isEmpty(eventos)}" class="alert alert-info mt-3" role="alert">
+        <i class="bi bi-info-circle me-2"></i>No se encontraron eventos.
+      </div>
+    </section>
 
   </div>
 </main>
-
-<script>
-  // Variables para paginación y vista
-  let currentPage = 1;
-  const itemsPerPage = 9;
-  let currentView = 'grid'; // 'grid' o 'list'
-  let filteredEvents = [];
-
-  // Función para renderizar eventos con paginación y vista
-  function render(events) {
-    filteredEvents = events;
-    const grid = document.getElementById('grid');
-    const empty = document.getElementById('empty');
-    const count = document.getElementById('count');
-    const pagination = document.getElementById('pagination');
-
-    // Calcular paginación
-    const totalItems = events.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    if (currentPage > totalPages) currentPage = totalPages || 1;
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    const pageItems = events.slice(start, end);
-
-    // Mostrar mensaje si no hay eventos
-    if (totalItems === 0) {
-      empty.classList.remove('d-none');
-      grid.innerHTML = '';
-      count.textContent = '0';
-      pagination.innerHTML = '';
-      return;
-    } else {
-      empty.classList.add('d-none');
-    }
-
-    // Renderizar eventos según vista
-    grid.innerHTML = '';
-    if (currentView === 'grid') {
-      grid.className = 'row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4';
-      pageItems.forEach(ev => {
-        const col = document.createElement('div');
-        col.className = 'col';
-        col.innerHTML = `
-          <article class="card h-100" role="listitem" tabindex="0" aria-label="${ev.title}, ${formatDate(ev.date)}, ${formatPrice(ev.price)}">
-            <img src="${ev.image}" alt="${ev.title}" class="event-thumb" loading="lazy" />
-            <div class="card-body">
-              <h4 class="card-title">${ev.title}</h4>
-              <p class="card-subtitle">${formatDate(ev.date)} • ${ev.location.toUpperCase()}</p>
-              <p class="card-text">${ev.brief}</p>
-              <div class="tags" aria-label="Etiquetas">${ev.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>
-              <div class="d-flex justify-content-between align-items-center mt-auto">
-                <strong class="fs-5">${ev.price > 0 ? formatPrice(ev.price) : '<span class="text-success">GRATIS</span>'}</strong>
-                <div class="btn-group" role="group" aria-label="Acciones">
-                  <button class="btn btn-outline-secondary btn-quick-view" data-quick="${ev.id}" aria-label="Vista rápida de ${ev.title}">
-                    <i class="bi bi-eye"></i> Vista rápida
-                  </button>
-                  <button class="btn btn-primary btn-add-cart" data-id="${ev.id}" aria-label="Agregar ${ev.title} al carrito" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar al carrito">
-                    <i class="bi bi-bag-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </article>
-        `;
-        grid.appendChild(col);
-      });
-    } else if (currentView === 'list') {
-      grid.className = 'list-group';
-      pageItems.forEach(ev => {
-        const item = document.createElement('div');
-        item.className = 'list-group-item d-flex gap-3 py-3';
-        item.setAttribute('role', 'listitem');
-        item.setAttribute('tabindex', '0');
-        item.setAttribute('aria-label', `${ev.title}, ${formatDate(ev.date)}, ${formatPrice(ev.price)}`);
-        item.innerHTML = `
-          <img src="${ev.image}" alt="${ev.title}" class="flex-shrink-0 event-thumb-list" loading="lazy" style="width: 96px; height: 96px; object-fit: cover; border-radius: 0.375rem;">
-          <div class="d-flex flex-column flex-grow-1">
-            <h4 class="mb-1">${ev.title}</h4>
-            <p class="mb-1 text-muted">${formatDate(ev.date)} • ${ev.location.toUpperCase()}</p>
-            <p class="mb-1">${ev.brief}</p>
-            <div class="tags mb-2" aria-label="Etiquetas">${ev.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>
-            <div class="d-flex justify-content-between align-items-center mt-auto">
-              <strong class="fs-5">${ev.price > 0 ? formatPrice(ev.price) : '<span class="text-success">GRATIS</span>'}</strong>
-              <div class="btn-group" role="group" aria-label="Acciones">
-                <button class="btn btn-outline-secondary btn-quick-view" data-quick="${ev.id}" aria-label="Vista rápida de ${ev.title}">
-                  <i class="bi bi-eye"></i> Vista rápida
-                </button>
-                <button class="btn btn-primary btn-add-cart" data-id="${ev.id}" aria-label="Agregar ${ev.title} al carrito" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar al carrito">
-                  <i class="bi bi-bag-plus"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-        grid.appendChild(item);
-      });
-    }
-
-    // Actualizar contador
-    count.textContent = String(totalItems);
-
-    // Renderizar paginación
-    pagination.innerHTML = '';
-    if (totalPages > 1) {
-      // Botón anterior
-      const prevLi = document.createElement('li');
-      prevLi.className = 'page-item' + (currentPage === 1 ? ' disabled' : '');
-      prevLi.innerHTML = `<button class="page-link" aria-label="Página anterior">&laquo;</button>`;
-      prevLi.addEventListener('click', () => {
-        if (currentPage > 1) {
-          currentPage--;
-          render(filteredEvents);
-        }
-      });
-      pagination.appendChild(prevLi);
-
-      // Botones de páginas
-      for (let i = 1; i <= totalPages; i++) {
-        const li = document.createElement('li');
-        li.className = 'page-item' + (i === currentPage ? ' active' : '');
-        li.innerHTML = `<button class="page-link">${i}</button>`;
-        li.addEventListener('click', () => {
-          currentPage = i;
-          render(filteredEvents);
-        });
-        pagination.appendChild(li);
-      }
-
-      // Botón siguiente
-      const nextLi = document.createElement('li');
-      nextLi.className = 'page-item' + (currentPage === totalPages ? ' disabled' : '');
-      nextLi.innerHTML = `<button class="page-link" aria-label="Página siguiente">&raquo;</button>`;
-      nextLi.addEventListener('click', () => {
-        if (currentPage < totalPages) {
-          currentPage++;
-          render(filteredEvents);
-        }
-      });
-      pagination.appendChild(nextLi);
-    }
-
-    // Inicializar tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-  }
-
-  // Actualizar filtros para reiniciar paginación
-  function applyFilters() {
-    const {q, from, to, min, max, location, cats} = getFilters();
-    const out = EVENTS.filter(ev=>{
-      if(q){ const hay = (ev.title + ' ' + ev.tags.join(' ')).toLowerCase(); if(!hay.includes(q)) return false; }
-      if(cats.length && !cats.includes(ev.category)) return false;
-      if(location && ev.location !== location) return false;
-      if(from && new Date(ev.date) < from) return false;
-      if(to && new Date(ev.date) > to) return false;
-      if(min!=null && ev.price < min) return false;
-      if(max!=null && ev.price > max) return false;
-      return true;
-    });
-    currentPage = 1;
-    render(out);
-  }
-
-  // Cambiar vista
-  document.getElementById('btnGridView').addEventListener('click', () => {
-    if (currentView !== 'grid') {
-      currentView = 'grid';
-      document.getElementById('btnGridView').classList.add('active');
-      document.getElementById('btnListView').classList.remove('active');
-      render(filteredEvents);
-    }
-  });
-  document.getElementById('btnListView').addEventListener('click', () => {
-    if (currentView !== 'list') {
-      currentView = 'list';
-      document.getElementById('btnListView').classList.add('active');
-      document.getElementById('btnGridView').classList.remove('active');
-      render(filteredEvents);
-    }
-  });
-</script>
-
 
 <!-- Modal Vista Rápida -->
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
@@ -379,235 +194,5 @@
 <footer th:replace="fragments/footer :: footer"></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-<script src="api.js"></script>
-
-<script>
-  document.getElementById('y').textContent = new Date().getFullYear();
-
-  // Obtener eventos desde API
-  const EVENTS = API.getEvents();
-  const FEATURED_EVENTS = EVENTS.slice(0, 3);
-
-  const $ = (s, el=document) => el.querySelector(s);
-  const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
-
-  function formatPrice(v) {
-    return v === 0 ? 'Gratis' : new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', maximumFractionDigits: 0 }).format(v);
-  }
-  function formatDate(iso) {
-    const d = new Date(iso + 'T00:00:00');
-    return new Intl.DateTimeFormat('es-PE', { dateStyle: 'medium' }).format(d);
-  }
-
-  function showToast(type = 'info', title = 'Info', message = ''){
-    const toastC = () => document.getElementById('toasts');
-    if (!toastC()) {
-        const container = document.createElement('div');
-        container.id = 'toasts';
-        container.className = 'position-fixed top-0 end-0 p-3';
-        container.style.zIndex = '1090';
-        document.body.appendChild(container);
-    }
-
-    const icons = { success: 'check-circle', info: 'info-circle', error: 'exclamation-octagon' };
-    const classes = { success: 'toast-success', info: 'toast-info', error: 'toast-error' };
-    const el = document.createElement('div');
-    el.className = `toast align-items-center ${classes[type] ?? ''}`;
-    el.setAttribute('role','status');
-    el.setAttribute('aria-live','polite');
-    el.innerHTML = `
-      <div class="toast-header">
-        <i class="bi bi-${icons[type] ?? icons.info}"></i>
-        <strong class="me-auto">${title}</strong>
-        <small class="text-muted">ahora</small>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
-      </div>
-      <div class="toast-body">${message}</div>`;
-    toastC().appendChild(el);
-    new bootstrap.Toast(el, { delay: 3500 }).show();
-  }
-
-
-
-  function renderFeatured(){
-    const carouselInner = document.querySelector('#featuredCarousel .carousel-inner');
-    carouselInner.innerHTML = '';
-    FEATURED_EVENTS.forEach((ev, idx) => {
-      const active = idx === 0 ? 'active' : '';
-      const item = document.createElement('div');
-      item.className = `carousel-item ${active}`;
-      item.innerHTML = `
-        <a href="#" data-quick="${ev.id}" class="d-block position-relative" aria-label="Evento destacado: ${ev.title}">
-          <img src="${ev.image}" class="d-block w-100 rounded" alt="${ev.title}" loading="lazy" />
-          <div class="carousel-caption d-none d-md-block">
-            <h5>${ev.title}</h5>
-            <p>${formatDate(ev.date)} • ${ev.location.toUpperCase()} • ${formatPrice(ev.price)}</p>
-          </div>
-        </a>
-      `;
-      carouselInner.appendChild(item);
-    });
-  }
-
-  // Lógica del modal de vista rápida
-  const modalEl = $('#eventModal');
-  const modal = new bootstrap.Modal(modalEl);
-
-  function openModal(data) {
-    $('#m-hero').src = data.image;
-    $('#m-hero').alt = data.title;
-    $('#m-title').textContent = data.title;
-    $('#m-meta').textContent = `${formatDate(data.date)} • ${data.location.toUpperCase()} • ${formatPrice(data.price)}`;
-    $('#m-brief').textContent = data.brief;
-    $('#m-tags').innerHTML = data.tags.map(t => `<span class='badge rounded-pill bg-body-secondary border'>#${t}</span>`).join('');
-    modal.show();
-  }
-
-  // Funciones del carrito (renderizado y cálculo de totales)
-  function renderCart(){
-    const cart = API.getCart();
-    const lines = $('#cartLines');
-    if(!cart.length){
-      lines.innerHTML = `<div class="text-center text-body-secondary py-5"><i class="bi bi-bag-dash fs-1 d-block mb-3"></i>Tu carrito está vacío</div>`;
-    } else {
-      lines.innerHTML = cart.map(it => `
-        <div class="d-flex gap-2 align-items-center border rounded p-2 mb-2">
-          <img src="${it.img}" alt="${it.title}" class="rounded" style="width:64px;height:64px;object-fit:cover;">
-          <div class="flex-fill">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <strong>${it.title}</strong>
-                <div class="small text-body-secondary"><i class="bi bi-geo-alt me-1"></i>${it.place || ''} · <i class="bi bi-calendar-event ms-2 me-1"></i>${it.when || ''}</div>
-              </div>
-              <button class="btn btn-sm btn-outline-danger btn-rem" data-id="${it.id}" aria-label="Quitar"><i class="bi bi-x"></i></button>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-2">
-              <div class="qty" role="group" aria-label="Cantidad">
-                <button class="btn-minus" data-id="${it.id}" aria-label="Disminuir"><i class="bi bi-dash"></i></button>
-                <input class="qty-input" data-id="${it.id}" type="number" min="1" value="${it.qty}">
-                <button class="btn-plus" data-id="${it.id}" aria-label="Aumentar"><i class="bi bi-plus"></i></button>
-              </div>
-              <strong>${it.price > 0 ? formatPrice(it.price) : '<span class="text-success">GRATIS</span>'}</strong>
-            </div>
-          </div>
-        </div>`).join('');
-
-      // Event listeners para los botones del carrito
-      lines.querySelectorAll('.btn-rem').forEach(b=> b.addEventListener('click', ()=> { API.removeCartItem(b.dataset.id); renderCart(); updateCartCount(); calcCartTotals(); }));
-      lines.querySelectorAll('.btn-minus').forEach(b=> b.addEventListener('click', ()=> { const it = API.getCart().find(x=>x.id===b.dataset.id); API.updateCartItem(b.dataset.id, (it.qty||1)-1); renderCart(); updateCartCount(); calcCartTotals(); }));
-      lines.querySelectorAll('.btn-plus').forEach(b=> b.addEventListener('click',  ()=> { const it = API.getCart().find(x=>x.id===b.dataset.id); API.updateCartItem(b.dataset.id, (it.qty||1)+1); renderCart(); updateCartCount(); calcCartTotals(); }));
-      lines.querySelectorAll('.qty-input').forEach(inp=> inp.addEventListener('change', ()=> { API.updateCartItem(inp.dataset.id, inp.value); renderCart(); updateCartCount(); calcCartTotals(); }));
-    }
-  }
-
-  function calcCartTotals(){
-    const cart = API.getCart();
-    // Aquí puedes definir un código de cupón si lo tienes, por ahora es null
-    const APPLIED_COUPON = null;
-    const totals = API.calcTotals(cart, APPLIED_COUPON);
-    $('#cartSubtotal').textContent = formatPrice(totals.subtotal);
-    $('#cartQtyDiscount').textContent = `- ${formatPrice(totals.qtyDiscount)}`;
-    $('#cartCoupon').textContent = `- ${formatPrice(totals.couponDiscount)}`;
-    $('#cartTotal').textContent = formatPrice(totals.total);
-  }
-
-  function updateCartCount(){
-    const c = API.getCart();
-    $('#navCartCount').textContent = c.reduce((n,i)=>n+(i.qty||1),0);
-  }
-
-  // Delegación de click para modal y agregar al carrito
-  document.addEventListener('click', e => {
-    // Vista rápida
-    const quickBtn = e.target.closest('.btn-quick-view');
-    if (quickBtn) {
-      const id = Number(quickBtn.dataset.quick); // Asegúrate de que el ID sea numérico
-      const ev = EVENTS.find(x => x.id === id);
-      if (ev) openModal(ev);
-      return;
-    }
-
-    // Añadir al carrito
-    const addBtn = e.target.closest('.btn-add-cart');
-    if (addBtn) {
-      const id = Number(addBtn.dataset.id); // Asegúrate de que el ID sea numérico
-      const ev = EVENTS.find(x => x.id === id);
-      if (ev) {
-        // API.addCartItem espera el ID del evento y la cantidad (por defecto 1)
-        API.addCartItem(ev.id, 1);
-        updateCartCount();
-        renderCart(); // Vuelve a renderizar el contenido del offcanvas
-        calcCartTotals(); // Recalcula los totales del carrito
-        showToast('success', 'Añadido', `"${ev.title}" se agregó al carrito.`);
-      }
-    }
-
-    // Ir al checkout
-    if (e.target.matches('#btnGoCheckout')) {
-      window.location.href = 'DetalleCarrito.html'; // Redirige a checkout.html
-    }
-
-    // Aplicar cupón
-    if (e.target.matches('#applyCouponBtn')) {
-      const couponCode = $('#couponInput').value.trim();
-      const cart = API.getCart();
-      const totalsBeforeCoupon = API.calcTotals(cart); // Calcula totales sin cupón para la base
-      const res = API.applyCoupon(couponCode, totalsBeforeCoupon.total);
-      if (res.valid) {
-        // Aquí deberías guardar el cupón aplicado en una variable global si quieres que persista
-        // Por simplicidad, solo recalculamos los totales con el cupón
-        calcCartTotals(); // Esto ya usará el cupón si lo pasas como argumento o lo guardas globalmente
-        showToast('success', 'Cupón aplicado', `Se aplicó el cupón: - ${formatPrice(res.amount)}`);
-      } else {
-        showToast('error', 'Cupón inválido', 'El código de cupón no es válido.');
-      }
-      calcCartTotals();
-    }
-  });
-
-  function getFilters(){
-    const q = $('#q').value.trim().toLowerCase();
-    const from = $('#from').value ? new Date($('#from').value+'T00:00:00') : null;
-    const to   = $('#to').value ? new Date($('#to').value+'T23:59:59') : null;
-    const min  = $('#min').value!=='' ? Number($('#min').value) : null;
-    const max  = $('#max').value!=='' ? Number($('#max').value) : null;
-    const location = $('#location').value;
-    const cats = $$('#filtersForm input[type="checkbox"]:checked').map(i=>i.value);
-    return {q, from, to, min, max, location, cats};
-  }
-
-
-
-  function clearFilters(){
-    $('#filtersForm').reset();
-    render(EVENTS);
-  }
-
-  $('#apply').addEventListener('click', applyFilters);
-  $('#clear').addEventListener('click', clearFilters);
-  $$('#filtersForm input, #filtersForm select').forEach(el=>{
-    el.addEventListener('change', applyFilters);
-    if(el.type==='search' || el.type==='number') el.addEventListener('input', ()=>{/* opcional: debounced */});
-  });
-
-  // Eventos destacados clic
-  document.querySelector('#featuredCarousel').addEventListener('click', e=>{
-    const link = e.target.closest('[data-quick]');
-    if(!link) return;
-    const id = Number(link.dataset.quick);
-    const ev = EVENTS.find(x=>x.id===id);
-    if(ev) openModal(ev);
-  });
-
-  // Inicializar al cargar la página
-  document.addEventListener('DOMContentLoaded', () => {
-    filteredEvents = EVENTS;
-    render(filteredEvents);
-    renderFeatured();
-    updateCartCount(); // Actualiza el contador del carrito al cargar
-    renderCart();      // Renderiza el contenido del offcanvas del carrito
-    calcCartTotals();  // Calcula los totales del carrito
-  });
-</script>
 </body>
 </html>

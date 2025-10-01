@@ -8,11 +8,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-public class UserController {
+public class UsuarioController {
 
     private final UsuarioRepository UsuarioRepository;
 
-    public UserController(UsuarioRepository UsuarioRepository) {
+    public UsuarioController(UsuarioRepository UsuarioRepository) {
         this.UsuarioRepository = UsuarioRepository;
     }
 
