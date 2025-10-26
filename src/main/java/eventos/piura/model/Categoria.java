@@ -5,18 +5,11 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Entity
-@Table(name = "categorias", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "nombre")
+@Table(name="ev_categoria", uniqueConstraints = {
+  @UniqueConstraint(name="uq_ev_categoria_nombre", columnNames="nombre")
 })
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Categoria {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NotBlank
-    @Column(nullable = false, length = 100)
-    private String nombre;
+@Getter @Setter @NoArgsConstructor
+public class Categoria extends AuditableEntity {
+  @NotBlank @Size(max=30) @Column(nullable=false, length=30)
+  private String nombre;
 }

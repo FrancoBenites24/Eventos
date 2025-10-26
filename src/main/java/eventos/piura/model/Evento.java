@@ -1,58 +1,47 @@
+// Evento.java
 package eventos.piura.model;
 
+import eventos.piura.model.enums.EstadoEvento;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import java.time.LocalDateTime;
+
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "eventos")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Evento {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(name="ev_evento")
+@Getter @Setter @NoArgsConstructor
+@org.hibernate.annotations.Check(constraints = "fin_en > inicio_en")
+public class Evento extends AuditableEntity {
+  @ManyToOne(optional=false) @JoinColumn(name="organizador_id")
+  private Usuario organizador;
 
-    @NotBlank @Size(max = 200)
-    private String titulo;
+  @ManyToOne @JoinColumn(name="categoria_id")
+  private Categoria categoria;
 
-    @Lob
-    private String descripcion;
+  @NotBlank @Size(max=160) @Column(nullable=false, length=160)
+  private String titulo;
 
-    @NotNull
-    private LocalDateTime fechaInicio;
+  @Lob private String descripcion;
 
-    @NotNull
-    private LocalDateTime fechaFin;
+  @Column(name="inicio_en", nullable=false) private OffsetDateTime inicioEn;
+  @Column(name="fin_en",    nullable=false) private OffsetDateTime finEn;
 
-    @Size(max = 255)
-    private String direccion;
+  @Size(max=200) private String direccion;
+  @Size(max=80)  private String distrito;
+  @Size(max=80)  private String provincia;
+  @Size(max=80)  private String departamento;
+  @Size(max=80)  private String pais;
 
-    private Double latitud;
-    private Double longitud;
+  private BigDecimal latitud;   // numeric(9,6)
+  private BigDecimal longitud;  // numeric(9,6)
 
-    @Size(max = 100)
-    private String distrito;
+  @Enumerated(EnumType.STRING) @Column(nullable=false, length=20)
+  private EstadoEvento estado = EstadoEvento.BORRADOR;
 
-    @Size(max = 100)
-    private String ciudad = "Piura";
-
-    private Boolean esGratuito = false;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "organizador_id", nullable = false)
-    private Usuario organizador;
-
-    @Size(max = 255)
-    private String banner;
-
-    @Column(name = "creado_en", nullable = false, updatable = false)
-    private LocalDateTime creadoEn = LocalDateTime.now();
-
-    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<TipoTicket> tiposTicket = new ArrayList<>();
+  @OneToMany(mappedBy="evento", cascade=CascadeType.ALL, orphanRemoval=true)
+  private List<EventoEntradaTipo> tipos = new ArrayList<>();
 }

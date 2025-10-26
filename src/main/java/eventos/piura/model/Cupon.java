@@ -5,24 +5,28 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Entity
-@Table(name = "cupones", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "codigo")
+@Table(name="adm_cupon", uniqueConstraints = {
+  @UniqueConstraint(name="uq_adm_cupon_codigo", columnNames="codigo")
 })
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Cupon {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Getter @Setter @NoArgsConstructor
+public class Cupon extends AuditableEntity {
+  @NotBlank @Size(max=24) @Column(nullable=false, length=24)
+  private String codigo;
 
-    @NotBlank
-    @Column(nullable = false, length = 50)
-    private String codigo;
+  @Size(max=200) private String descripcion;
 
-    @NotBlank
-    private String tipoDescuento; // porcentaje, fijo
+  @DecimalMin("0.00") @DecimalMax("100.00")
+  private java.math.BigDecimal descuentoPct;          // nullable
 
-    @Positive
-    private Double valorDescuento;
+  @Positive @Column(name="descuento_fijo_centavos")
+  private Integer descuentoFijoCentavos;              // nullable
+
+  @PositiveOrZero @Column(name="minimo_orden_centavos")
+  private Integer minimoOrdenCentavos;
+
+  private java.time.OffsetDateTime validoDesde;
+  private java.time.OffsetDateTime validoHasta;
+
+  private Integer maxUsoTotal;
+  @Column(nullable=false) private boolean activo = true;
 }

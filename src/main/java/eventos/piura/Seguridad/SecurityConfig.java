@@ -1,11 +1,12 @@
 package eventos.piura.Seguridad;
 
-import eventos.piura.model.Usuario;
+import eventos.piura.model.Rol;
 import eventos.piura.repository.UsuarioRepository;
 
 import org.springframework.security.core.userdetails.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,10 +17,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-    private final UsuarioRepository UsuarioRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public SecurityConfig(UsuarioRepository UsuarioRepository) {
-        this.UsuarioRepository = UsuarioRepository;
+    public SecurityConfig(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Bean
@@ -29,37 +30,40 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> UsuarioRepository.findByUsernameWithRoles(username)
+        return username -> usuarioRepository.findByUsernameWithRoles(username)
                 .map(usuario -> User.builder()
                         .username(usuario.getUsername())
-                        .password(usuario.getPassword())
-                        .roles(usuario.getUsuarioRoles().stream()
-                                .map(ur -> ur.getRol().getNombre())
+                        .password(usuario.getContrasenaHash())
+                        .roles(usuario.getRoles().stream()
+                                .map(Rol::getNombre)
                                 .toArray(String[]::new))
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/", "/index", "/css/**", "/js/**", "/images/**", "/h2-console/**", "/register", "/registro", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/", true)
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .logoutSuccessUrl("/")
-                .permitAll());
-
-        // For H2 console access
-        http.csrf(csrf -> csrf.disable());
-        http.headers(headers -> headers.frameOptions(fo -> fo.disable()));
-
-        return http.build();
+    public org.springframework.security.authentication.AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests(authz -> authz
+            .requestMatchers("/", "/index", "/css/**", "/js/**", "/images/**", "/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+            .anyRequest().authenticated()
+        )
+        .formLogin(form -> form
+            .loginPage("/auth/login")
+            .loginProcessingUrl("/auth/login")
+            .defaultSuccessUrl("/", true)
+            .failureUrl("/auth/login?error=true")
+            .permitAll()
+        )
+        .logout(logout -> logout
+            .logoutSuccessUrl("/auth/login?logout=true")
+            .permitAll()
+        );
+    return http.build();
+}
+
 }
