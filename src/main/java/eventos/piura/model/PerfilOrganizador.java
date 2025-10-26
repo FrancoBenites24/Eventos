@@ -1,4 +1,3 @@
-// PerfilOrganizador.java
 package eventos.piura.model;
 
 import jakarta.persistence.*;
@@ -18,6 +17,6 @@ public class PerfilOrganizador extends AuditableEntity {
   @NotBlank @Size(max=100) @Column(name="nombre_publico", nullable=false, length=100)
   private String nombrePublico;
 
-  @Lob private String biografia;
+  @Column(columnDefinition = "TEXT") private String biografia;
   private java.time.OffsetDateTime activoHasta;
 }

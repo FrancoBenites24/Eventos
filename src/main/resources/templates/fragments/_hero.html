@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="hero(destacado)">
+  <section class="hero-wrap rounded-4 overflow-hidden position-relative mb-4">
+    <img class="w-100 hero-img" th:src="${destacado!=null && destacado.imagenUrl!=null} ? ${destacado.imagenUrl} : @{/img/hero.jpg}" alt="Destacado"/>
+
+    <div class="position-absolute bottom-0 start-0 end-0 p-4 p-md-5 text-white">
+      <span class="badge bg-info-subtle text-dark fw-medium mb-2">Deportes</span>
+      <h2 class="fw-bold mb-1" th:text="${destacado!=null}? ${destacado.titulo} : 'Partido de Fútbol - Clásico'">Partido…</h2>
+
+      <div class="d-flex flex-wrap gap-3 small opacity-75 mb-3">
+        <span><i class="bi bi-calendar2-event me-1"></i>
+          <span th:text="${destacado!=null}? ${#temporals.format(destacado.fecha,'dd MMM')} : '06 DIC'">06 DIC</span>
+        </span>
+        <span><i class="bi bi-geo-alt me-1"></i>
+          <span th:text="${destacado!=null}? ${destacado.lugar} : 'Estadio Monumental'">Estadio…</span>
+        </span>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <div class="display-6 fw-bold" th:text="${destacado!=null}? 'S/ ' + ${#numbers.formatDecimal(destacado.precioCentavos/100.0,1,2)} : 'S/ 50.00'">S/ 50.00</div>
+        <button class="btn btn-teal btn-sm ms-2" type="button"
+                data-add-to-cartx|
+                th:attr="data-evento-id=${destacado!=null}? ${destacado.eventoId} : ${null},
+                         data-entrada-tipo-id=${destacado!=null}? ${destacado.entradaTipoId} : ${null},
+                         data-titulo=${destacado!=null}? ${destacado.titulo} : 'Partido de Fútbol',
+                         data-precio=${destacado!=null}? ${destacado.precioCentavos} : 5000">
+          <i class="bi bi-bag-plus me-1"></i> Comprar Ahora
+        </button>
+      </div>
+    </div>
+  </section>
+</th:block>
+</body>
+</html>

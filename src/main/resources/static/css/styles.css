@@ -1,0 +1,59 @@
+/* ---------- Variables simples ---------- */
+:root {
+  --teal: #0ea5a5;
+  --teal-600: #0c8c8c;
+  --muted: #6b7280;
+  --rounded-xl: 1rem;
+}
+
+/* ---------- Utilidades ---------- */
+.object-fit-cover { object-fit: cover; }
+.top-2 { top: .5rem; }
+.start-2 { left: .5rem; }
+.line-clamp-1 {
+  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* ---------- Botón teal ---------- */
+.btn-teal {
+  --bs-btn-bg: var(--teal);
+  --bs-btn-border-color: var(--teal);
+  --bs-btn-hover-bg: var(--teal-600);
+  --bs-btn-hover-border-color: var(--teal-600);
+  --bs-btn-color: #fff;
+}
+
+/* ---------- HERO ---------- */
+.hero-wrap { height: 360px; background: #000; }
+.hero-img { width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+
+/* ---------- Secciones ---------- */
+.section-title { font-weight: 700; letter-spacing: .2px; }
+
+/* ---------- Pills categorías ---------- */
+.pill {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .6rem .9rem; border: 1px solid #e5e7eb; border-radius: 999px;
+  background: #fff; color: #111827; text-decoration: none; font-weight: 600; font-size: .9rem;
+}
+.pill:hover { background: #f3f4f6; }
+
+/* ---------- Cards ---------- */
+.event-card .badge { border-radius: .5rem; }
+.event-card .card-body { padding: .9rem 1rem 1rem; }
+.event-card .price { font-weight: 700; }
+.date-chip {
+  width: 42px; text-align: center; border-radius: .7rem; padding: .35rem .3rem;
+  background: #f3f4f6; color: #111827;
+}
+
+/* ---------- CTA ---------- */
+.gradient-cta {
+  background: linear-gradient(90deg, #0ea5a5, #0694d1);
+}
+
+/* ---------- Offcanvas ---------- */
+.offcanvas-footer { background: #fff; }
+.fab-cart {
+  right: 1.25rem; bottom: 1.25rem; width: 56px; height: 56px;
+}

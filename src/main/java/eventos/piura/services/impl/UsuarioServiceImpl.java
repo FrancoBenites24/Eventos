@@ -5,13 +5,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import eventos.piura.dto.RegistroUsuarioRequest;
-import eventos.piura.model.Rol;
 import eventos.piura.model.Usuario;
 import eventos.piura.repository.RolRepository;
 import eventos.piura.repository.UsuarioRepository;
 import eventos.piura.services.UsuarioService;
 
-import java.util.HashSet;
 import java.util.Optional;
 
 @Service
