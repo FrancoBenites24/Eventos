@@ -1,0 +1,35 @@
+/* ========= EventosAdmin · estilos base ========= */
+:root { --sidebar-w: 250px; }
+
+body { background-color: #f6f7fb; }
+#sidebar { width: var(--sidebar-w); height: 100vh; position: sticky; top: 0; background: #fff; border-right: 1px solid #e5e7eb; }
+main { min-height: 100vh; }
+
+#sidebar .nav-link { color: #495057; border-radius: .75rem; }
+#sidebar .nav-link:hover { background-color: #f2f7ff; color: #0d6efd; }
+#sidebar .nav-link.active { background-color: #e9f3ff; color: #0d6efd; font-weight: 600; }
+
+.card { border-radius: 1rem; border-color: #edf1f7; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+.table > :not(caption) > * > * { padding-top: .85rem; padding-bottom: .85rem; }
+.table-light th { background-color: #f8fafc; }
+.badge { letter-spacing: .2px; }
+
+.avatar { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-weight: 600; }
+
+.placeholder {
+  display:block; width:100%; height:100%; border-radius:.75rem;
+  background:repeating-linear-gradient(45deg, rgba(0,0,0,.05), rgba(0,0,0,.05) 10px, rgba(0,0,0,.08) 10px, rgba(0,0,0,.08) 20px);
+}
+
+header { background:#fff; border-bottom:1px solid #e5e7eb !important; }
+.table .btn.btn-sm { padding: .25rem .5rem; border-radius: .5rem; }
+
+/* ---------- Modo oscuro ---------- */
+.dark body { background-color:#0b0f13 !important; }
+.dark #sidebar { background-color:#0f141a !important; color:#cbd5e1 !important; border-color:#1f2937 !important; }
+.dark #sidebar .nav-link { color:#cbd5e1; }
+.dark #sidebar .nav-link.active { background-color:#0b3b7a; color:#fff; }
+.dark header { background-color:#0f141a !important; color:#cbd5e1 !important; border-color:#1f2937 !important; }
+.dark .card { background-color:#0f141a !important; color:#e2e8f0; border-color:#1f2937; }
+.dark .table { color:#e2e8f0; }
+.dark .table-light th { background-color:#111827 !important; color:#cbd5e1 !important; }
