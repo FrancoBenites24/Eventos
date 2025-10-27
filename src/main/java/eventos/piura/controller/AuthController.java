@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import eventos.piura.dto.RegistroUsuarioRequest;
 import eventos.piura.model.Usuario;
-import eventos.piura.services.UsuarioService;
+import eventos.piura.service.UsuarioService;
 
 @Controller
 @RequestMapping("/auth")

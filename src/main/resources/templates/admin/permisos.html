@@ -16,6 +16,24 @@
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm">Nuevo Permiso</button>
       </div>
 
+      <!-- Toasts -->
+      <div aria-live="polite" aria-atomic="true" class="position-relative">
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1080">
+          <div class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" th:if="${toastSuccess}">
+            <div class="d-flex">
+              <div class="toast-body" th:text="${toastSuccess}">Operación exitosa.</div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+          </div>
+          <div class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" th:if="${toastError}">
+            <div class="d-flex">
+              <div class="toast-body" th:text="${toastError}">Ocurrió un error.</div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="card shadow-sm">
         <div class="card-body">
           <div class="table-responsive">
@@ -24,61 +42,25 @@
                 <tr>
                   <th>Código</th>
                   <th>Descripción</th>
-                  <th>Módulo</th>
                   <th>Roles Asignados</th>
                   <th>Creado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                <!-- Fila de ejemplo 1 -->
-                <tr>
-                  <td><span class="badge text-bg-light">EVT_CREAR</span></td>
-                  <td>Crear eventos</td>
-                  <td><span class="badge rounded-pill text-bg-info">Eventos</span></td>
-                  <td>3</td>
-                  <td>31/12/2023</td>
-                  <td class="d-flex">
-                    <button class="btn btn-sm btn-outline-secondary me-2"
-                            data-bs-toggle="modal" data-bs-target="#modalForm"
-                            data-id="1" data-codigo="EVT_CREAR" data-descripcion="Crear eventos" data-modulo="EVENTOS">✏️</button>
-                    <form th:action="@{|/admin/permisos/1/eliminar|}" method="post" class="d-inline">
-                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                      <button class="btn btn-sm btn-outline-danger" type="submit">🗑️</button>
-                    </form>
-                  </td>
+                <tr th:if="${#lists.isEmpty(permisos)}">
+                  <td colspan="5" class="text-center text-muted py-4">No hay permisos registrados.</td>
                 </tr>
 
-                <!-- Fila de ejemplo 2 -->
-                <tr>
-                  <td><span class="badge text-bg-light">USR_VER</span></td>
-                  <td>Ver usuarios</td>
-                  <td><span class="badge rounded-pill text-bg-secondary">Usuarios</span></td>
-                  <td>2</td>
-                  <td>31/12/2023</td>
-                  <td class="d-flex">
-                    <button class="btn btn-sm btn-outline-secondary me-2"
-                            data-bs-toggle="modal" data-bs-target="#modalForm"
-                            data-id="2" data-codigo="USR_VER" data-descripcion="Ver usuarios" data-modulo="USUARIOS">✏️</button>
-                    <form th:action="@{|/admin/permisos/2/eliminar|}" method="post" class="d-inline">
-                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                      <button class="btn btn-sm btn-outline-danger" type="submit">🗑️</button>
-                    </form>
-                  </td>
-                </tr>
-
-                <!--
-                Cuando lo hagas dinámico con Thymeleaf:
                 <tr th:each="p : ${permisos}">
-                  <td><span class="badge text-bg-light" th:text="${p.codigo}">CODIGO</span></td>
+                  <td><span class="badge text-bg-light" th:text="${p.nombre}">CODIGO</span></td>
                   <td th:text="${p.descripcion}">—</td>
-                  <td><span class="badge rounded-pill text-bg-info" th:text="${p.moduloNombre}">Módulo</span></td>
-                  <td th:text="${p.totalRoles}">0</td>
-                  <td th:text="${#temporals.format(p.creado,'dd/MM/yyyy')}">—</td>
+                  <td>—</td> <!-- TODO: contar roles asignados -->
+                  <td th:text="${#temporals.format(p.creadoEn, 'dd/MM/yyyy')}">—</td>
                   <td class="d-flex">
                     <button class="btn btn-sm btn-outline-secondary me-2"
                             data-bs-toggle="modal" data-bs-target="#modalForm"
-                            th:attr="data-id=${p.id},data-codigo=${p.codigo},data-descripcion=${p.descripcion},data-modulo=${p.modulo}">
+                            th:attr="data-id=${p.id},data-nombre=${p.nombre},data-descripcion=${p.descripcion}">
                       ✏️
                     </button>
                     <form th:action="@{|/admin/permisos/${p.id}/eliminar|}" method="post" class="d-inline">
@@ -87,7 +69,6 @@
                     </form>
                   </td>
                 </tr>
-                -->
               </tbody>
             </table>
           </div>
@@ -100,7 +81,7 @@
           <div class="modal-content">
             <form th:action="@{/admin/permisos}" method="post">
               <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-              <input type="hidden" name="id" th:value="${permiso?.id}"/>
+              <input type="hidden" name="id"/>
 
               <div class="modal-header">
                 <h5 class="modal-title">Nuevo / Editar Permiso</h5>
@@ -110,29 +91,11 @@
               <div class="modal-body">
                 <div class="mb-3">
                   <label class="form-label">Código</label>
-                  <input name="codigo" class="form-control" maxlength="50" required th:value="${permiso?.codigo}" />
+                  <input name="nombre" class="form-control" maxlength="50" required />
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Descripción</label>
-                  <textarea name="descripcion" class="form-control" rows="3" th:text="${permiso?.descripcion}"></textarea>
-                </div>
-
-                <!-- (Opcional) Módulo, para alinearlo con la columna de la tabla -->
-                <div class="mb-3">
-                  <label class="form-label">Módulo</label>
-                  <select name="modulo" class="form-select">
-                    <option value="">— Seleccionar —</option>
-                    <option value="EVENTOS">Eventos</option>
-                    <option value="USUARIOS">Usuarios</option>
-                    <option value="VENTAS">Ventas</option>
-                    <option value="REPORTES">Reportes</option>
-                  </select>
-                  <!-- Dinámico:
-                  <select name="modulo" class="form-select">
-                    <option th:each="m: ${modulos}" th:value="${m.codigo}" th:text="${m.nombre}"
-                            th:selected="${permiso != null} ? ${permiso.modulo} == ${m.codigo} : false"></option>
-                  </select>
-                  -->
+                  <textarea name="descripcion" class="form-control" rows="3"></textarea>
                 </div>
               </div>
 
@@ -151,28 +114,23 @@
 
 <th:block th:replace="admin/fragments/scripts :: scripts"></th:block>
 
-<!-- (Opcional) Precarga de datos al abrir modal en modo edición usando data-* del botón -->
 <script>
-document.addEventListener('show.bs.modal', function (ev) {
-  if (ev.target.id !== 'modalForm') return;
-  const btn = ev.relatedTarget;
-  if (!btn) return;
+  // Autocargar datos al abrir modal en modo edición
+  document.addEventListener('show.bs.modal', function (ev) {
+    if (ev.target.id !== 'modalForm') return;
+    const btn = ev.relatedTarget;
+    const form = document.querySelector('#modalForm form');
+    if (!btn || !form) return;
 
-  const id = btn.getAttribute('data-id') || '';
-  const codigo = btn.getAttribute('data-codigo') || '';
-  const descripcion = btn.getAttribute('data-descripcion') || '';
-  const modulo = btn.getAttribute('data-modulo') || '';
+    form.querySelector('input[name="id"]').value = btn.getAttribute('data-id') || '';
+    form.querySelector('input[name="nombre"]').value = btn.getAttribute('data-nombre') || '';
+    form.querySelector('textarea[name="descripcion"]').value = btn.getAttribute('data-descripcion') || '';
+  });
 
-  const form = document.querySelector('#modalForm form');
-  if (!form) return;
-
-  form.querySelector('input[name="id"]').value = id;
-  form.querySelector('input[name="codigo"]').value = codigo;
-  form.querySelector('textarea[name="descripcion"]').value = descripcion;
-
-  const moduloSelect = form.querySelector('select[name="modulo"]');
-  if (moduloSelect) moduloSelect.value = modulo;
-});
+  // Mostrar toasts si existen
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.toast').forEach(t => new bootstrap.Toast(t).show());
+  });
 </script>
 </body>
 </html>

@@ -5,4 +5,7 @@ import eventos.piura.model.Permiso;
 
 import java.util.UUID;
 
-public interface PermisoRepository extends JpaRepository<Permiso, UUID> { }
+public interface PermisoRepository extends JpaRepository<Permiso, UUID> {
+    boolean existsByNombreIgnoreCase(String nombre);
+    boolean existsByNombreIgnoreCaseAndIdNot(String nombre, UUID id);
+}

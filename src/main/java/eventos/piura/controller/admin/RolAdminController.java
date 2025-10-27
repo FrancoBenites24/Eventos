@@ -5,7 +5,7 @@ import eventos.piura.dto.RolForm;
 import eventos.piura.model.Permiso;
 import eventos.piura.model.Rol;
 import eventos.piura.repository.PermisoRepository;
-import eventos.piura.services.RolService;
+import eventos.piura.service.RolService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

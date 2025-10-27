@@ -1,7 +1,8 @@
 package eventos.piura.controller.admin;
 
 import eventos.piura.model.Usuario;
-import eventos.piura.services.UsuarioService;
+import eventos.piura.service.UsuarioService;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
