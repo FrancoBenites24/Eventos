@@ -7,6 +7,7 @@ import eventos.piura.model.EventoEntradaTipo;
 import eventos.piura.model.enums.EstadoEvento;
 import eventos.piura.repository.EventoRepository;
 import eventos.piura.services.EventoCatalogService;
+import eventos.piura.services.EventoImagenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class EventoCatalogServiceImpl implements EventoCatalogService {
     private static final String LUGAR_POR_DEFECTO = "Ubicacion por confirmar";
 
     private final EventoRepository eventoRepository;
+    private final EventoImagenService eventoImagenService;
 
     @Override
     @Transactional(readOnly = true)
@@ -90,7 +92,12 @@ public class EventoCatalogServiceImpl implements EventoCatalogService {
     }
 
     private String resolverImagen(Evento evento) {
-        return IMAGEN_POR_DEFECTO;
+        if (evento == null || evento.getId() == null) {
+            return IMAGEN_POR_DEFECTO;
+        }
+        return eventoImagenService.obtenerPrimeraImagen(evento.getId())
+                .map(eventoImagenService::construirUrl)
+                .orElse(IMAGEN_POR_DEFECTO);
     }
 
     private String resolverLugar(Evento evento) {

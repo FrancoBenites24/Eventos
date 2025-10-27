@@ -45,4 +45,8 @@ public class Evento extends AuditableEntity {
 
   @OneToMany(mappedBy="evento", cascade=CascadeType.ALL, orphanRemoval=true)
   private List<EventoEntradaTipo> tipos = new ArrayList<>();
+
+  @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("orden ASC, creadoEn ASC")
+  private List<EventoImagen> imagenes = new ArrayList<>();
 }

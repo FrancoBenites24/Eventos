@@ -6,6 +6,7 @@ public record OrganizadorEventoCard(
         String titulo,
         String fecha,
         String lugar,
+        String imagenUrl,
         String entradas,
         String ingresos,
         String progreso,

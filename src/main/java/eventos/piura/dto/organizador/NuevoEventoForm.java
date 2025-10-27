@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -60,6 +61,9 @@ public class NuevoEventoForm {
     private Double longitud;
 
     private boolean publicar;
+
+    @Size(max = 5, message = "Puede cargar hasta 5 imagenes por evento")
+    private List<MultipartFile> imagenes = new ArrayList<>();
 
     @Valid
     @NotEmpty(message = "Debe registrar al menos un tipo de entrada")

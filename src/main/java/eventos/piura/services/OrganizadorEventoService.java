@@ -10,6 +10,7 @@ import eventos.piura.model.enums.EstadoEvento;
 import eventos.piura.repository.CategoriaRepository;
 import eventos.piura.repository.EventoRepository;
 import eventos.piura.repository.TipoEntradaCatalogoRepository;
+import eventos.piura.services.EventoImagenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class OrganizadorEventoService {
     private final EventoRepository eventoRepository;
     private final CategoriaRepository categoriaRepository;
     private final TipoEntradaCatalogoRepository tipoEntradaCatalogoRepository;
+    private final EventoImagenService eventoImagenService;
 
     @Transactional
     public UUID crearEvento(Usuario organizador, @Valid NuevoEventoForm form) {
@@ -47,6 +49,7 @@ public class OrganizadorEventoService {
         asignarCategoria(form, evento);
         asignarEstado(form, evento);
         asignarTiposEntrada(form, evento);
+        eventoImagenService.asignarImagenes(evento, form.getImagenes());
 
         Evento guardado = eventoRepository.save(evento);
         return guardado.getId();

@@ -22,6 +22,7 @@ import eventos.piura.repository.PerfilOrganizadorRepository;
 import eventos.piura.repository.CategoriaRepository;
 import eventos.piura.repository.TipoEntradaCatalogoRepository;
 import eventos.piura.repository.UsuarioRepository;
+import eventos.piura.services.EventoImagenService;
 import eventos.piura.services.OrganizadorEventoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -70,6 +71,7 @@ public class OrganizadorController {
             DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm", LOCALE_ES);
     private static final DateTimeFormatter FECHA_EVENTO_CORTA =
             DateTimeFormatter.ofPattern("dd MMM yyyy", LOCALE_ES);
+    private static final String IMAGEN_POR_DEFECTO = "/img/placeholder-event.jpg";
 
     private final UsuarioRepository usuarioRepository;
     private final EventoRepository eventoRepository;
@@ -80,6 +82,7 @@ public class OrganizadorController {
     private final CategoriaRepository categoriaRepository;
     private final TipoEntradaCatalogoRepository tipoEntradaCatalogoRepository;
     private final UsuarioViewMapper usuarioViewMapper;
+    private final EventoImagenService eventoImagenService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model, Authentication authentication) {
@@ -464,6 +467,9 @@ public class OrganizadorController {
                 : formatNumber(vendidos) + " entradas vendidas";
 
         String basePath = "/organizador/eventos/" + evento.getId();
+        String imagenUrl = eventoImagenService.obtenerPrimeraImagen(evento.getId())
+                .map(eventoImagenService::construirUrl)
+                .orElse(IMAGEN_POR_DEFECTO);
 
         return new OrganizadorEventoCard(
                 traducirEstadoEvento(evento.getEstado()),
@@ -471,6 +477,7 @@ public class OrganizadorController {
                 safeTitulo(evento),
                 formatearFechaLarga(evento.getInicioEn()),
                 resolverLugar(evento),
+                imagenUrl,
                 entradas,
                 formatCurrency(ingresosCentavos),
                 progreso + "%",

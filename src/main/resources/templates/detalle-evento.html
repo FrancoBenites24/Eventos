@@ -4,9 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title th:text="${evento.titulo}">Detalle Evento - Eventia</title>
+    <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <style>
         .hero-image {
             height: 400px;
@@ -15,15 +18,39 @@
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
+        .gallery-thumbs {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+        }
+        .gallery-thumb {
+            width: 120px;
+            height: 80px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            background: #f1f5f9;
+        }
+        .gallery-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .gallery-thumb.active,
+        .gallery-thumb:hover {
+            border-color: #00D2D3;
+        }
         .event-detail-card {
-            background: white;
+            background: #ffffff;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             border: 1px solid rgba(0, 210, 211, 0.1);
             overflow: hidden;
         }
         .ticket-card {
-            background: white;
+            background: #ffffff;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             border: 1px solid rgba(0, 210, 211, 0.1);
@@ -42,7 +69,7 @@
             box-shadow: 0 4px 16px rgba(0, 210, 211, 0.1);
         }
         .ticket-price {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
             color: #00D2D3;
         }
@@ -56,15 +83,9 @@
             transition: all 0.3s ease;
             width: 100%;
         }
-        .btn-add-cart:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 210, 211, 0.3);
-        }
         .btn-add-cart:disabled {
             background: #e2e8f0;
             color: #94a3b8;
-            transform: none;
-            box-shadow: none;
         }
         .breadcrumb {
             background: transparent;
@@ -86,13 +107,13 @@
         }
         .info-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 1rem;
+            gap: 1rem;
         }
         .info-item i {
             color: #00D2D3;
-            margin-right: 1rem;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
         }
         .free-badge {
             background: linear-gradient(135deg, #00D2D3, #00a0a0);
@@ -103,6 +124,20 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+        .price-badge {
+            background: rgba(0, 210, 211, 0.12);
+            color: #00a0a0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .location-card {
+            margin-top: 1.5rem;
+        }
+        #eventoMap {
+            height: 260px;
+            border-radius: 12px;
         }
         .back-btn {
             background: transparent;
@@ -115,12 +150,12 @@
             text-decoration: none;
             display: inline-flex;
             align-items: center;
+            gap: 0.5rem;
         }
         .back-btn:hover {
             background: #f8fafc;
             border-color: #cbd5e1;
             color: #475569;
-            text-decoration: none;
         }
     </style>
 </head>
@@ -128,7 +163,6 @@
 <nav th:replace="fragments/navbar :: navbar"></nav>
 
 <main class="container app-container pb-5 mt-4">
-    <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
@@ -137,94 +171,135 @@
         </ol>
     </nav>
 
-    <!-- Hero Image -->
     <div class="mb-4">
-        <img th:src="${evento.banner != null ? evento.banner : 'https://via.placeholder.com/1200x400/00D2D3/FFFFFF?text=Evento'}"
+        <img id="heroImage"
+             th:src="@{${imagenPrincipal}}"
              alt="Imagen del evento" class="hero-image">
     </div>
 
+    <div class="gallery-thumbs mb-5" th:if="${imagenes != null and #lists.size(imagenes) > 1}">
+        <button type="button"
+                class="gallery-thumb btn p-0"
+                th:each="img, iter : ${imagenes}"
+                th:if="${iter.index > 0}"
+                th:attr="data-gallery-thumb=${img}">
+            <img th:src="@{${img}}" alt="Vista del evento">
+        </button>
+    </div>
+
     <div class="row g-4">
-        <!-- Event Details -->
         <div class="col-lg-8">
             <div class="event-detail-card">
                 <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h1 class="card-title h2 mb-0" th:text="${evento.titulo}">Evento</h1>
-                        <span th:if="${evento.esGratuito}" class="free-badge">Gratuito</span>
+                    <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-3">
+                        <div>
+                            <h1 class="card-title h2 mb-0" th:text="${evento.titulo}">Evento</h1>
+                            <div class="mt-2 text-muted">
+                                <span th:text="${evento.categoria != null ? evento.categoria : 'Categoria no disponible'}"></span>
+                            </div>
+                        </div>
+                        <span th:if="${eventoGratuito}" class="free-badge">Evento gratuito</span>
+                        <span th:if="${!eventoGratuito}" class="price-badge">
+                            Desde S/ <span th:text="${#numbers.formatDecimal(precioMinimo / 100.0, 1, 2)}">0.00</span>
+                        </span>
                     </div>
 
                     <div class="event-info">
                         <div class="info-item">
                             <i class="bi bi-calendar-event"></i>
                             <div>
-                                <strong>Fecha y Hora</strong><br>
-                                <span th:text="${#temporals.format(evento.fechaInicio, 'EEEE, dd \'de\' MMMM \'de\' yyyy \'a las\' HH:mm')}"></span> -
-                                <span th:text="${#temporals.format(evento.fechaFin, 'HH:mm')}"></span>
+                                <strong>Fecha y hora</strong><br>
+                                <span th:text="${#temporals.format(evento.inicio, 'dd MMM yyyy, HH:mm')}"></span>
+                                <span class="text-muted"> - </span>
+                                <span th:text="${#temporals.format(evento.fin, 'dd MMM yyyy, HH:mm')}"></span>
                             </div>
                         </div>
                         <div class="info-item">
                             <i class="bi bi-geo-alt"></i>
                             <div>
-                                <strong>Ubicación</strong><br>
-                                <span th:text="${evento.direccion}"></span>,
-                                <span th:text="${evento.distrito}"></span>,
-                                <span th:text="${evento.ciudad}"></span>
+                                <strong>Ubicacion</strong><br>
+                                <span th:text="${ubicacion}">Ubicacion por definir</span>
                             </div>
                         </div>
                         <div class="info-item">
                             <i class="bi bi-person"></i>
                             <div>
                                 <strong>Organizador</strong><br>
-                                <span th:text="${organizador.nombre} + ' ' + ${organizador.apellido}"></span>
+                                <span th:text="${organizadorNombre}">Organizador por definir</span>
                             </div>
                         </div>
                         <div class="info-item">
                             <i class="bi bi-clock"></i>
                             <div>
                                 <strong>Publicado</strong><br>
-                                <span th:text="${#temporals.format(creadoEn, 'dd/MM/yyyy \'a las\' HH:mm')}"></span>
+                                <span th:text="${#temporals.format(creadoEn, 'dd/MM/yyyy ''a las'' HH:mm')}"></span>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <h3 class="h4 mb-3">Descripción</h3>
-                        <p class="card-text lead" th:text="${evento.descripcion}"></p>
+                        <h3 class="h4 mb-3">Descripcion</h3>
+                        <p class="card-text lead"
+                           th:text="${evento.descripcion != null ? evento.descripcion : 'Este evento aun no tiene una descripcion detallada.'}"></p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Ticket Types -->
         <div class="col-lg-4">
             <div class="ticket-card">
                 <div class="card-header bg-white border-bottom-0 p-4">
-                    <h5 class="card-title mb-0"><i class="bi bi-ticket-perforated me-2"></i>Entradas Disponibles</h5>
+                    <h5 class="card-title mb-0"><i class="bi bi-ticket-perforated me-2"></i>Entradas disponibles</h5>
                 </div>
                 <div class="card-body p-4">
-                    <div th:if="${tiposTicket != null and !tiposTicket.empty}" th:each="tipo : ${tiposTicket}" class="ticket-type">
+                    <div th:if="${tiposTicket != null and !#lists.isEmpty(tiposTicket)}"
+                         th:each="tipo : ${tiposTicket}"
+                         class="ticket-type">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h6 class="mb-0" th:text="${tipo.nombre}">Tipo Ticket</h6>
-                            <span class="ticket-price">S/ <span th:text="${#numbers.formatDecimal(tipo.precio, 1, 2)}">0.00</span></span>
+                            <h6 class="mb-0" th:text="${tipo.nombre}">Tipo de entrada</h6>
+                            <span class="ticket-price"
+                                  th:text="${'S/ ' + #numbers.formatDecimal(((tipo.precioCentavos != null ? tipo.precioCentavos : 0) / 100.0), 1, 2)}">S/ 0.00</span>
                         </div>
                         <p class="text-muted small mb-3">
-                            <span th:text="${tipo.cantidad}"></span> disponibles
+                            <span th:text="${tipo.cupoTotal != null ? tipo.cupoTotal : 0}"></span> disponibles
                         </p>
-                        <button class="btn btn-add-cart"
-                                th:if="${tipo.cantidad > 0}"
-                                th:data-id="${tipo.id}"
-                                th:data-precio="${tipo.precio}"
-                                th:data-nombre="${tipo.nombre}"
-                                onclick="addToCart(this)">
-                            <i class="bi bi-bag-plus me-1"></i>Agregar al Carrito
+                        <button type="button"
+                                class="btn btn-add-cart"
+                                th:if="${tipo.cupoTotal == null or tipo.cupoTotal > 0}"
+                                data-ticket-add
+                                data-cantidad="1"
+                                th:attr="data-entrada-id=${tipo.id}">
+                            <i class="bi bi-bag-plus me-1"></i>Agregar al carrito
                         </button>
-                        <div th:if="${tipo.cantidad == 0}" class="text-center">
-                            <span class="text-muted small">Agotado</span>
+                        <div th:if="${tipo.cupoTotal != null and tipo.cupoTotal == 0}"
+                             class="text-center text-muted">
+                            <i class="bi bi-slash-circle me-1"></i>Agotado
                         </div>
                     </div>
-                    <div th:if="${tiposTicket == null or tiposTicket.empty}" class="text-center text-muted py-4">
+                    <div th:if="${tiposTicket == null or #lists.isEmpty(tiposTicket)}"
+                         class="text-center text-muted py-4">
                         <i class="bi bi-info-circle fs-1 mb-2"></i>
                         <p class="mb-0">No hay entradas disponibles por el momento.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card location-card">
+                <div class="card-header bg-white border-bottom-0 p-4">
+                    <h5 class="card-title mb-0"><i class="bi bi-geo-alt me-2"></i>Ubicacion del evento</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div th:if="${evento.latitud != null and evento.longitud != null}">
+                        <div id="eventoMap"
+                             class="w-100"
+                             th:attr="data-lat=${evento.latitud}, data-lng=${evento.longitud}"></div>
+                        <p class="text-muted small mt-3 mb-0">
+                            Usa el mapa como referencia para tu llegada al evento.
+                        </p>
+                    </div>
+                    <div th:unless="${evento.latitud != null and evento.longitud != null}" class="text-center text-muted">
+                        <i class="bi bi-info-circle fs-1 mb-2"></i>
+                        <p class="mb-0">El organizador aun no ha compartido la ubicacion exacta de este evento.</p>
                     </div>
                 </div>
             </div>
@@ -233,62 +308,185 @@
 
     <div class="mt-4">
         <a href="/eventos" class="back-btn">
-            <i class="bi bi-arrow-left me-2"></i>Volver a Eventos
+            <i class="bi bi-arrow-left"></i>
+            Volver a eventos
         </a>
     </div>
 </main>
 
 <footer th:replace="fragments/footer :: footer"></footer>
+<div th:replace="~{fragments/_offcanvas-cart :: offcanvasCart}"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-<script th:inline="javascript">
-    function addToCart(button) {
-        const tipoId = button.getAttribute('data-id');
-        const precio = button.getAttribute('data-precio');
-        const nombre = button.getAttribute('data-nombre');
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+  const heroImage = document.getElementById('heroImage');
 
-        // Mock add to cart - in real implementation, send to backend
-        button.innerHTML = '<i class="bi bi-check-circle me-1"></i>Agregado';
-        button.disabled = true;
-        button.classList.remove('btn-add-cart');
-        button.classList.add('btn-success');
+  document.addEventListener('click', (event) => {
+    const thumb = event.target.closest('[data-gallery-thumb]');
+    if (!thumb || !heroImage) return;
 
-        // Show success message
-        showToast('Entrada agregada al carrito', 'success');
+    const src = thumb.getAttribute('data-gallery-thumb');
+    if (!src) return;
 
-        // In a real app, redirect to cart or update cart count
-        setTimeout(() => {
-            window.location.href = '/carrito';
-        }, 1500);
+    heroImage.src = src;
+    document.querySelectorAll('[data-gallery-thumb]').forEach(btn => btn.classList.remove('active'));
+    thumb.classList.add('active');
+  });
+
+  const header = document.querySelector('meta[name="_csrf_header"]')?.content;
+  const token = document.querySelector('meta[name="_csrf"]')?.content;
+
+  document.addEventListener('click', async (event) => {
+    const removeBtn = event.target.closest('[data-cart-remove]');
+    if (removeBtn) {
+      event.preventDefault();
+      await manejarSolicitudCarrito('/carrito/eliminar', {
+        entradaTipoId: removeBtn.getAttribute('data-entrada-id') || ''
+      }, removeBtn);
+      return;
     }
 
-    function showToast(message, type) {
-        // Create toast container if it doesn't exist
-        let toastContainer = document.querySelector('.toast-container');
-        if (!toastContainer) {
-            toastContainer = document.createElement('div');
-            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-            document.body.appendChild(toastContainer);
-        }
-
-        const toast = document.createElement('div');
-        toast.className = `toast align-items-center text-white bg-${type} border-0`;
-        toast.setAttribute('role', 'alert');
-        toast.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">${message}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        `;
-
-        toastContainer.appendChild(toast);
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-
-        toast.addEventListener('hidden.bs.toast', () => {
-            toast.remove();
-        });
+    const clearBtn = event.target.closest('[data-cart-clear]');
+    if (clearBtn) {
+      event.preventDefault();
+      await manejarSolicitudCarrito('/carrito/limpiar', {}, clearBtn);
+      return;
     }
+
+    const btn = event.target.closest('[data-ticket-add]');
+    if (!btn) return;
+    if (btn.disabled) return;
+
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+
+    const payload = new URLSearchParams({
+      entradaTipoId: btn.getAttribute('data-entrada-id') || '',
+      cantidad: btn.getAttribute('data-cantidad') || '1'
+    });
+
+    try {
+      const data = await enviarSolicitud('/carrito/agregar', payload);
+      await manejarRespuesta(data, true);
+
+      btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Agregado';
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+      }, 1500);
+
+    } catch (error) {
+      btn.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>Error';
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+      }, 2000);
+    }
+  });
+
+  function actualizarBadge(count) {
+    const badges = document.querySelectorAll('[data-cart-count]');
+    const total = Number(count) || 0;
+    badges.forEach(badge => {
+      badge.textContent = total;
+      badge.classList.toggle('invisible', total === 0);
+    });
+  }
+
+  async function manejarSolicitudCarrito(url, data, button) {
+    if (!button) return;
+    const original = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+
+    try {
+      const payload = new URLSearchParams(data);
+      const respuesta = await enviarSolicitud(url, payload);
+      await manejarRespuesta(respuesta, false);
+    } catch (error) {
+      // noop
+    } finally {
+      button.disabled = false;
+      button.innerHTML = original;
+    }
+  }
+
+  async function enviarSolicitud(url, payload) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: Object.assign(
+          { 'Content-Type': 'application/x-www-form-urlencoded' },
+          header && token ? { [header]: token } : {}
+      ),
+      body: payload.toString()
+    });
+
+    if (!response.ok) {
+      throw new Error('No se pudo procesar la solicitud del carrito');
+    }
+
+    return response.json();
+  }
+
+  async function manejarRespuesta(data, mostrarOffcanvas) {
+    actualizarBadge(data.count);
+    await refrescarCarrito();
+
+    const offcanvas = document.getElementById('offcanvasCart');
+    if (!offcanvas) {
+      return;
+    }
+
+    const instance = bootstrap.Offcanvas.getOrCreateInstance(offcanvas);
+    const visible = offcanvas.classList.contains('show');
+    if (mostrarOffcanvas || visible) {
+      instance.show();
+    }
+  }
+
+  async function refrescarCarrito() {
+    const panel = document.querySelector('#offcanvasCart .offcanvas-body');
+    if (!panel) return;
+    const html = await fetch('/carrito/panel').then(resp => resp.text());
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const inner = temp.querySelector('#offcanvasCart .offcanvas-body');
+    if (inner) {
+      panel.innerHTML = inner.innerHTML;
+    }
+    const badge = document.querySelector('[data-cart-count]');
+    if (badge) {
+      const nuevoConteo = temp.querySelector('[data-cart-count]')?.textContent?.trim();
+      if (nuevoConteo !== undefined) {
+        badge.textContent = nuevoConteo;
+        badge.classList.toggle('invisible', Number(nuevoConteo) === 0);
+      }
+    }
+  }
+
+  const mapa = document.getElementById('eventoMap');
+  if (mapa && typeof L !== 'undefined') {
+    const lat = parseFloat(mapa.dataset.lat);
+    const lng = parseFloat(mapa.dataset.lng);
+    const tieneCoordenadas = !Number.isNaN(lat) && !Number.isNaN(lng);
+    const fallback = [-5.178289, -80.654888];
+    const centro = tieneCoordenadas ? [lat, lng] : fallback;
+
+    const map = L.map('eventoMap', {
+      zoomControl: true,
+      scrollWheelZoom: false
+    }).setView(centro, tieneCoordenadas ? 15 : 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    L.marker(centro).addTo(map);
+  }
+})();
 </script>
 </body>
 </html>

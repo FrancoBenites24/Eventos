@@ -56,58 +56,5 @@
   <div th:replace="~{fragments/_offcanvas-cart :: offcanvasCart}"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    (function () {
-      const header = document.querySelector('meta[name="_csrf_header"]')?.content;
-      const token  = document.querySelector('meta[name="_csrf"]')?.content;
-
-      document.addEventListener('click', async (e) => {
-        const btn = e.target.closest('[data-add-to-cart]');
-        if (!btn) return;
-
-        const payload = new URLSearchParams({
-          eventoId: btn.dataset.eventoId,
-          entradaTipoId: btn.dataset.entradaTipoId,
-          titulo: btn.dataset.titulo,
-          precioCentavos: btn.dataset.precio
-        });
-
-        const resp = await fetch('/carrito/agregar', {
-          method: 'POST',
-          headers: Object.assign(
-            {'Content-Type': 'application/x-www-form-urlencoded'},
-            header && token ? {[header]: token} : {}
-          ),
-          body: payload.toString()
-        });
-
-        if (resp.ok) {
-          const data = await resp.json();
-          const badge = document.querySelector('[data-cart-count]');
-          if (badge) {
-            badge.textContent = data.count;
-            badge.classList.toggle('invisible', data.count === 0);
-          }
-
-          const oc = document.getElementById('offcanvasCart');
-          if (oc) {
-            const off = bootstrap.Offcanvas.getOrCreateInstance(oc);
-            await refreshCart();
-            off.show();
-          }
-        }
-      });
-
-      async function refreshCart() {
-        const panel = document.querySelector('#offcanvasCart .offcanvas-body');
-        if (!panel) return;
-        const html = await fetch('/carrito/panel').then(r => r.text());
-        const temp = document.createElement('div');
-        temp.innerHTML = html;
-        const inner = temp.querySelector('#offcanvasCart .offcanvas-body');
-        if (inner) panel.innerHTML = inner.innerHTML;
-      }
-    })();
-  </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 package eventos.piura.model;
 
 import eventos.piura.model.enums.EstadoOrden;
+import eventos.piura.model.enums.MetodoPago;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -30,6 +31,12 @@ public class Orden extends AuditableEntity {
 
   @Enumerated(EnumType.STRING) @Column(nullable=false, length=20)
   private EstadoOrden estado = EstadoOrden.PENDIENTE;
+
+  @Enumerated(EnumType.STRING) @Column(name="metodo_pago", length=20, nullable=false)
+  private MetodoPago metodoPago = MetodoPago.TARJETA;
+
+  @Column(name="referencia_pago", length=100)
+  private String referenciaPago;
 
   @OneToMany(mappedBy="orden", cascade=CascadeType.ALL, orphanRemoval=true)
   private List<OrdenItem> items = new ArrayList<>();

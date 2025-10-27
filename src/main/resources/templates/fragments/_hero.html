@@ -3,22 +3,22 @@
 <body>
 <th:block th:fragment="hero(destacado)">
   <section class="hero-wrap rounded-4 overflow-hidden position-relative mb-4 shadow-sm"
-           th:with="imagenRaw=${destacado?.imagenUrl},
+           th:with="imagenRaw=${destacado != null ? destacado.imagenUrl : null},
                     tieneImagen=${imagenRaw != null and !#strings.isEmpty(imagenRaw)},
-                    categoriaRaw=${destacado?.categoria},
+                    categoriaRaw=${destacado != null ? destacado.categoria : null},
                     categoria=${categoriaRaw != null and !#strings.isEmpty(categoriaRaw) ? categoriaRaw : 'Categoria'},
-                    fechaRaw=${destacado?.fecha},
+                    fechaRaw=${destacado != null ? destacado.fecha : null},
                     fechaTexto=${fechaRaw != null ? #temporals.format(fechaRaw, 'dd MMM yyyy, HH:mm') : 'Por definir'},
-                    lugarRaw=${destacado?.lugar},
+                    lugarRaw=${destacado != null ? destacado.lugar : null},
                     lugarTexto=${lugarRaw != null and !#strings.isEmpty(lugarRaw) ? lugarRaw : 'Por definir'},
-                    tituloRaw=${destacado?.titulo},
+                    tituloRaw=${destacado != null ? destacado.titulo : null},
                     titulo=${tituloRaw != null and !#strings.isEmpty(tituloRaw) ? tituloRaw : 'Evento destacado'},
-                    precioRaw=${destacado?.precioCentavos},
+                    precioRaw=${destacado != null ? destacado.precioCentavos : null},
                     precio=${precioRaw != null ? precioRaw : 0},
-                    eventoId=${destacado?.eventoId},
-                    entradaTipoId=${destacado?.entradaTipoId}">
+                    eventoId=${destacado != null ? destacado.eventoId : null},
+                    entradaTipoId=${destacado != null ? destacado.entradaTipoId : null}">
     <img class="w-100 hero-img"
-         th:src="${tieneImagen} ? imagenRaw : @{/img/hero.jpg}"
+         th:src="${tieneImagen} ? @{${imagenRaw}} : @{/img/hero.jpg}"
          alt="Evento destacado"/>
 
     <div class="position-absolute bottom-0 start-0 end-0 p-4 p-md-5 text-white"
@@ -52,16 +52,12 @@
           <span>S/</span>
           <span th:text="${#numbers.formatDecimal(precio / 100.0, 1, 2)}">0.00</span>
         </div>
-        <button class="btn btn-teal btn-sm d-inline-flex align-items-center gap-2"
-                type="button"
-                data-add-to-cart
-                th:attr="data-evento-id=${eventoId},
-                         data-entrada-tipo-id=${entradaTipoId},
-                         data-titulo=${tituloRaw != null ? tituloRaw : ''},
-                         data-precio=${precio}">
-          <i class="bi bi-bag-plus"></i>
-          Comprar ahora
-        </button>
+        <a class="btn btn-teal btn-sm d-inline-flex align-items-center gap-2"
+           th:if="${eventoId != null}"
+           th:href="@{/eventos/{id}(id=${eventoId})}">
+          <i class="bi bi-eye"></i>
+          Ver detalles
+        </a>
       </div>
     </div>
   </section>

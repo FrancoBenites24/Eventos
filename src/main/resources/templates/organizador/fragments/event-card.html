@@ -3,6 +3,11 @@
 <body>
 <th:block th:fragment="eventCard(evento)">
   <article class="org-event-card">
+    <div class="org-event-thumb"
+         th:with="tieneImagen=${evento.imagenUrl != null and !#strings.isEmpty(evento.imagenUrl)}">
+      <img th:src="${tieneImagen} ? ${evento.imagenUrl} : @{/img/placeholder-event.png}"
+           alt="Imagen del evento">
+    </div>
     <div class="org-tag-row">
       <span class="org-tag" th:text="${evento.estado}">Proximo</span>
       <span class="org-tag badge-soft" th:text="${evento.categoria}">Festival Cultural</span>
