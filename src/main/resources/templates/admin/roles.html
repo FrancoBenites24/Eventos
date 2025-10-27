@@ -1,101 +1,169 @@
-<section>
-    <h2 class="mb-4">Gestión de Roles</h2>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/fragments/head :: head('Roles del Sistema')"></head>
+<body>
+<div class="d-flex">
+  <nav th:replace="admin/fragments/sidebar :: sidebar('roles')"></nav>
+  <main class="flex-grow-1 bg-body-tertiary" style="min-height:100vh;">
+    <header th:replace="admin/fragments/topbar :: topbar('Roles del Sistema')"></header>
+    <div class="container-fluid p-4">
 
-    <div class="mb-3">
-        <a th:href="@{/admin/roles/crear}" class="btn btn-primary">
-            <i class="fa fa-plus"></i> Nuevo Rol
-        </a>
-    </div>
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Permisos</th> <!-- 👈 Nueva columna -->
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="rol : ${roles}">
-                        <td th:text="${rol.id}">1</td>
-                        <td th:text="${rol.nombre}">Organizador</td>
-
-                        <!-- Columna de permisos -->
-                        <td>
-                            <span class="badge bg-secondary me-1"
-                                  th:each="p : ${permisosPorRol[rol.id]}"
-                                  th:text="${p.nombre}">Permiso</span>
-                        </td>
-
-                        <!-- Acciones -->
-                        <td class="text-center position-static">
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-light border dropdown-toggle" type="button"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa fa-ellipsis-v"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <!-- Editar -->
-                                    <li>
-                                        <a class="dropdown-item"
-                                           th:href="@{'/admin/roles/editar/' + ${rol.id}}">
-                                            <i class="fa fa-edit me-2"></i> Editar
-                                        </a>
-                                    </li>
-
-                                    <!-- Asignar permisos -->
-                                    <li>
-                                        <a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                           th:attr="data-bs-target='#modalPermisos-' + ${rol.id}">
-                                            <i class="fa fa-key me-2"></i> Asignar permisos
-                                        </a>
-                                    </li>
-
-                                    <!-- Eliminar -->
-                                    <li>
-                                        <a class="dropdown-item text-danger"
-                                           th:href="@{'/admin/roles/eliminar/' + ${rol.id}}"
-                                           onclick="return confirm('¿Eliminar este rol?')">
-                                            <i class="fa fa-trash me-2"></i> Eliminar
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- Modal Asignar Permisos -->
-                            <div class="modal fade" th:id="'modalPermisos-' + ${rol.id}" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <form th:action="@{'/admin/roles/asignar-permisos/' + ${rol.id}}" method="post">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Asignar permisos a [[${rol.nombre}]]</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="form-check" th:each="p : ${permisos}">
-                                                    <input class="form-check-input" type="checkbox" name="permisos"
-                                                           th:value="${p.id}"
-                                                           th:checked="${permisosPorRol[rol.id]?.contains(p)}">
-                                                    <label class="form-check-label" th:text="${p.nombre}">Permiso</label>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Cancelar</button>
-                                                <button type="submit" class="btn btn-primary">Guardar</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h5 mb-0">Roles del Sistema</h2>
+          <small class="text-muted">Define permisos por rol</small>
         </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm">Nuevo Rol</button>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Rol</th><th>Descripción</th><th>Usuarios</th><th>Permisos</th><th>Creado</th><th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Ejemplo fila 1 -->
+                <tr>
+                  <td>Administrador</td>
+                  <td>Control total del sistema</td>
+                  <td>3</td>
+                  <td>45</td>
+                  <td>31/12/2023</td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#modalForm">✏️</button>
+                    <!-- Eliminar -->
+                    <form th:action="@{|/admin/roles/1/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+
+                <!-- Ejemplo fila 2 -->
+                <tr>
+                  <td>Organizador Premium</td>
+                  <td>Crear y gestionar eventos premium</td>
+                  <td>128</td>
+                  <td>25</td>
+                  <td>31/12/2023</td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#modalForm">✏️</button>
+                    <!-- Eliminar -->
+                    <form th:action="@{|/admin/roles/2/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+
+                <!--
+                Cuando lo hagas dinámico:
+                <tr th:each="r : ${roles}">
+                  <td th:text="${r.nombre}">—</td>
+                  <td th:text="${r.descripcion}">—</td>
+                  <td th:text="${r.totalUsuarios}">0</td>
+                  <td th:text="${r.totalPermisos}">0</td>
+                  <td th:text="${#temporals.format(r.creado, 'dd/MM/yyyy')}">—</td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal"
+                            data-bs-target="#modalForm"
+                            th:attr="data-id=${r.id},data-nombre=${r.nombre},data-desc=${r.descripcion}">
+                      ✏️
+                    </button>
+                    <form th:action="@{|/admin/roles/${r.id}/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+                -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="modalForm" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!-- Form crear/editar rol -->
+            <form th:action="@{/admin/roles}" method="post">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+              <!-- Para editar, rellena este hidden con el ID -->
+              <input type="hidden" name="id" th:value="${rol?.id}" />
+
+              <div class="modal-header">
+                <h5 class="modal-title">Nuevo / Editar Rol</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+
+              <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <input name="nombre" class="form-control" maxlength="30" required th:value="${rol?.nombre}" />
+                </div>
+
+                <!-- (Opcional) Descripción, ya que la tabla la muestra -->
+                <div class="mb-3">
+                    <label class="form-label">Descripción</label>
+                    <input name="descripcion" class="form-control" maxlength="120" th:value="${rol?.descripcion}" />
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Permisos</label>
+                  <select name="permisos" class="form-select" multiple>
+                    <option>EVT_CREAR</option>
+                    <option>EVT_EDITAR</option>
+                    <option>EVT_ELIMINAR</option>
+                    <option>USR_VER</option>
+                  </select>
+                  <!-- Cuando sea dinámico:
+                  <select name="permisos" class="form-select" multiple>
+                    <option th:each="p: ${permisos}"
+                            th:value="${p.codigo}"
+                            th:text="${p.codigo}"
+                            th:selected="${rol != null} ? ${rol.tienePermiso(p)} : false">
+                    </option>
+                  </select>
+                  -->
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
+                <button class="btn btn-primary" type="submit">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
     </div>
-</section>
+  </main>
+</div>
+
+<th:block th:replace="admin/fragments/scripts :: scripts"></th:block>
+
+<!-- (Opcional) Script para precargar el modal al editar, si pasas data-* en el botón -->
+<script>
+// Si luego quieres precargar datos del rol al abrir el modal de edición:
+document.addEventListener('show.bs.modal', function (ev) {
+  if (ev.target.id !== 'modalForm') return;
+  const btn = ev.relatedTarget;
+  if (!btn) return;
+  // Ejemplo si usas data-* en el botón:
+  // const id = btn.getAttribute('data-id');
+  // const nombre = btn.getAttribute('data-nombre');
+  // const desc = btn.getAttribute('data-desc');
+  // document.querySelector('#modalForm input[name="id"]').value = id || '';
+  // document.querySelector('#modalForm input[name="nombre"]').value = nombre || '';
+  // document.querySelector('#modalForm input[name="descripcion"]').value = desc || '';
+});
+</script>
+</body>
+</html>

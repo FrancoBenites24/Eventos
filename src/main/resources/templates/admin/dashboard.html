@@ -1,56 +1,175 @@
-<section>
-    <h2 class="mb-4">Dashboard</h2>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/fragments/head :: head('Dashboard general')"></head>
+<body>
+  <div class="d-flex">
+    <nav th:replace="admin/fragments/sidebar :: sidebar('dashboard')"></nav>
 
-    <div class="row g-4">
-        <!-- Usuarios -->
-        <div class="col-md-4">
-            <div class="card shadow-sm text-center">
-                <div class="card-body">
-                    <h5 class="card-title text-primary"><i class="fa fa-users"></i> Usuarios</h5>
-                    <p class="fs-4 fw-bold" th:text="${totalUsuarios}">0</p>
-                </div>
+    <main class="flex-grow-1 bg-body-tertiary" style="min-height:100vh;">
+      <header th:replace="admin/fragments/topbar :: topbar('Dashboard general')"></header>
+      <div class="container-fluid p-4">
+
+        <!-- Toasts de feedback -->
+        <div aria-live="polite" aria-atomic="true" class="position-relative">
+          <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1080">
+            <div class="toast align-items-center text-bg-success border-0"
+                 role="alert" aria-live="assertive" aria-atomic="true"
+                 th:if="${toastSuccess}">
+              <div class="d-flex">
+                <div class="toast-body" th:text="${toastSuccess}">Operación exitosa.</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+              </div>
             </div>
+            <div class="toast align-items-center text-bg-danger border-0"
+                 role="alert" aria-live="assertive" aria-atomic="true"
+                 th:if="${toastError}">
+              <div class="d-flex">
+                <div class="toast-body" th:text="${toastError}">Ocurrió un error.</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Roles -->
-        <div class="col-md-4">
-            <div class="card shadow-sm text-center">
-                <div class="card-body">
-                    <h5 class="card-title text-success"><i class="fa fa-id-badge"></i> Roles</h5>
-                    <p class="fs-4 fw-bold" th:text="${totalRoles}">0</p>
+        <div class="row g-3">
+          <!-- KPI: Usuarios -->
+          <div class="col-12 col-md-4">
+            <a th:href="@{/admin/usuarios}" class="text-decoration-none text-body">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="text-muted small">Total Usuarios</div>
+                    <div class="display-6 fw-bold" th:text="${totalUsuarios} ?: '12,458'">12,458</div>
+                    <div class="small fw-medium"
+                         th:classappend="${(deltaUsuarios != null and deltaUsuarios >= 0) ? ' text-success' : ' text-danger'}">
+                      <span th:text="${(deltaUsuarios != null) ? #numbers.formatDecimal(deltaUsuarios, 1, 1) + '% vs mes anterior' : '+12.5% vs mes anterior'}">+12.5% vs mes anterior</span>
+                    </div>
+                  </div>
+                  <div class="rounded-circle p-3 bg-primary-subtle text-primary">👤</div>
                 </div>
-            </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- KPI: Eventos activos -->
+          <div class="col-12 col-md-4">
+            <a th:href="@{/admin/categorias}" class="text-decoration-none text-body">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="text-muted small">Eventos Activos</div>
+                    <div class="display-6 fw-bold" th:text="${eventosActivos} ?: '142'">142</div>
+                    <div class="small fw-medium"
+                         th:classappend="${(deltaEventos != null and deltaEventos >= 0) ? ' text-success' : ' text-danger'}">
+                      <span th:text="${(deltaEventos != null) ? #numbers.formatDecimal(deltaEventos, 1, 1) + '% vs mes anterior' : '+8.2% vs mes anterior'}">+8.2% vs mes anterior</span>
+                    </div>
+                  </div>
+                  <div class="rounded-circle p-3 bg-info-subtle text-info">📅</div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- KPI: Ventas -->
+          <div class="col-12 col-md-4">
+            <a th:href="@{/admin/planes}" class="text-decoration-none text-body">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="text-muted small">Ventas Totales</div>
+                    <div class="display-6 fw-bold" th:text="${ventasTotalesFmt} ?: 'S/ 284,950'">S/ 284,950</div>
+                    <div class="small fw-medium"
+                         th:classappend="${(deltaVentas != null and deltaVentas >= 0) ? ' text-success' : ' text-danger'}">
+                      <span th:text="${(deltaVentas != null) ? #numbers.formatDecimal(deltaVentas, 1, 1) + '% vs mes anterior' : '+23.1% vs mes anterior'}">+23.1% vs mes anterior</span>
+                    </div>
+                  </div>
+                  <div class="rounded-circle p-3 bg-success-subtle text-success">S/</div>
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
 
-        <!-- Permisos -->
-        <div class="col-md-4">
-            <div class="card shadow-sm text-center">
-                <div class="card-body">
-                    <h5 class="card-title text-warning"><i class="fa fa-key"></i> Permisos</h5>
-                    <p class="fs-4 fw-bold" th:text="${totalPermisos}">0</p>
-                </div>
+        <div class="row g-3 mt-1">
+          <!-- Ingresos Mensuales -->
+          <div class="col-12 col-lg-8">
+            <div class="card shadow-sm">
+              <div class="card-header bg-white">
+                <div class="fw-semibold">Ingresos Mensuales</div>
+                <small class="text-muted">Evolución</small>
+              </div>
+              <div class="card-body">
+                <!-- Contenedor para gráfico -->
+                <div id="chartIngresos" class="w-100" style="height:260px;"></div>
+                <!-- Placeholder de respaldo si no hay JS -->
+                <noscript><div class="placeholder" style="height:260px;"></div></noscript>
+              </div>
             </div>
-        </div>
-    </div>
+          </div>
 
-    <!-- Últimos usuarios -->
-    <div class="mt-5">
-        <h4>Últimos usuarios registrados</h4>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Creado en</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="u : ${ultimosUsuarios}">
-                    <td th:text="${u.username}">usuario</td>
-                    <td th:text="${u.email}">correo@example.com</td>
-                    <td th:text="${#temporals.format(u.creadoEn, 'dd/MM/yyyy HH:mm')}">fecha</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</section>
+          <!-- Eventos por categoría -->
+          <div class="col-12 col-lg-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-header bg-white">
+                <div class="fw-semibold">Eventos por Categoría</div>
+                <small class="text-muted">Distribución</small>
+              </div>
+              <div class="card-body">
+                <!-- Contenedor para gráfico -->
+                <div id="chartCategorias" class="w-100" style="height:260px;"></div>
+                <noscript><div class="placeholder" style="height:260px;"></div></noscript>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accesos rápidos -->
+        <div class="row g-3 mt-1">
+          <div class="col-12 col-lg-8">
+            <div class="card shadow-sm">
+              <div class="card-header bg-white">
+                <div class="fw-semibold">Accesos rápidos</div>
+                <small class="text-muted">Ir directo a módulos</small>
+              </div>
+              <div class="card-body d-flex flex-wrap gap-2">
+                <a th:href="@{/admin/usuarios}" class="btn btn-outline-secondary btn-sm">👤 Usuarios</a>
+                <a th:href="@{/admin/roles}" class="btn btn-outline-secondary btn-sm">🧩 Roles</a>
+                <a th:href="@{/admin/permisos}" class="btn btn-outline-secondary btn-sm">🔐 Permisos</a>
+                <a th:href="@{/admin/categorias}" class="btn btn-outline-secondary btn-sm">🏷️ Categorías</a>
+                <a th:href="@{/admin/tipos-entrada}" class="btn btn-outline-secondary btn-sm">🎫 Tipos de Entrada</a>
+                <a th:href="@{/admin/planes}" class="btn btn-outline-secondary btn-sm">💼 Planes</a>
+                <a th:href="@{/admin/suscripciones}" class="btn btn-outline-secondary btn-sm">📦 Suscripciones</a>
+                <a th:href="@{/admin/cupones}" class="btn btn-outline-secondary btn-sm">🏷️ Cupones</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <th:block th:replace="admin/fragments/scripts :: scripts"></th:block>
+
+  <!-- Auto-lanzar toasts si existen -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.toast').forEach(t => new bootstrap.Toast(t).show());
+    });
+  </script>
+
+  <!-- Hooks (vacíos) para tus gráficos con JS -->
+  <script>
+    // Ejemplo: con cualquier librería (Chart.js, ApexCharts, etc.)
+    // Aquí solo compruebo que existan contenedores
+    (function () {
+      const ing = document.getElementById('chartIngresos');
+      const cat = document.getElementById('chartCategorias');
+      if (!ing || !cat) return;
+      // TODO: Renderiza tus gráficos aquí usando datos del backend
+      // Puedes inyectar arrays JSON desde el modelo:
+      //   th:data-series="${ingresosSeriesJson}"  y luego leer dataset en JS.
+    })();
+  </script>
+</body>
+</html>

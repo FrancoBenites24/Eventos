@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/fragments/head :: head('Planes de Suscripción')"></head>
+<body>
+<div class="d-flex">
+  <nav th:replace="admin/fragments/sidebar :: sidebar('planes')"></nav>
+  <main class="flex-grow-1 bg-body-tertiary" style="min-height:100vh;">
+    <header th:replace="admin/fragments/topbar :: topbar('Planes de Suscripción')"></header>
+    <div class="container-fluid p-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h5 mb-0">Planes de Suscripción</h2>
+          <small class="text-muted">Administra los planes</small>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm">Nuevo Plan</button>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Código</th><th>Nombre</th><th>Precio Mensual</th><th>Características</th><th>Suscriptores</th><th>Estado</th><th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Fila ejemplo 1 -->
+                <tr>
+                  <td><span class="badge text-bg-light">PLAN_BASIC</span></td>
+                  <td>Plan Básico</td>
+                  <td>S/ 29.99</td>
+                  <td>
+                    <span class="badge rounded-pill text-bg-light">5 eventos</span>
+                    <span class="badge rounded-pill text-bg-light">100 asistentes</span>
+                  </td>
+                  <td>45</td>
+                  <td><span class="badge text-bg-info">ACTIVO</span></td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2"
+                            data-bs-toggle="modal" data-bs-target="#modalForm"
+                            data-id="1"
+                            data-codigo="PLAN_BASIC"
+                            data-nombre="Plan Básico"
+                            data-precio="29.99"
+                            data-caracteristicas='{"eventos":5,"asistentes":100}'
+                            data-activo="true">✏️</button>
+                    <form th:action="@{|/admin/planes/1/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button class="btn btn-sm btn-outline-danger" type="submit">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+
+                <!-- Fila ejemplo 2 -->
+                <tr>
+                  <td><span class="badge text-bg-light">PLAN_PRO</span></td>
+                  <td>Plan Profesional</td>
+                  <td>S/ 79.99</td>
+                  <td>
+                    <span class="badge rounded-pill text-bg-light">20 eventos</span>
+                    <span class="badge rounded-pill text-bg-light">500 asistentes</span>
+                  </td>
+                  <td>128</td>
+                  <td><span class="badge text-bg-info">ACTIVO</span></td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2"
+                            data-bs-toggle="modal" data-bs-target="#modalForm"
+                            data-id="2"
+                            data-codigo="PLAN_PRO"
+                            data-nombre="Plan Profesional"
+                            data-precio="79.99"
+                            data-caracteristicas='{"eventos":20,"asistentes":500}'
+                            data-activo="true">✏️</button>
+                    <form th:action="@{|/admin/planes/2/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button class="btn btn-sm btn-outline-danger" type="submit">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+
+                <!--
+                Versión dinámica con Thymeleaf:
+                <tr th:each="p : ${planes}">
+                  <td><span class="badge text-bg-light" th:text="${p.codigo}">COD</span></td>
+                  <td th:text="${p.nombre}">Nombre</td>
+                  <td th:text="${'S/ ' + #numbers.formatDecimal(p.precioMensual, 1, 2)}">S/ 0.00</td>
+                  <td>
+                    <span class="badge rounded-pill text-bg-light"
+                          th:each="tag : ${p.tags}" th:text="${tag}">caract</span>
+                  </td>
+                  <td th:text="${p.totalSuscriptores}">0</td>
+                  <td>
+                    <span class="badge" th:classappend="${p.activo} ? ' text-bg-info' : ' text-bg-secondary'"
+                          th:text="${p.activo} ? 'ACTIVO' : 'INACTIVO'">ACTIVO</span>
+                  </td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2"
+                            data-bs-toggle="modal" data-bs-target="#modalForm"
+                            th:attr="data-id=${p.id},data-codigo=${p.codigo},data-nombre=${p.nombre},
+                                     data-precio=${p.precioMensual},
+                                     data-caracteristicas=${p.caracteristicasJson},
+                                     data-activo=${p.activo}">
+                      ✏️
+                    </button>
+                    <form th:action="@{|/admin/planes/${p.id}/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button class="btn btn-sm btn-outline-danger" type="submit">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+                -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="modalForm" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <form th:action="@{/admin/planes}" method="post" id="planForm">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+              <input type="hidden" name="id" th:value="${plan?.id}" />
+
+              <div class="modal-header">
+                <h5 class="modal-title">Nuevo / Editar Plan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label">Código</label>
+                    <input name="codigo" class="form-control" maxlength="40" required th:value="${plan?.codigo}" />
+                  </div>
+                  <div class="col-md-8">
+                    <label class="form-label">Nombre</label>
+                    <input name="nombre" class="form-control" maxlength="80" required th:value="${plan?.nombre}" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Monto Mensual (S/)</label>
+                    <input name="precioMensual" type="number" class="form-control" min="0" step="0.01" required
+                           th:value="${plan?.precioMensual}" />
+                  </div>
+                  <div class="col-md-8">
+                    <label class="form-label">Características (JSON)</label>
+                    <textarea name="caracteristicasJson" class="form-control" rows="4"
+                              placeholder='{"eventos":5,"asistentes":100}' required
+                              th:text="${plan?.caracteristicasJson}">{{}}</textarea>
+                    <div class="form-text">Ej.: {"eventos":5,"asistentes":100}</div>
+                  </div>
+                  <div class="col-12 form-check form-switch mt-2">
+                    <input name="activo" class="form-check-input" type="checkbox" id="planActivo"
+                           th:checked="${plan == null} ? true : ${plan.activo}" />
+                    <label for="planActivo" class="form-check-label">Activo</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
+                <button class="btn btn-primary" type="submit">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<th:block th:replace="admin/fragments/scripts :: scripts"></th:block>
+
+<!-- (Opcional) Precarga + validación JSON antes de enviar -->
+<script>
+document.addEventListener('show.bs.modal', function (ev) {
+  if (ev.target.id !== 'modalForm') return;
+  const btn = ev.relatedTarget;
+  if (!btn) return;
+
+  const form = document.getElementById('planForm');
+  if (!form) return;
+
+  // Si es "Nuevo Plan" (sin data-id), limpiar
+  if (!btn.getAttribute('data-id')) {
+    form.reset();
+    form.querySelector('input[name="id"]').value = '';
+    return;
+  }
+
+  // Precargar datos para edición
+  form.querySelector('input[name="id"]').value = btn.getAttribute('data-id') || '';
+  form.querySelector('input[name="codigo"]').value = btn.getAttribute('data-codigo') || '';
+  form.querySelector('input[name="nombre"]').value = btn.getAttribute('data-nombre') || '';
+  form.querySelector('input[name="precioMensual"]').value = btn.getAttribute('data-precio') || '';
+  form.querySelector('textarea[name="caracteristicasJson"]').value = btn.getAttribute('data-caracteristicas') || '';
+  const activo = btn.getAttribute('data-activo') === 'true';
+  const chk = form.querySelector('#planActivo');
+  if (chk) chk.checked = activo;
+});
+
+// Validación básica de JSON antes de enviar
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('planForm');
+  if (!form) return;
+  form.addEventListener('submit', function (e) {
+    const txt = form.querySelector('textarea[name="caracteristicasJson"]').value.trim();
+    try {
+      JSON.parse(txt);
+    } catch (err) {
+      e.preventDefault();
+      alert('El campo "Características (JSON)" no contiene un JSON válido.');
+    }
+  });
+});
+</script>
+</body>
+</html>

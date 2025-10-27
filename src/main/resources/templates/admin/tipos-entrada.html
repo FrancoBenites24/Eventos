@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/fragments/head :: head('Tipos de Entrada')"></head>
+<body>
+<div class="d-flex">
+  <nav th:replace="admin/fragments/sidebar :: sidebar('tipos')"></nav>
+  <main class="flex-grow-1 bg-body-tertiary" style="min-height:100vh;">
+    <header th:replace="admin/fragments/topbar :: topbar('Tipos de Entrada')"></header>
+    <div class="container-fluid p-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h5 mb-0">Tipos de Entrada</h2>
+          <small class="text-muted">Define los tipos disponibles</small>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm">Nuevo Tipo de Entrada</button>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Tipo</th><th>Descripción</th><th>Eventos Usando</th><th>Estado</th><th>Creado</th><th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Fila ejemplo 1 -->
+                <tr>
+                  <td>General</td>
+                  <td>Entrada general</td>
+                  <td>234</td>
+                  <td><span class="badge text-bg-info">ACTIVO</span></td>
+                  <td>31/12/2023</td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2"
+                            data-bs-toggle="modal" data-bs-target="#modalForm"
+                            data-id="1"
+                            data-nombre="General"
+                            data-descripcion="Entrada general"
+                            data-activo="true">✏️</button>
+                    <form th:action="@{|/admin/tipos-entrada/1/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+
+                <!-- Fila ejemplo 2 -->
+                <tr>
+                  <td>VIP</td>
+                  <td>Acceso exclusivo</td>
+                  <td>156</td>
+                  <td><span class="badge text-bg-info">ACTIVO</span></td>
+                  <td>31/12/2023</td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2"
+                            data-bs-toggle="modal" data-bs-target="#modalForm"
+                            data-id="2"
+                            data-nombre="VIP"
+                            data-descripcion="Acceso exclusivo"
+                            data-activo="true">✏️</button>
+                    <form th:action="@{|/admin/tipos-entrada/2/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+
+                <!--
+                Versión dinámica con Thymeleaf:
+                <tr th:each="t : ${tipos}">
+                  <td th:text="${t.nombre}">Tipo</td>
+                  <td th:text="${t.descripcion}">Descripción</td>
+                  <td th:text="${t.totalEventos}">0</td>
+                  <td>
+                    <span class="badge"
+                          th:classappend="${t.activo} ? ' text-bg-info' : ' text-bg-secondary'"
+                          th:text="${t.activo} ? 'ACTIVO' : 'INACTIVO'">ACTIVO</span>
+                  </td>
+                  <td th:text="${#temporals.format(t.creado,'dd/MM/yyyy')}">31/12/2023</td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2"
+                            data-bs-toggle="modal" data-bs-target="#modalForm"
+                            th:attr="data-id=${t.id},data-nombre=${t.nombre},
+                                     data-descripcion=${t.descripcion},data-activo=${t.activo}">
+                      ✏️
+                    </button>
+                    <form th:action="@{|/admin/tipos-entrada/${t.id}/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+                -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="modalForm" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form th:action="@{/admin/tipos-entrada}" method="post" id="tipoForm">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+              <input type="hidden" name="id" th:value="${tipo?.id}" />
+
+              <div class="modal-header">
+                <h5 class="modal-title">Nuevo / Editar Tipo de Entrada</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label class="form-label">Nombre</label>
+                  <input name="nombre" class="form-control" maxlength="30" required th:value="${tipo?.nombre}" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Descripción</label>
+                  <textarea name="descripcion" class="form-control" rows="3" maxlength="200"
+                            th:text="${tipo?.descripcion}"></textarea>
+                </div>
+                <div class="form-check form-switch">
+                  <input name="activo" class="form-check-input" type="checkbox" id="tipoActivo"
+                         th:checked="${tipo == null} ? true : ${tipo.activo}" />
+                  <label class="form-check-label" for="tipoActivo">Activo</label>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
+                <button class="btn btn-primary" type="submit">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<th:block th:replace="admin/fragments/scripts :: scripts"></th:block>
+
+<!-- (Opcional) Precarga de datos en el modal al editar -->
+<script>
+document.addEventListener('show.bs.modal', function (ev) {
+  if (ev.target.id !== 'modalForm') return;
+  const btn = ev.relatedTarget;
+  const form = document.getElementById('tipoForm');
+  if (!btn || !form) return;
+
+  // Nuevo => limpiar
+  if (!btn.getAttribute('data-id')) {
+    form.reset();
+    form.querySelector('input[name="id"]').value = '';
+    // Por defecto, activo
+    const chk = form.querySelector('#tipoActivo');
+    if (chk) chk.checked = true;
+    return;
+  }
+
+  // Editar => precargar
+  form.querySelector('input[name="id"]').value = btn.getAttribute('data-id') || '';
+  form.querySelector('input[name="nombre"]').value = btn.getAttribute('data-nombre') || '';
+  form.querySelector('textarea[name="descripcion"]').value = btn.getAttribute('data-descripcion') || '';
+  const activo = btn.getAttribute('data-activo') === 'true';
+  const chk = form.querySelector('#tipoActivo');
+  if (chk) chk.checked = activo;
+});
+</script>
+</body>
+</html>

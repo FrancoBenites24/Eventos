@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/fragments/head :: head('Cupones')"></head>
+<body>
+<div class="d-flex">
+  <nav th:replace="admin/fragments/sidebar :: sidebar('cupones')"></nav>
+  <main class="flex-grow-1 bg-body-tertiary" style="min-height:100vh;">
+    <header th:replace="admin/fragments/topbar :: topbar('Cupones')"></header>
+    <div class="container-fluid p-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h5 mb-0">Cupones</h2>
+          <small class="text-muted">Gestión de cupones</small>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm">Nuevo Cupón</button>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Código</th><th>Descripción</th><th>Descuento</th><th>Vigencia</th><th>Estado</th><th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Fila ejemplo 1 -->
+                <tr>
+                  <td><span class="badge text-bg-light">WELCOME10</span></td>
+                  <td>Descuento de bienvenida</td>
+                  <td>10%</td>
+                  <td>01/01/2025 - 01/03/2025</td>
+                  <td><span class="badge text-bg-info">ACTIVO</span></td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2"
+                            data-bs-toggle="modal" data-bs-target="#modalForm"
+                            data-id="1"
+                            data-codigo="WELCOME10"
+                            data-descripcion="Descuento de bienvenida"
+                            data-descuento="10"
+                            data-inicio="2025-01-01"
+                            data-fin="2025-03-01"
+                            data-activo="true">✏️</button>
+                    <form th:action="@{|/admin/cupones/1/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+
+                <!-- Fila ejemplo 2 -->
+                <tr>
+                  <td><span class="badge text-bg-light">PRO25</span></td>
+                  <td>25% en Plan Pro</td>
+                  <td>25%</td>
+                  <td>01/02/2025 - 28/02/2025</td>
+                  <td><span class="badge text-bg-secondary">INACTIVO</span></td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2"
+                            data-bs-toggle="modal" data-bs-target="#modalForm"
+                            data-id="2"
+                            data-codigo="PRO25"
+                            data-descripcion="25% en Plan Pro"
+                            data-descuento="25"
+                            data-inicio="2025-02-01"
+                            data-fin="2025-02-28"
+                            data-activo="false">✏️</button>
+                    <form th:action="@{|/admin/cupones/2/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+
+                <!--
+                Versión dinámica con Thymeleaf:
+                <tr th:each="c : ${cupones}">
+                  <td><span class="badge text-bg-light" th:text="${c.codigo}">CODIGO</span></td>
+                  <td th:text="${c.descripcion}">—</td>
+                  <td th:text="${c.porcentaje + '%'}">0%</td>
+                  <td>
+                    <span th:text="${#temporals.format(c.inicio,'dd/MM/yyyy')}">01/01/2025</span>
+                    -
+                    <span th:text="${#temporals.format(c.fin,'dd/MM/yyyy')}">01/02/2025</span>
+                  </td>
+                  <td>
+                    <span class="badge" th:classappend="${c.activo} ? ' text-bg-info' : ' text-bg-secondary'"
+                          th:text="${c.activo} ? 'ACTIVO' : 'INACTIVO'">ACTIVO</span>
+                  </td>
+                  <td class="d-flex">
+                    <button class="btn btn-sm btn-outline-secondary me-2"
+                            data-bs-toggle="modal" data-bs-target="#modalForm"
+                            th:attr="data-id=${c.id},data-codigo=${c.codigo},data-descripcion=${c.descripcion},
+                                     data-descuento=${c.porcentaje},data-inicio=${#temporals.format(c.inicio,'yyyy-MM-dd')},
+                                     data-fin=${#temporals.format(c.fin,'yyyy-MM-dd')},data-activo=${c.activo}">
+                      ✏️
+                    </button>
+                    <form th:action="@{|/admin/cupones/${c.id}/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+                -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="modalForm" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form th:action="@{/admin/cupones}" method="post">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+              <input type="hidden" name="id" th:value="${cupon?.id}" />
+
+              <div class="modal-header">
+                <h5 class="modal-title">Nuevo / Editar Cupón</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label">Código</label>
+                    <input name="codigo" class="form-control" maxlength="30" required th:value="${cupon?.codigo}" />
+                  </div>
+                  <div class="col-md-8">
+                    <label class="form-label">Descripción</label>
+                    <input name="descripcion" class="form-control" maxlength="120" th:value="${cupon?.descripcion}" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Descuento (%)</label>
+                    <input name="porcentaje" type="number" class="form-control" min="0" max="100" step="1" required
+                           th:value="${cupon?.porcentaje}" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Inicio</label>
+                    <input name="inicio" type="date" class="form-control" required
+                           th:value="${cupon != null} ? ${#temporals.format(cupon.inicio,'yyyy-MM-dd')} : ''" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Fin</label>
+                    <input name="fin" type="date" class="form-control" required
+                           th:value="${cupon != null} ? ${#temporals.format(cupon.fin,'yyyy-MM-dd')} : ''" />
+                  </div>
+                  <div class="col-12 form-check form-switch mt-2">
+                    <input name="activo" class="form-check-input" type="checkbox" id="cuponActivo"
+                           th:checked="${cupon == null} ? true : ${cupon.activo}" />
+                    <label for="cuponActivo" class="form-check-label">Activo</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
+                <button class="btn btn-primary" type="submit">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<th:block th:replace="admin/fragments/scripts :: scripts"></th:block>
+
+<!-- (Opcional) Precarga de datos en el modal de edición -->
+<script>
+document.addEventListener('show.bs.modal', function (ev) {
+  if (ev.target.id !== 'modalForm') return;
+  const btn = ev.relatedTarget;
+  if (!btn) return;
+
+  const form = document.querySelector('#modalForm form');
+  if (!form) return;
+
+  // Limpiar primero
+  form.reset();
+  form.querySelector('input[name="id"]').value = '';
+
+  // Cargar si viene desde botón editar
+  const id = btn.getAttribute('data-id');
+  if (!id) return;
+
+  form.querySelector('input[name="id"]').value = id || '';
+  form.querySelector('input[name="codigo"]').value = btn.getAttribute('data-codigo') || '';
+  form.querySelector('input[name="descripcion"]').value = btn.getAttribute('data-descripcion') || '';
+  form.querySelector('input[name="porcentaje"]').value = btn.getAttribute('data-descuento') || '';
+  form.querySelector('input[name="inicio"]').value = btn.getAttribute('data-inicio') || '';
+  form.querySelector('input[name="fin"]').value = btn.getAttribute('data-fin') || '';
+
+  const activo = btn.getAttribute('data-activo') === 'true';
+  const chk = form.querySelector('#cuponActivo');
+  if (chk) chk.checked = activo;
+});
+</script>
+</body>
+</html>
