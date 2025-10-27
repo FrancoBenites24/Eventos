@@ -12,7 +12,9 @@ import eventos.piura.repository.UsuarioRepository;
 import eventos.piura.services.UsuarioService;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -72,4 +74,25 @@ public class UsuarioServiceImpl implements UsuarioService {
     public boolean existePorUsername(String username) {
         return usuarioRepository.existsByUsernameIgnoreCase(username);
     }
+    @Override
+public List<Usuario> listarTodos() {
+    return usuarioRepository.findAll();
+}
+
+@Override
+public Optional<Usuario> obtenerPorId(UUID id) {
+    return usuarioRepository.findById(id);
+}
+
+@Override
+public void eliminar(UUID id) {
+    usuarioRepository.deleteById(id);
+}
+
+@Override
+public Usuario guardar(Usuario usuario) {
+    // ⚠️ aquí podrías validar roles o reusar lógica de "registrar"
+    return usuarioRepository.save(usuario);
+}
+
 }

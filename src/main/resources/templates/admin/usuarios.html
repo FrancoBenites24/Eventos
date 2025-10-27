@@ -6,6 +6,7 @@
   <nav th:replace="admin/fragments/sidebar :: sidebar('usuarios')"></nav>
   <main class="flex-grow-1 bg-body-tertiary" style="min-height:100vh;">
     <header th:replace="admin/fragments/topbar :: topbar('Usuarios del Sistema')"></header>
+
     <div class="container-fluid p-4">
 
       <!-- Encabezado -->
@@ -14,7 +15,9 @@
           <h2 class="h5 mb-0">Usuarios del Sistema</h2>
           <small class="text-muted">Gestiona los usuarios y sus permisos</small>
         </div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm">Nuevo Usuario</button>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm">
+          Nuevo Usuario
+        </button>
       </div>
 
       <!-- Tabla -->
@@ -33,58 +36,74 @@
                 <th>Acciones</th>
               </tr>
               </thead>
-              <tbody>
-                <!-- Ejemplo de fila 1 -->
+
+              <tbody th:if="${#lists.isEmpty(usuarios)}">
                 <tr>
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="avatar bg-secondary-subtle text-secondary me-2">JP</div>Juan Pérez
-                    </div>
-                  </td>
-                  <td>juan.perez@email.com</td>
-                  <td>Organizador</td>
-                  <td><span class="badge text-bg-info">ACTIVO</span></td>
-                  <td>5</td>
-                  <td>1250</td>
-                  <td class="d-flex">
-                    <button class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#modalForm">✏️</button>
-                    <!-- Formulario eliminar -->
-                    <form th:action="@{|/admin/usuarios/1/eliminar|}" method="post" class="d-inline">
-                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
-                    </form>
+                  <td colspan="7" class="text-center text-muted py-4">
+                    No hay usuarios registrados.
                   </td>
                 </tr>
-
-                <!-- Ejemplo de fila 2 -->
-                <tr>
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="avatar bg-secondary-subtle text-secondary me-2">AT</div>Ana Torres
-                    </div>
-                  </td>
-                  <td>ana.torres@email.com</td>
-                  <td>Organizador</td>
-                  <td><span class="badge text-bg-danger">BLOQUEADO</span></td>
-                  <td>4</td>
-                  <td>890</td>
-                  <td class="d-flex">
-                    <button class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#modalForm">✏️</button>
-                    <!-- Formulario eliminar -->
-                    <form th:action="@{|/admin/usuarios/2/eliminar|}" method="post" class="d-inline">
-                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
-                    </form>
-                  </td>
-                </tr>
-
               </tbody>
+
+              <tbody th:if="${!#lists.isEmpty(usuarios)}">
+                <tr th:each="u : ${usuarios}">
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar bg-secondary-subtle text-secondary me-2"
+                           th:text="${
+                              (#strings.substring((u.nombre?:'').trim(),0,1) ?: '')
+                              + (#strings.substring((u.apellido?:'').trim(),0,1) ?: '')
+                           }">NA</div>
+                      <span th:text="${(u.nombre?:'') + ' ' + (u.apellido?:'')}">Nombre Apellido</span>
+                    </div>
+                  </td>
+
+                  <td th:text="${u.correo}">correo@ejemplo.com</td>
+
+                  <td>
+                    <!-- Muestra el primer rol o '—' si no tiene -->
+                    <span th:text="${#lists.isEmpty(u.roles) ? '—' : u.roles.iterator().next().nombre}">
+                      Rol
+                    </span>
+                    <!-- Si prefieres todos los roles en chips:
+                    <span th:each="r : ${u.roles}" class="badge text-bg-light me-1" th:text="${r.nombre}">Rol</span>
+                    -->
+                  </td>
+
+                  <td>
+                    <span
+                      th:classappend="${
+                        u.estado?.name() == 'ACTIVO' ? 'badge text-bg-info' :
+                        (u.estado?.name() == 'BLOQUEADO' ? 'badge text-bg-danger' : 'badge text-bg-secondary')
+                      }"
+                      th:text="${u.estado}">ACTIVO</span>
+                  </td>
+
+                  <td>—</td>
+                  <td>—</td>
+
+                  <td class="d-flex">
+                    <!-- Botón Editar (abre modal; puedes cargar datos por JS si quieres modo edición) -->
+                    <button class="btn btn-sm btn-outline-secondary me-2"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalForm"
+                            th:attr="data-id=${u.id}">✏️</button>
+
+                    <!-- Formulario eliminar -->
+                    <form th:action="@{|/admin/usuarios/${u.id}/eliminar|}" method="post" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                  </td>
+                </tr>
+              </tbody>
+
             </table>
           </div>
         </div>
       </div>
 
-      <!-- Modal Formulario -->
+      <!-- Modal Formulario (Nuevo / Editar) -->
       <div class="modal fade" id="modalForm" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
           <div class="modal-content">
@@ -114,7 +133,8 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Correo</label>
-                    <input name="email" type="email" class="form-control" required th:value="${usuario?.email}" />
+                    <!-- OJO: el campo de entidad es 'correo' (no 'email') -->
+                    <input name="correo" type="email" class="form-control" required th:value="${usuario?.correo}" />
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Username</label>
@@ -127,14 +147,16 @@
                   <div class="col-md-6">
                     <label class="form-label">Estado</label>
                     <select name="estado" class="form-select" required>
-                      <option th:selected="${usuario?.estado} == 'ACTIVO'">ACTIVO</option>
-                      <option th:selected="${usuario?.estado} == 'BLOQUEADO'">BLOQUEADO</option>
-                      <option th:selected="${usuario?.estado} == 'BANEADO'">BANEADO</option>
+                      <option value="ACTIVO" th:selected="${usuario?.estado?.name() == 'ACTIVO'}">ACTIVO</option>
+                      <option value="BLOQUEADO" th:selected="${usuario?.estado?.name() == 'BLOQUEADO'}">BLOQUEADO</option>
+                      <option value="BANEADO" th:selected="${usuario?.estado?.name() == 'BANEADO'}">BANEADO</option>
                     </select>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Roles</label>
-                    <select name="roles" class="form-select" multiple required>
+                    <!-- Si más adelante pasas una lista de roles al modelo (rolesDisponibles),
+                         puedes renderizar options dinámicamente. Por ahora, estático: -->
+                    <select name="roles" class="form-select" multiple>
                       <option>Administrador</option>
                       <option>Organizador Básico</option>
                       <option>Organizador Premium</option>
