@@ -22,4 +22,13 @@ public class Rol extends AuditableEntity {
     joinColumns = @JoinColumn(name="rol_id"),
     inverseJoinColumns = @JoinColumn(name="permiso_id"))
   private Set<Permiso> permisos = new HashSet<>();
+
+@OneToMany(mappedBy = "rol")
+private java.util.Set<UsuarioRol> usuarioRoles = new java.util.HashSet<>();
+
+
+  @PrePersist @PreUpdate
+  private void normalize() {
+    if (nombre != null) nombre = nombre.trim().toUpperCase();
+  }
 }

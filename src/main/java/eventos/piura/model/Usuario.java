@@ -69,4 +69,7 @@ public class Usuario extends AuditableEntity {
   @ManyToMany
   @JoinTable(name = "seg_usuario_permiso", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "permiso_id"))
   private Set<Permiso> permisosDirectos = new HashSet<>();
+  @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+private java.util.Set<UsuarioRol> usuarioRoles = new java.util.HashSet<>();
+
 }
