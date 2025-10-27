@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Eventia – Eventos</title>
+  <title>Eventia - Eventos</title>
 
   <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}"/>
   <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}"/>
@@ -16,19 +16,19 @@
 
   <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-  <main class="container-xxl">
+  <main class="container-xxl" th:with="hayEventos=${porCat != null and !#maps.isEmpty(porCat)}">
 
     <div th:if="${destacado != null}"
          th:replace="~{fragments/_hero :: hero(${destacado})}"></div>
 
-    <div th:if="${#maps.isEmpty(porCat)}" class="text-center py-5 text-muted">
-      Aún no hay eventos publicados. Vuelve pronto para descubrir nuevas experiencias.
+    <div th:if="${!hayEventos}" class="text-center py-5 text-muted">
+      A&uacute;n no hay eventos publicados. Vuelve pronto para descubrir nuevas experiencias.
     </div>
 
-    <div th:if="${!#maps.isEmpty(porCat)}"
+    <div th:if="${hayEventos}"
          th:replace="~{fragments/_category-pills :: categoryPills(${porCat})}"></div>
 
-    <section th:if="${!#maps.isEmpty(porCat)}" th:each="entry : ${porCat}" class="mb-5">
+    <section th:if="${hayEventos}" th:each="entry : ${porCat}" class="mb-5">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <h5 class="section-title mb-0" th:text="${entry.key}">Conciertos</h5>
         <a href="#" class="link-dark small text-decoration-none d-inline-flex align-items-center gap-1">
@@ -38,15 +38,16 @@
 
       <div class="row g-3">
         <div class="col-12 col-sm-6 col-lg-4 col-xl-3"
-             th:each="card : ${#lists.take(entry.value, 4)}">
+             th:each="card, iterStat : ${entry.value}"
+             th:if="${iterStat.index < 4}">
           <div th:replace="~{fragments/_event-card :: eventCard(${card})}"></div>
         </div>
       </div>
     </section>
 
     <section class="rounded-4 p-5 gradient-cta text-center text-white my-5">
-      <h4 class="fw-semibold mb-2">¿Organizas eventos?</h4>
-      <p class="opacity-75 mb-4">Únete y vende tus entradas de forma segura.</p>
+      <h4 class="fw-semibold mb-2">&iquest;Organizas eventos?</h4>
+      <p class="opacity-75 mb-4">&Uacute;nete y vende tus entradas de forma segura.</p>
       <a href="#" class="btn btn-light btn-lg px-4">Crear mi Evento</a>
     </section>
   </main>

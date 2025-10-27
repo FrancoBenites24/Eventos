@@ -25,7 +25,8 @@ public class Evento extends AuditableEntity {
   @NotBlank @Size(max=160) @Column(nullable=false, length=160)
   private String titulo;
 
-  @Lob private String descripcion;
+  @Column(columnDefinition = "text")
+  private String descripcion;
 
   @Column(name="inicio_en", nullable=false) private OffsetDateTime inicioEn;
   @Column(name="fin_en",    nullable=false) private OffsetDateTime finEn;

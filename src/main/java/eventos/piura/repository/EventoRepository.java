@@ -13,4 +13,10 @@ public interface EventoRepository extends JpaRepository<Evento, UUID> {
 
     @EntityGraph(attributePaths = {"categoria", "tipos", "tipos.tipoEntrada"})
     List<Evento> findByEstadoAndFinEnGreaterThanEqualOrderByInicioEnAsc(EstadoEvento estado, OffsetDateTime fechaReferencia);
+
+    @EntityGraph(attributePaths = {"categoria", "tipos", "tipos.tipoEntrada"})
+    List<Evento> findByOrganizadorIdOrderByInicioEnDesc(UUID organizadorId);
+
+    @EntityGraph(attributePaths = {"categoria", "tipos", "tipos.tipoEntrada"})
+    List<Evento> findByOrganizadorIdAndInicioEnGreaterThanEqualOrderByInicioEnAsc(UUID organizadorId, OffsetDateTime fechaReferencia);
 }

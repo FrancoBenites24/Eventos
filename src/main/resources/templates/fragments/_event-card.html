@@ -2,13 +2,21 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <th:block th:fragment="eventCard(card)">
-  <article class="event-card card h-100 shadow-sm border-0">
+  <article class="event-card card h-100 shadow-sm border-0"
+           th:with="tieneImagen=${card.imagenUrl != null and !#strings.isEmpty(card.imagenUrl)},
+                    imagen=${card.imagenUrl},
+                    categoria=${card.categoria != null and !#strings.isEmpty(card.categoria) ? card.categoria : 'Categoria'},
+                    titulo=${card.titulo != null and !#strings.isEmpty(card.titulo) ? card.titulo : 'Nombre del evento'},
+                    lugar=${card.lugar != null and !#strings.isEmpty(card.lugar) ? card.lugar : 'Lugar por definir'},
+                    mes=${card.fecha != null ? #temporals.format(card.fecha, 'MMM') : '---'},
+                    dia=${card.fecha != null ? #temporals.format(card.fecha, 'dd') : '00'},
+                    precio=${card.precioCentavos != null ? card.precioCentavos : 0}">
     <div class="ratio ratio-16x9 position-relative">
       <img class="card-img-top object-fit-cover"
-           th:src="${card.imagenUrl != null} ? ${card.imagenUrl} : @{/img/placeholder-event.jpg}"
+           th:src="${tieneImagen} ? imagen : @{/img/placeholder-event.jpg}"
            alt="Evento"/>
       <span class="badge position-absolute top-0 start-0 m-3 bg-dark-subtle text-dark text-uppercase py-2 px-3">
-        <span th:text="${card.categoria}">Categoría</span>
+        <span th:text="${categoria}">Categoria</span>
       </span>
     </div>
 
@@ -16,22 +24,22 @@
       <div class="d-flex align-items-center gap-3 small text-muted mb-1">
         <span class="date-chip text-center">
           <span class="d-block lh-1 text-uppercase fw-bold"
-                th:text="${#temporals.format(card.fecha, 'MMM')}">NOV</span>
+                th:text="${mes}">NOV</span>
           <span class="d-block lh-1 fs-6 fw-semibold"
-                th:text="${#temporals.format(card.fecha, 'dd')}">15</span>
+                th:text="${dia}">15</span>
         </span>
         <div class="flex-grow-1">
-          <h6 class="mb-1 line-clamp-1" th:text="${card.titulo}">Nombre del evento</h6>
+          <h6 class="mb-1 line-clamp-1" th:text="${titulo}">Nombre del evento</h6>
           <div class="small">
             <i class="bi bi-geo-alt me-1"></i>
-            <span th:text="${card.lugar}">Ubicación</span>
+            <span th:text="${lugar}">Ubicacion</span>
           </div>
         </div>
       </div>
 
       <div class="d-flex align-items-center justify-content-between mt-3">
         <div class="price">
-          S/ <span th:text="${#numbers.formatDecimal(card.precioCentavos / 100.0, 1, 2)}">0.00</span>
+          S/ <span th:text="${#numbers.formatDecimal(precio / 100.0, 1, 2)}">0.00</span>
         </div>
 
         <button type="button"
@@ -39,8 +47,8 @@
                 data-add-to-cart
                 th:attr="data-evento-id=${card.eventoId},
                          data-entrada-tipo-id=${card.entradaTipoId},
-                         data-titulo=${card.titulo},
-                         data-precio=${card.precioCentavos}">
+                         data-titulo=${titulo},
+                         data-precio=${precio}">
           <i class="bi bi-bag-plus"></i>
           Agregar al carrito
         </button>

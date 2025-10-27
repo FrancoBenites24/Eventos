@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,125 +9,59 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <link rel="stylesheet" th:href="@{/css/organizador.css}">
 </head>
+
 <body class="organizer-body">
-<div class="organizer-layout">
+  <div class="organizer-layout">
 
-  <div th:replace="~{organizador/fragments/sidebar :: sidebar('dashboard')}"></div>
+    <div th:replace="~{organizador/fragments/sidebar :: sidebar('dashboard')}"></div>
 
-  <div class="organizer-main">
-    <div th:replace="~{organizador/fragments/topbar :: topbar(${usuario})}"></div>
+    <div class="organizer-main">
+      <div th:replace="~{organizador/fragments/topbar :: topbar(${usuario})}"></div>
 
-    <section class="organizer-content">
-      <header class="org-page-title">
-        <h1 th:text="'Bienvenido de nuevo, ' + ${usuario != null ? usuario.nombre : 'Admin'}">Bienvenido de nuevo, Admin</h1>
-        <p>Aqui esta el resumen de tus eventos y actividades</p>
-      </header>
+      <section class="organizer-content">
+        <header class="org-page-title">
+          <h1 th:text="'Bienvenido de nuevo, ' + ${usuario != null ? usuario.nombreCompleto : 'Organizador'}">Bienvenido de nuevo,
+            Admin</h1>
+          <p>Aqui esta el resumen de tus eventos y actividades</p>
+        </header>
 
-      <div th:replace="~{organizador/fragments/stat-cards :: statCards(${resumen})}"></div>
+        <div th:replace="~{organizador/fragments/stat-cards :: statCards(${resumen})}"></div>
 
-      <div class="org-grid-2">
-        <article class="org-card">
-          <h2>Tendencia de eventos y asistentes</h2>
-          <canvas id="trendChart" height="220"></canvas>
-        </article>
+        <div class="org-grid-2">
+          <article class="org-card">
+            <h2>Tendencia de eventos y asistentes</h2>
+          </article>
 
-        <aside class="org-card">
-          <h2>Proximos eventos</h2>
-          <div class="org-upcoming">
-            <article class="org-upcoming-item" th:each="evt : ${proximos}">
-              <div class="org-tag-row">
-                <span class="org-tag" th:text="${evt.estado}">Proximo</span>
-                <span class="org-tag badge-soft" th:text="${evt.etiqueta}">Festival cultural</span>
-              </div>
-              <div>
-                <h3 class="h6 fw-semibold mb-1" th:text="${evt.titulo}">Festival del Limon</h3>
-                <div class="org-meta">
-                  <span><i class="bi bi-calendar-date me-1"></i><span th:text="${evt.fecha}">15 Nov 2025</span></span>
-                  <span><i class="bi bi-geo-alt me-1"></i><span th:text="${evt.lugar}">Plaza de Armas</span></span>
-                  <span><i class="bi bi-people me-1"></i><span th:text="${evt.asistentes}">2500 asistentes esperados</span></span>
+          <aside class="org-card">
+            <h2>Proximos eventos</h2>
+            <div class="org-upcoming">
+              <p class="text-muted small" th:if="${proximos == null || proximos.isEmpty()}">
+                Todavia no hay eventos proximos.
+              </p>
+              <article class="org-upcoming-item" th:each="evt : ${proximos}">
+                <div class="org-tag-row">
+                  <span class="org-tag" th:text="${evt.estado}">Proximo</span>
+                  <span class="org-tag badge-soft" th:text="${evt.etiqueta}">Festival cultural</span>
                 </div>
-              </div>
-            </article>
-          </div>
-        </aside>
-      </div>
-    </section>
+                <div>
+                  <h3 class="h6 fw-semibold mb-1" th:text="${evt.titulo}">Festival del Limon</h3>
+                  <div class="org-meta">
+                    <span><i class="bi bi-calendar-date me-1"></i><span th:text="${evt.fecha}">15 Nov 2025</span></span>
+                    <span><i class="bi bi-geo-alt me-1"></i><span th:text="${evt.lugar}">Plaza de Armas</span></span>
+                    <span><i class="bi bi-people me-1"></i><span th:text="${evt.asistentes}">2500 asistentes
+                        esperados</span></span>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </div>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-<script th:inline="javascript">
-/*<![CDATA[*/
-const trendLabels = [[${chart.etiquetas}]];
-const trendEventos = [[${chart.eventos}]];
-const trendAsistentes = [[${chart.asistentes}]];
-
-const ctx = document.getElementById('trendChart');
-if (ctx && window.Chart) {
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: trendLabels,
-      datasets: [
-        {
-          label: 'Eventos',
-          data: trendEventos,
-          borderColor: '#05a6b7',
-          backgroundColor: 'rgba(5, 166, 183, 0.15)',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.4,
-          pointRadius: 5,
-          pointBackgroundColor: '#05a6b7'
-        },
-        {
-          label: 'Asistentes',
-          data: trendAsistentes,
-          borderColor: '#21a179',
-          backgroundColor: 'rgba(33, 161, 121, 0.15)',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.4,
-          pointRadius: 5,
-          pointBackgroundColor: '#21a179'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true,
-          position: 'bottom',
-          labels: {
-            color: '#6c7a89',
-            usePointStyle: true
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { color: 'rgba(15, 44, 63, 0.05)' },
-          ticks: { color: '#6c7a89' }
-        },
-        y: {
-          grid: { color: 'rgba(15, 44, 63, 0.05)' },
-          ticks: { color: '#6c7a89' }
-        }
-      }
-    }
-  });
-}
-
-document.querySelectorAll('[data-sidebar-toggle]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const sidebar = document.getElementById('organizerSidebar');
-    sidebar?.classList.toggle('open');
-  });
-});
-/*]]>*/
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 </body>
+
 </html>

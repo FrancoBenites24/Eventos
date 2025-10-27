@@ -21,6 +21,9 @@
         <p>Administra todos tus eventos desde aqui</p>
       </header>
 
+      <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+      <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
       <div class="org-toolbar flex-wrap">
         <div class="org-search flex-grow p-0" style="border:none;">
           <i class="bi bi-search"></i>
