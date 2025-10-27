@@ -1,4 +1,4 @@
- package eventos.piura.controller;
+package eventos.piura.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -7,81 +7,67 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Controller
 public class PageController {
 
-    // Perfil (sin cambios)
-    @GetMapping("/profile")
-    public String profile() {
-        return "profile";
-    }
+    @GetMapping("/perfil")
+    public String perfil(Model model) {
+        Map<String, Object> usuario = new HashMap<>();
+        usuario.put("nombre", "Carlos");
+        usuario.put("apellido", "Rodríguez");
+        usuario.put("username", "carlosrod");
+        usuario.put("correo", "carlos.rodriguez@email.com");
+        usuario.put("telefono", "987654321");
+        usuario.put("creadoEn", "enero de 2024");
+        usuario.put("estado", "ACTIVO");
 
-    @GetMapping("/confirmacion")
-    public String confirmacion(
-            @RequestParam(value = "metodo", required = false) String metodo,
-            Model model) {
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("nivelActual", 5);
+        model.addAttribute("puntosActuales", 2450);
+        model.addAttribute("progresoPct", 82);
+        model.addAttribute("puntosRestantes", 550);
+        model.addAttribute("stats", Map.of(
+                "eventosAsistidos", 12,
+                "resenas", 8,
+                "ordenes", 15,
+                "entradasActivas", 3));
+        model.addAttribute("billeteraSaldo", 150.00);
 
-        model.addAttribute("codigo", "ORD-2025-000123");
-        model.addAttribute("nombre", "Rubi Silva");
-        model.addAttribute("correo", "rubi@example.com");
-        model.addAttribute("total", new BigDecimal("150.80").setScale(2, RoundingMode.HALF_UP));
-        model.addAttribute("mensaje", "¡Tu compra se realizó con éxito!");
-        model.addAttribute("moneda", "S/"); // usa la misma moneda que en carrito
-        model.addAttribute("metodo", (metodo != null && !metodo.isBlank()) ? metodo : "No especificado");
+        // ▼ Reemplaza los Map.of(...) por HashMap
+        Map<String, Object> e1 = new HashMap<>();
+        e1.put("titulo", "Festival de Música");
+        e1.put("categoria", "Música");
+        e1.put("fecha", "15 mar 2025, 15:00");
+        e1.put("checkIn", "15 mar 2025, 14:45");
+        e1.put("imgUrl", null); // permitido en HashMap
 
-        return "confirmacion"; // ↔ templates/confirmacion.html
-    }
+        Map<String, Object> e2 = new HashMap<>();
+        e2.put("titulo", "Conferencia Tech");
+        e2.put("categoria", "Tecnología");
+        e2.put("fecha", "20 mar 2025, 09:00");
+        e2.put("checkIn", "20 mar 2025, 08:45");
+        e2.put("imgUrl", null); // permitido en HashMap
 
-    // ==========================
-    // CARRITO (dinámico servidor)
-    // ==========================
-    @GetMapping("/carrito")
-    public String carrito(Model model) {
-        // Items de ejemplo (sin models)
-        Map<String,Object> i1 = Map.of(
-                "titulo", "Entrada Concierto",
-                "lugar", "Coliseo Piura",
-                "fecha", "2025-10-12 20:00",
-                "precio", new BigDecimal("45.00"),
-                "cantidad", 2,
-                "importe", new BigDecimal("45.00").multiply(new BigDecimal("2"))
-        );
-        Map<String,Object> i2 = Map.of(
-                "titulo", "Conf. Tech",
-                "lugar", "Auditorio UDEP",
-                "fecha", "2025-10-20 09:00",
-                "precio", new BigDecimal("60.00"),
-                "cantidad", 1,
-                "importe", new BigDecimal("60.00").multiply(new BigDecimal("1"))
-        );
+        model.addAttribute("eventos", List.of(e1, e2));
 
-        List<Map<String,Object>> items = List.of(i1, i2);
+        model.addAttribute("resenas", List.of(
+                Map.of(
+                        "tituloEvento", "Festival de Música Electrónica 2025",
+                        "htmlEstrellas",
+                        "<i class='bi bi-star-fill'></i><i class='bi bi-star-fill'></i><i class='bi bi-star-fill'></i><i class='bi bi-star-fill'></i><i class='bi bi-star-fill'></i>",
+                        "fecha", "16 mar 2025",
+                        "comentario", "Increíble experiencia, excelente organización y lineup espectacular.")));
+        model.addAttribute("txs", List.of(
+                Map.of("tipo", "CR", "concepto", "Recarga", "fecha", "20 mar, 09:30", "monto", "+S/ 100.00")));
+        model.addAttribute("ordenes", List.of(
+                Map.of("id", "123", "tituloEvento", "Festival de Música Electrónica 2025", "fecha", "10 feb", "total",
+                        "S/ 250.00")));
 
-        // Totales con redondeo
-        BigDecimal subtotal = items.stream()
-                .map(m -> (BigDecimal) m.get("importe"))
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(2, RoundingMode.HALF_UP);
-
-        BigDecimal igv = subtotal.multiply(new BigDecimal("0.18"))
-                .setScale(2, RoundingMode.HALF_UP);
-
-        BigDecimal total = subtotal.add(igv)
-                .setScale(2, RoundingMode.HALF_UP);
-
-        // Atributos para Thymeleaf
-        model.addAttribute("items", items);
-        model.addAttribute("itemsCount", items.size());
-        model.addAttribute("subtotal", subtotal);
-        model.addAttribute("igv", igv);
-        model.addAttribute("total", total);
-        model.addAttribute("moneda", "S/");
-        model.addAttribute("metodosPago", List.of("Tarjeta", "Yape/Plin", "Transferencia"));
-
-        return "DetalleCarrito"; // ↔ templates/DetalleCarrito.html
+        return "perfil/perfil";
     }
 
 }

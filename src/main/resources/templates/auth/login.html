@@ -142,7 +142,7 @@
             <label class="form-label small">Usuario o Correo Electrónico</label>
             <div class="input-group">
               <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
-              <input type="text" class="form-control" name="username" placeholder="usuario@ejemplo.com" required>
+              <input type="text" class="form-control" name="username" placeholder="usuario@ejemplo.com" maxlength="120" required>
             </div>
           </div>
 
@@ -150,7 +150,7 @@
             <label class="form-label small">Contraseña</label>
             <div class="input-group">
               <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
-              <input type="password" class="form-control" name="password" placeholder="********" required>
+              <input type="password" class="form-control" name="password" placeholder="********" maxlength="72" required>
             </div>
           </div>
 
@@ -170,5 +170,41 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Validaciones del lado del cliente para login
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.querySelector('form');
+      const inputs = form.querySelectorAll('input');
+
+      // Función para trim automático en inputs de texto
+      inputs.forEach(input => {
+        if (input.type === 'text' || input.type === 'email' || input.type === 'password') {
+          input.addEventListener('blur', function() {
+            this.value = this.value.trim();
+          });
+        }
+      });
+
+      // Validación adicional antes del envío
+      form.addEventListener('submit', function(e) {
+        let isValid = true;
+
+        // Verificar que no haya espacios en blanco al inicio o final
+        inputs.forEach(input => {
+          if (input.type === 'text' || input.type === 'email' || input.type === 'password') {
+            if (input.value !== input.value.trim()) {
+              input.setCustomValidity('No se permiten espacios al inicio o final');
+              isValid = false;
+            }
+          }
+        });
+
+        if (!isValid) {
+          e.preventDefault();
+          form.classList.add('was-validated');
+        }
+      });
+    });
+  </script>
 </body>
 </html>

@@ -52,7 +52,19 @@ public class AuthController {
             redirectAttributes.addFlashAttribute("success", "Cuenta creada exitosamente. Bienvenido!");
             return "redirect:/";
         } catch (IllegalArgumentException e) {
-            result.rejectValue("correo", "error.registro", e.getMessage());
+            // Determinar el campo específico del error para mostrar en tiempo real
+            String errorMessage = e.getMessage();
+            if (errorMessage.contains("nombre de usuario ya existe")) {
+                result.rejectValue("username", "error.username", errorMessage);
+            } else if (errorMessage.contains("correo electrónico ya está registrado")) {
+                result.rejectValue("correo", "error.correo", errorMessage);
+            } else if (errorMessage.contains("DNI ya está registrado")) {
+                result.rejectValue("dni", "error.dni", errorMessage);
+            } else if (errorMessage.contains("contraseñas no coinciden")) {
+                result.rejectValue("confirmarContrasena", "error.confirmarContrasena", errorMessage);
+            } else {
+                result.rejectValue("correo", "error.registro", errorMessage);
+            }
             return "auth/registro";
         }
     }

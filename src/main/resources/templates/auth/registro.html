@@ -136,7 +136,7 @@
             <label class="form-label small">Nombre *</label>
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-person"></i></span>
-              <input type="text" class="form-control" th:field="*{nombre}" placeholder="Juan" required>
+              <input type="text" class="form-control" th:field="*{nombre}" placeholder="Juan" required maxlength="40">
             </div>
             <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
           </div>
@@ -145,7 +145,7 @@
             <label class="form-label small">Apellido *</label>
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-person"></i></span>
-              <input type="text" class="form-control" th:field="*{apellido}" placeholder="Pérez" required>
+              <input type="text" class="form-control" th:field="*{apellido}" placeholder="Pérez" required maxlength="40">
             </div>
             <div class="invalid-feedback" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
           </div>
@@ -155,7 +155,8 @@
             <label class="form-label small">DNI *</label>
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-card-text"></i></span>
-              <input type="text" class="form-control" th:field="*{dni}" placeholder="12345678" maxlength="8" required>
+              <input type="text" class="form-control" th:field="*{dni}" placeholder="12345678" maxlength="8" pattern="[0-9]{8}" required id="dni">
+              <div class="input-group-text" id="dni-check" style="display: none;"><i class="bi bi-check-circle text-success"></i></div>
             </div>
             <div class="invalid-feedback" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
           </div>
@@ -164,7 +165,7 @@
             <label class="form-label small">Teléfono</label>
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-              <input type="tel" class="form-control" th:field="*{telefono}" placeholder="987654321">
+              <input type="tel" class="form-control" th:field="*{telefono}" placeholder="987654321" pattern="\+?[0-9]{9,15}">
             </div>
             <div class="invalid-feedback" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
           </div>
@@ -174,9 +175,11 @@
             <label class="form-label small">Nombre de Usuario *</label>
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
-              <input type="text" class="form-control" th:field="*{username}" placeholder="usuario123" required>
+              <input type="text" class="form-control" th:field="*{username}" placeholder="usuario123" minlength="4" maxlength="20" pattern="[a-zA-Z0-9_]+" required id="username">
+              <div class="input-group-text" id="username-check" style="display: none;"><i class="bi bi-check-circle text-success"></i></div>
             </div>
             <div class="invalid-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+            <small class="text-muted">Solo letras, números y guiones bajos. Mínimo 4 caracteres.</small>
           </div>
 
           <!-- Email -->
@@ -184,7 +187,8 @@
             <label class="form-label small">Correo Electrónico *</label>
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-              <input type="email" class="form-control" th:field="*{correo}" placeholder="usuario@ejemplo.com" required>
+              <input type="email" class="form-control" th:field="*{correo}" placeholder="usuario@ejemplo.com" maxlength="120" required id="correo">
+              <div class="input-group-text" id="email-check" style="display: none;"><i class="bi bi-check-circle text-success"></i></div>
             </div>
             <div class="invalid-feedback" th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></div>
           </div>
@@ -194,16 +198,18 @@
             <label class="form-label small">Contraseña *</label>
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-lock"></i></span>
-              <input type="password" class="form-control" th:field="*{contrasena}" placeholder="••••••••" minlength="6" required>
+              <input type="password" class="form-control" th:field="*{contrasena}" placeholder="••••••••" minlength="8" maxlength="72" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" required>
+              <span class="input-group-text" id="password-toggle" style="cursor: pointer;"><i class="bi bi-eye"></i></span>
             </div>
             <div class="invalid-feedback" th:if="${#fields.hasErrors('contrasena')}" th:errors="*{contrasena}"></div>
+            <small class="text-muted">La contraseña debe tener al menos 8 caracteres, incluyendo mayúscula, minúscula, número y símbolo especial.</small>
           </div>
 
           <div class="col-12">
             <label class="form-label small">Confirmar Contraseña *</label>
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-              <input type="password" class="form-control" th:field="*{confirmarContrasena}" placeholder="••••••••" minlength="6" required>
+              <input type="password" class="form-control" th:field="*{confirmarContrasena}" placeholder="••••••••" minlength="8" maxlength="72" required>
             </div>
             <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmarContrasena')}" th:errors="*{confirmarContrasena}"></div>
           </div>
@@ -235,5 +241,154 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Validaciones del lado del cliente
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.querySelector('form');
+      const password = document.querySelector('input[name="contrasena"]');
+      const confirmPassword = document.querySelector('input[name="confirmarContrasena"]');
+      const inputs = form.querySelectorAll('input');
+      const passwordToggle = document.getElementById('password-toggle');
+      const passwordIcon = passwordToggle.querySelector('i');
+
+      // Elementos para validaciones en tiempo real
+      const usernameInput = document.getElementById('username');
+      const emailInput = document.getElementById('correo');
+      const dniInput = document.getElementById('dni');
+      const usernameCheck = document.getElementById('username-check');
+      const emailCheck = document.getElementById('email-check');
+      const dniCheck = document.getElementById('dni-check');
+
+      // Toggle para mostrar/ocultar contraseña
+      passwordToggle.addEventListener('click', function() {
+        if (password.type === 'password') {
+          password.type = 'text';
+          passwordIcon.className = 'bi bi-eye-slash';
+        } else {
+          password.type = 'password';
+          passwordIcon.className = 'bi bi-eye';
+        }
+      });
+
+      // Función para trim automático en inputs de texto
+      inputs.forEach(input => {
+        if (input.type === 'text' || input.type === 'email' || input.type === 'tel' || input.type === 'password') {
+          input.addEventListener('blur', function() {
+            this.value = this.value.trim();
+          });
+        }
+      });
+
+      // Validación en tiempo real para confirmar contraseña
+      confirmPassword.addEventListener('input', function() {
+        if (password.value !== this.value) {
+          this.setCustomValidity('Las contraseñas no coinciden');
+        } else {
+          this.setCustomValidity('');
+        }
+      });
+
+      // Validación en tiempo real para contraseña (requisitos)
+      password.addEventListener('input', function() {
+        const value = this.value;
+        const hasLower = /[a-z]/.test(value);
+        const hasUpper = /[A-Z]/.test(value);
+        const hasNumber = /\d/.test(value);
+        const hasSpecial = /[@$!%*?&]/.test(value);
+        const isLongEnough = value.length >= 8;
+
+        if (!isLongEnough) {
+          this.setCustomValidity('La contraseña debe tener al menos 8 caracteres');
+        } else if (!hasLower) {
+          this.setCustomValidity('La contraseña debe contener al menos una letra minúscula');
+        } else if (!hasUpper) {
+          this.setCustomValidity('La contraseña debe contener al menos una letra mayúscula');
+        } else if (!hasNumber) {
+          this.setCustomValidity('La contraseña debe contener al menos un número');
+        } else if (!hasSpecial) {
+          this.setCustomValidity('La contraseña debe contener al menos un símbolo especial (@$!%*?&)');
+        } else {
+          this.setCustomValidity('');
+        }
+      });
+
+      // Validación en tiempo real para username (disponibilidad)
+      usernameInput.addEventListener('blur', function() {
+        const value = this.value.trim();
+        if (value.length >= 4) {
+          // Simular verificación de disponibilidad (en producción usar AJAX)
+          setTimeout(() => {
+            // Aquí iría la llamada AJAX para verificar disponibilidad
+            // Por ahora, mostrar check verde si cumple formato
+            if (/^[a-zA-Z0-9_]+$/.test(value)) {
+              usernameCheck.style.display = 'flex';
+              this.setCustomValidity('');
+            } else {
+              usernameCheck.style.display = 'none';
+              this.setCustomValidity('El nombre de usuario contiene caracteres inválidos');
+            }
+          }, 500);
+        } else {
+          usernameCheck.style.display = 'none';
+        }
+      });
+
+      // Validación en tiempo real para email (disponibilidad)
+      emailInput.addEventListener('blur', function() {
+        const value = this.value.trim();
+        if (value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          // Simular verificación de disponibilidad (en producción usar AJAX)
+          setTimeout(() => {
+            // Aquí iría la llamada AJAX para verificar disponibilidad
+            emailCheck.style.display = 'flex';
+            this.setCustomValidity('');
+          }, 500);
+        } else {
+          emailCheck.style.display = 'none';
+        }
+      });
+
+      // Validación en tiempo real para DNI (disponibilidad)
+      dniInput.addEventListener('blur', function() {
+        const value = this.value.trim();
+        if (value.length === 8 && /^\d{8}$/.test(value)) {
+          // Simular verificación de disponibilidad (en producción usar AJAX)
+          setTimeout(() => {
+            // Aquí iría la llamada AJAX para verificar disponibilidad
+            dniCheck.style.display = 'flex';
+            this.setCustomValidity('');
+          }, 500);
+        } else {
+          dniCheck.style.display = 'none';
+        }
+      });
+
+      // Validación adicional antes del envío
+      form.addEventListener('submit', function(e) {
+        let isValid = true;
+
+        // Verificar que las contraseñas coincidan
+        if (password.value !== confirmPassword.value) {
+          confirmPassword.setCustomValidity('Las contraseñas no coinciden');
+          isValid = false;
+        }
+
+        // Verificar que no haya espacios en blanco al inicio o final
+        inputs.forEach(input => {
+          if (input.type === 'text' || input.type === 'email' || input.type === 'tel' || input.type === 'password') {
+            if (input.value !== input.value.trim()) {
+              input.setCustomValidity('No se permiten espacios al inicio o final');
+              isValid = false;
+            }
+          }
+        });
+
+        if (!isValid) {
+          e.preventDefault();
+          form.classList.add('was-validated');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
