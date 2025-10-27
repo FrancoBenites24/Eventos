@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="statCards(items)">
+  <div class="org-stats-grid">
+    <article class="org-stat-card" th:each="item : ${items}">
+      <div class="org-stat-header">
+        <div class="org-stat-title" th:text="${item.titulo}">Total Eventos</div>
+        <div class="org-stat-icon">
+          <i th:class="${item.icono != null} ? ${'bi ' + item.icono} : 'bi bi-bar-chart-line'"></i>
+        </div>
+      </div>
+      <div class="org-stat-value" th:text="${item.valor}">48</div>
+      <div class="org-stat-diff" th:text="${item.variacion}">+12% vs mes anterior</div>
+    </article>
+  </div>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centro de eventos - Configuracion</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" th:href="@{/css/organizador.css}">
+</head>
+<body class="organizer-body">
+<div class="organizer-layout">
+  <div th:replace="~{organizador/fragments/sidebar :: sidebar('configuracion')}"></div>
+
+  <div class="organizer-main">
+    <div th:replace="~{organizador/fragments/topbar :: topbar(${usuario})}"></div>
+
+    <section class="organizer-content">
+      <header class="org-page-title">
+        <h1>Configuracion</h1>
+        <p>Administra los detalles de tu cuenta de organizador</p>
+      </header>
+
+      <article class="org-card">
+        <div class="org-tabbar" th:with="activo=${tabActiva != null ? tabActiva : 'perfil'}">
+          <button type="button" data-org-tab="perfil" th:classappend="${activo == 'perfil'} ? ' active'">
+            <i class="bi bi-person"></i> Perfil
+          </button>
+          <button type="button" data-org-tab="organizacion" th:classappend="${activo == 'organizacion'} ? ' active'">
+            <i class="bi bi-building"></i> Organizacion
+          </button>
+          <button type="button" data-org-tab="notificaciones" th:classappend="${activo == 'notificaciones'} ? ' active'">
+            <i class="bi bi-bell"></i> Notificaciones
+          </button>
+          <button type="button" data-org-tab="seguridad" th:classappend="${activo == 'seguridad'} ? ' active'">
+            <i class="bi bi-shield-lock"></i> Seguridad
+          </button>
+          <button type="button" data-org-tab="facturacion" th:classappend="${activo == 'facturacion'} ? ' active'">
+            <i class="bi bi-credit-card"></i> Facturacion
+          </button>
+        </div>
+
+        <div th:class="${tabActiva == null || tabActiva == 'perfil'} ? 'org-form-grid' : 'org-form-grid d-none'"
+             data-org-content="perfil">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="org-avatar" style="width:64px;height:64px;border-radius:22px;font-size:1.3rem;" th:text="${perfil.iniciales}">AN</div>
+            <div>
+              <h5 class="mb-1">Informacion personal</h5>
+              <p class="text-muted small mb-2">Actualiza la informacion de perfil y detalles personales</p>
+              <button class="org-btn-outline" type="button"><i class="bi bi-upload"></i> Cambiar foto</button>
+            </div>
+          </div>
+
+          <div class="org-form-grid two">
+            <div>
+              <label class="org-label">Nombre</label>
+              <input type="text" class="form-control org-form-control" th:value="${perfil.nombre}">
+            </div>
+            <div>
+              <label class="org-label">Apellido</label>
+              <input type="text" class="form-control org-form-control" th:value="${perfil.apellido}">
+            </div>
+            <div>
+              <label class="org-label">Correo electronico</label>
+              <input type="email" class="form-control org-form-control" th:value="${perfil.correo}">
+            </div>
+            <div>
+              <label class="org-label">Telefono</label>
+              <input type="tel" class="form-control org-form-control" th:value="${perfil.telefono}">
+            </div>
+          </div>
+
+          <div>
+            <label class="org-label">Biografia</label>
+            <textarea rows="4" class="form-control org-form-control" th:text="${perfil.bio}"></textarea>
+          </div>
+
+          <div class="org-card-footer">
+            <button class="org-btn-outline" type="button">Cancelar</button>
+            <button class="org-btn-teal" type="button">
+              <i class="bi bi-save"></i> Guardar cambios
+            </button>
+          </div>
+        </div>
+
+        <div th:class="${tabActiva == 'organizacion'} ? 'org-form-grid d-grid' : 'org-form-grid d-none'"
+             data-org-content="organizacion">
+          <div>
+            <h5 class="mb-1">Detalles de la organizacion</h5>
+            <p class="text-muted small mb-3">Configura la informacion de tu empresa u organizacion</p>
+          </div>
+          <div class="org-form-grid two">
+            <div>
+              <label class="org-label">Nombre de la organizacion</label>
+              <input type="text" class="form-control org-form-control" th:value="${organizacion.nombre}">
+            </div>
+            <div>
+              <label class="org-label">Sitio web</label>
+              <input type="text" class="form-control org-form-control" th:value="${organizacion.web}">
+            </div>
+            <div>
+              <label class="org-label">Correo corporativo</label>
+              <input type="email" class="form-control org-form-control" th:value="${organizacion.correo}">
+            </div>
+            <div>
+              <label class="org-label">Telefono</label>
+              <input type="tel" class="form-control org-form-control" th:value="${organizacion.telefono}">
+            </div>
+            <div class="col-12">
+              <label class="org-label">Direccion</label>
+              <input type="text" class="form-control org-form-control" th:value="${organizacion.direccion}">
+            </div>
+            <div>
+              <label class="org-label">RUC</label>
+              <input type="text" class="form-control org-form-control" th:value="${organizacion.ruc}">
+            </div>
+          </div>
+          <div class="org-card-footer">
+            <button class="org-btn-outline" type="button">Descartar</button>
+            <button class="org-btn-teal" type="button">
+              <i class="bi bi-save"></i> Guardar cambios
+            </button>
+          </div>
+        </div>
+
+        <div th:class="${tabActiva == 'notificaciones'} ? 'org-form-grid d-grid' : 'org-form-grid d-none'"
+             data-org-content="notificaciones">
+          <div>
+            <h5 class="mb-1">Preferencias de notificacion</h5>
+            <p class="text-muted small mb-3">Elige como quieres recibir novedades de tus eventos</p>
+          </div>
+          <div class="d-grid gap-3">
+            <label class="d-flex justify-content-between align-items-center p-3 rounded-4 border" th:each="noti : ${notificaciones}">
+              <div>
+                <span class="fw-semibold" th:text="${noti.titulo}">Ventas diarias</span>
+                <p class="text-muted small mb-0" th:text="${noti.descripcion}">Recibe un resumen con las ventas del dia</p>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch"
+                       th:checked="${noti.activo}">
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div th:class="${tabActiva == 'seguridad'} ? 'org-form-grid d-grid' : 'org-form-grid d-none'"
+             data-org-content="seguridad">
+          <div>
+            <h5 class="mb-1">Seguridad de la cuenta</h5>
+            <p class="text-muted small mb-3">Administra la seguridad y privacidad de tu cuenta</p>
+          </div>
+          <div class="org-form-grid two">
+            <div>
+              <label class="org-label">Contrasena actual</label>
+              <input type="password" class="form-control org-form-control" value="">
+            </div>
+            <div>
+              <label class="org-label">Nueva contrasena</label>
+              <input type="password" class="form-control org-form-control" value="">
+            </div>
+            <div>
+              <label class="org-label">Confirmar contrasena</label>
+              <input type="password" class="form-control org-form-control" value="">
+            </div>
+          </div>
+          <div class="border rounded-4 p-3 d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-1">Autenticacion de dos factores</h6>
+              <p class="text-muted small mb-0">Anade una capa extra de seguridad a tu cuenta</p>
+            </div>
+            <button class="org-btn-outline" type="button">Configurar</button>
+          </div>
+          <div>
+            <h6 class="mb-2">Sesiones activas</h6>
+            <div class="d-grid gap-2">
+              <div class="border rounded-4 p-3 d-flex justify-content-between align-items-center" th:each="sesion : ${seguridad.sesiones}">
+                <div>
+                  <strong th:text="${sesion.dispositivo}">Windows - Chrome</strong>
+                  <p class="text-muted small mb-0" th:text="${sesion.ubicacion}">Lima, Peru - Activo ahora</p>
+                </div>
+                <a href="#" class="text-danger small fw-semibold">Cerrar sesion</a>
+              </div>
+            </div>
+          </div>
+          <div class="org-card-footer">
+            <button class="org-btn-teal" type="button">
+              <i class="bi bi-shield-lock"></i> Actualizar contrasena
+            </button>
+          </div>
+        </div>
+
+        <div th:class="${tabActiva == 'facturacion'} ? 'org-form-grid d-grid' : 'org-form-grid d-none'"
+             data-org-content="facturacion">
+          <div class="border rounded-4 p-4" style="background: rgba(5, 166, 183, 0.08);" th:if="${facturacion.plan != null}">
+            <div class="d-flex justify-content-between flex-wrap gap-3">
+              <div>
+                <span class="org-pill mb-2 d-inline-flex" th:text="${facturacion.plan.nombre}">Plan Profesional</span>
+                <p class="mb-0 fw-semibold" th:text="${facturacion.plan.descripcion}">Hasta 100 eventos por mes</p>
+              </div>
+              <div class="text-end">
+                <div class="fs-2 fw-bold" th:text="${facturacion.plan.precio}">$49/mes</div>
+                <button class="org-btn-outline mt-2" type="button">Cambiar plan</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h6 class="mb-3">Metodos de pago</h6>
+            <div class="d-grid gap-2">
+              <div class="border rounded-4 p-3 d-flex justify-content-between align-items-center" th:each="metodo : ${facturacion.metodos}">
+                <div>
+                  <strong th:text="${metodo.alias}">Visa terminada en 4242</strong>
+                  <p class="text-muted small mb-0" th:text="${metodo.detalle}">Caduca 12/25</p>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="org-btn-outline" type="button">Editar</button>
+                  <button class="org-btn-outline text-danger" type="button">Eliminar</button>
+                </div>
+              </div>
+            </div>
+            <button class="org-btn-outline mt-3" type="button"><i class="bi bi-plus-lg"></i> Agregar metodo de pago</button>
+          </div>
+
+          <div>
+            <h6 class="mt-4 mb-3">Historial de facturacion</h6>
+            <div class="d-grid gap-2">
+              <div class="border rounded-4 p-3 d-flex justify-content-between align-items-center" th:each="item : ${facturacion.historial}">
+                <div>
+                  <strong th:text="${item.periodo}">Enero 2025</strong>
+                  <p class="text-muted small mb-0" th:text="${item.estado}">Pagado</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <span class="fw-semibold" th:text="${item.monto}">$49.00</span>
+                  <a href="#" class="org-btn-outline"><i class="bi bi-file-earmark-arrow-down"></i> Factura</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.querySelectorAll('[data-sidebar-toggle]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const sidebar = document.getElementById('organizerSidebar');
+    sidebar?.classList.toggle('open');
+  });
+});
+
+const tabButtons = document.querySelectorAll('[data-org-tab]');
+const tabPanels = document.querySelectorAll('[data-org-content]');
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.getAttribute('data-org-tab');
+    tabButtons.forEach(b => b.classList.toggle('active', b === btn));
+    tabPanels.forEach(panel => {
+      panel.classList.toggle('d-none', panel.getAttribute('data-org-content') !== target);
+      if (panel.getAttribute('data-org-content') === target) {
+        panel.classList.add('d-grid');
+      } else {
+        panel.classList.remove('d-grid');
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

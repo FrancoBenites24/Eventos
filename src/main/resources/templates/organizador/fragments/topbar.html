@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="topbar(usuario)">
+  <header class="org-topbar">
+    <button class="burger" type="button" data-sidebar-toggle>
+      <i class="bi bi-list"></i>
+    </button>
+
+    <div class="org-search">
+      <i class="bi bi-search"></i>
+      <input type="text" placeholder="Buscar eventos...">
+    </div>
+
+    <div class="org-actions">
+      <button class="org-circle-btn" type="button">
+        <i class="bi bi-moon"></i>
+      </button>
+      <button class="org-circle-btn" type="button">
+        <i class="bi bi-bell"></i>
+      </button>
+      <div class="org-avatar" th:text="${usuario != null ? usuario.iniciales : 'AD'}">AD</div>
+    </div>
+  </header>
+</th:block>
+</body>
+</html>

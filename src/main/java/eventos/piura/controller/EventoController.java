@@ -1,27 +1,23 @@
 package eventos.piura.controller;
 
+import eventos.piura.dto.CatalogoEventosView;
+import eventos.piura.services.EventoCatalogService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-
 @Controller
+@RequiredArgsConstructor
 public class EventoController {
+
+    private final EventoCatalogService eventoCatalogService;
 
     @GetMapping("/eventos")
     public String eventos(Model model) {
-        // No hay evento destacado aún
-        Map<String, Object> destacado = null;
-
-        // No hay eventos por categoría aún
-        Map<String, List<Map<String, Object>>> porCat = Map.of();
-
-        model.addAttribute("destacado", destacado);
-        model.addAttribute("porCat", porCat);
-
+        CatalogoEventosView catalogo = eventoCatalogService.construirCatalogoEventos();
+        model.addAttribute("destacado", catalogo.destacado());
+        model.addAttribute("porCat", catalogo.porCategoria());
         return "eventos";
     }
 }

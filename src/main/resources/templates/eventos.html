@@ -3,35 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Eventia — Eventos</title>
+  <title>Eventia – Eventos</title>
 
-  <!-- CSRF (si usas Spring Security) -->
   <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}"/>
   <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}"/>
 
-  <!-- Bootstrap -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
-  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
-  <!-- Estilos propios -->
   <link rel="stylesheet" th:href="@{/css/styles.css}" href="/static/css/styles.css"/>
-
 </head>
 <body class="bg-body-tertiary">
 
-  <!-- NAVBAR (fragmento ya existente) -->
   <div th:replace="~{fragments/navbar :: navbar}"></div>
 
   <main class="container-xxl">
 
-    <!-- HERO DESTACADO -->
-    <div th:replace="~{fragments/_hero :: hero(${destacado})}"></div>
+    <div th:if="${destacado != null}"
+         th:replace="~{fragments/_hero :: hero(${destacado})}"></div>
 
-    <!-- PASTILLAS DE CATEGORÍAS -->
-    <div th:replace="~{fragments/_category-pills :: categoryPills(${porCat})}"></div>
+    <div th:if="${#maps.isEmpty(porCat)}" class="text-center py-5 text-muted">
+      Aún no hay eventos publicados. Vuelve pronto para descubrir nuevas experiencias.
+    </div>
 
-    <!-- SECCIONES POR CATEGORÍA -->
-    <section th:each="entry : ${porCat}" class="mb-5">
+    <div th:if="${!#maps.isEmpty(porCat)}"
+         th:replace="~{fragments/_category-pills :: categoryPills(${porCat})}"></div>
+
+    <section th:if="${!#maps.isEmpty(porCat)}" th:each="entry : ${porCat}" class="mb-5">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <h5 class="section-title mb-0" th:text="${entry.key}">Conciertos</h5>
         <a href="#" class="link-dark small text-decoration-none d-inline-flex align-items-center gap-1">
@@ -47,33 +44,25 @@
       </div>
     </section>
 
-    <!-- CTA ORGANIZADORES -->
     <section class="rounded-4 p-5 gradient-cta text-center text-white my-5">
-      <h4 class="fw-semibold mb-2">¿Organizas Eventos?</h4>
+      <h4 class="fw-semibold mb-2">¿Organizas eventos?</h4>
       <p class="opacity-75 mb-4">Únete y vende tus entradas de forma segura.</p>
       <a href="#" class="btn btn-light btn-lg px-4">Crear mi Evento</a>
     </section>
   </main>
 
-  <!-- FOOTER (fragmento ya existente) -->
   <div th:replace="~{fragments/footer :: footer}"></div>
-
-  <!-- OFFCANVAS CARRITO -->
   <div th:replace="~{fragments/_offcanvas-cart :: offcanvasCart}"></div>
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Script mínimo para agregar al carrito -->
   <script>
     (function () {
       const header = document.querySelector('meta[name="_csrf_header"]')?.content;
       const token  = document.querySelector('meta[name="_csrf"]')?.content;
 
-      // botones Agregar al carrito
       document.addEventListener('click', async (e) => {
         const btn = e.target.closest('[data-add-to-cart]');
-        if(!btn) return;
+        if (!btn) return;
 
         const payload = new URLSearchParams({
           eventoId: btn.dataset.eventoId,
@@ -85,7 +74,7 @@
         const resp = await fetch('/carrito/agregar', {
           method: 'POST',
           headers: Object.assign(
-            {'Content-Type':'application/x-www-form-urlencoded'},
+            {'Content-Type': 'application/x-www-form-urlencoded'},
             header && token ? {[header]: token} : {}
           ),
           body: payload.toString()
@@ -93,10 +82,12 @@
 
         if (resp.ok) {
           const data = await resp.json();
-          // contador en icono carrito
           const badge = document.querySelector('[data-cart-count]');
-          if (badge) { badge.textContent = data.count; badge.classList.toggle('invisible', data.count===0); }
-          // abrir offcanvas y refrescar contenido
+          if (badge) {
+            badge.textContent = data.count;
+            badge.classList.toggle('invisible', data.count === 0);
+          }
+
           const oc = document.getElementById('offcanvasCart');
           if (oc) {
             const off = bootstrap.Offcanvas.getOrCreateInstance(oc);
@@ -106,14 +97,14 @@
         }
       });
 
-      async function refreshCart(){
+      async function refreshCart() {
         const panel = document.querySelector('#offcanvasCart .offcanvas-body');
-        if(!panel) return;
+        if (!panel) return;
         const html = await fetch('/carrito/panel').then(r => r.text());
-        // Extraemos solo el contenido del fragmento (evitamos duplicar offcanvas)
-        const temp = document.createElement('div'); temp.innerHTML = html;
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
         const inner = temp.querySelector('#offcanvasCart .offcanvas-body');
-        if(inner) panel.innerHTML = inner.innerHTML;
+        if (inner) panel.innerHTML = inner.innerHTML;
       }
     })();
   </script>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="sidebar(active)">
+  <aside class="org-sidebar" id="organizerSidebar">
+    <a class="brand" th:href="@{/organizador/dashboard}">
+      <span class="brand-icon"><i class="bi bi-calendar3"></i></span>
+      <span>Centro de eventos</span>
+    </a>
+
+    <nav class="org-nav">
+      <a th:href="@{/organizador/dashboard}" th:classappend="${active == 'dashboard'} ? ' active'" >
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+      </a>
+      <a th:href="@{/organizador/eventos}" th:classappend="${active == 'eventos'} ? ' active'">
+        <i class="bi bi-calendar-event"></i>
+        <span>Eventos</span>
+      </a>
+      <a th:href="@{/organizador/analitica}" th:classappend="${active == 'analitica'} ? ' active'">
+        <i class="bi bi-bar-chart"></i>
+        <span>Analisis</span>
+      </a>
+      <a th:href="@{/organizador/configuracion}" th:classappend="${active == 'configuracion'} ? ' active'">
+        <i class="bi bi-gear"></i>
+        <span>Configuracion</span>
+      </a>
+    </nav>
+
+    <div class="logout">
+      <form th:action="@{/logout}" method="post" class="d-grid">
+        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+        <button type="submit" class="org-logout-btn">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Cerrar sesion</span>
+        </button>
+      </form>
+    </div>
+  </aside>
+</th:block>
+</body>
+</html>
