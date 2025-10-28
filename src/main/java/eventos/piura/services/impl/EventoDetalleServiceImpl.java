@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventoDetalleServiceImpl implements EventoDetalleService {
 
-    private static final String IMAGEN_POR_DEFECTO = "/img/placeholder-event.jpg";
+    private static final String IMAGEN_POR_DEFECTO = "/img/placeholder-event.png";
 
     private final EventoRepository eventoRepository;
     private final EventoImagenService eventoImagenService;

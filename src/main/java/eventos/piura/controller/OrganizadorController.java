@@ -71,7 +71,7 @@ public class OrganizadorController {
             DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm", LOCALE_ES);
     private static final DateTimeFormatter FECHA_EVENTO_CORTA =
             DateTimeFormatter.ofPattern("dd MMM yyyy", LOCALE_ES);
-    private static final String IMAGEN_POR_DEFECTO = "/img/placeholder-event.jpg";
+    private static final String IMAGEN_POR_DEFECTO = "/img/placeholder-event.png";
 
     private final UsuarioRepository usuarioRepository;
     private final EventoRepository eventoRepository;

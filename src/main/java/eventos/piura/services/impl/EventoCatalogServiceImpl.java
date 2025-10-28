@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 public class EventoCatalogServiceImpl implements EventoCatalogService {
 
     private static final String CATEGORIA_POR_DEFECTO = "Otros";
-    private static final String IMAGEN_POR_DEFECTO = "/img/placeholder-event.jpg";
+    private static final String IMAGEN_POR_DEFECTO = "/img/placeholder-event.png";
     private static final String LUGAR_POR_DEFECTO = "Ubicacion por confirmar";
 
     private final EventoRepository eventoRepository;

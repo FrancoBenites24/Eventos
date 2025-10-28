@@ -93,13 +93,39 @@
 
             <div class="payment-extra" data-payment-panel="yape">
               <h6>Pago con Yape</h6>
-              <div class="mb-2">
-                <label class="form-label">Numero asociado</label>
+              <div th:with="yapes=${resumen.metodosGuardados != null ? resumen.metodosGuardados.?[tipo == T(eventos.piura.model.enums.MetodoPago).YAPE] : {}}">
+                <div class="mb-3" th:if="${!yapes.isEmpty()}">
+                  <label class="form-label">Yapes guardados</label>
+                  <div class="vstack gap-2">
+                    <label class="form-check border rounded-3 p-3" th:each="met : ${yapes}">
+                      <input class="form-check-input"
+                             type="radio"
+                             th:field="*{metodoGuardadoId}"
+                             th:value="${met.id()}"
+                             data-saved-option="yape">
+                      <span class="form-check-label ms-2">
+                        <span class="fw-semibold" th:text="${met.etiqueta()}">Yape</span>
+                        <small class="d-block text-muted" th:text="${met.descripcion()}">Número guardado</small>
+                      </span>
+                    </label>
+                  </div>
+                  <label class="form-check border rounded-3 p-3">
+                    <input class="form-check-input"
+                           type="radio"
+                           th:field="*{metodoGuardadoId}"
+                           value=""
+                           data-saved-option="yape">
+                    <span class="form-check-label ms-2">Usar un nuevo número</span>
+                  </label>
+                </div>
+              </div>
+              <div class="mb-2" data-new-fields-for="yape">
+                <label class="form-label">Número asociado</label>
                 <input type="text" class="form-control" th:field="*{telefono}">
                 <div class="form-text text-danger" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
               </div>
               <div>
-                <label class="form-label">Codigo o referencia</label>
+                <label class="form-label">Código o referencia</label>
                 <input type="text" class="form-control" th:field="*{codigoOperacion}">
                 <div class="form-text text-danger" th:if="${#fields.hasErrors('codigoOperacion')}" th:errors="*{codigoOperacion}"></div>
               </div>
@@ -107,26 +133,80 @@
 
             <div class="payment-extra" data-payment-panel="plin">
               <h6>Pago con Plin</h6>
-              <div class="mb-2">
-                <label class="form-label">Numero asociado</label>
+              <div th:with="plines=${resumen.metodosGuardados != null ? resumen.metodosGuardados.?[tipo == T(eventos.piura.model.enums.MetodoPago).PLIN] : {}}">
+                <div class="mb-3" th:if="${!plines.isEmpty()}">
+                  <label class="form-label">Plin guardados</label>
+                  <div class="vstack gap-2">
+                    <label class="form-check border rounded-3 p-3" th:each="met : ${plines}">
+                      <input class="form-check-input"
+                             type="radio"
+                             th:field="*{metodoGuardadoId}"
+                             th:value="${met.id()}"
+                             data-saved-option="plin">
+                      <span class="form-check-label ms-2">
+                        <span class="fw-semibold" th:text="${met.etiqueta()}">Plin</span>
+                        <small class="d-block text-muted" th:text="${met.descripcion()}">Número guardado</small>
+                      </span>
+                    </label>
+                  </div>
+                  <label class="form-check border rounded-3 p-3">
+                    <input class="form-check-input"
+                           type="radio"
+                           th:field="*{metodoGuardadoId}"
+                           value=""
+                           data-saved-option="plin">
+                    <span class="form-check-label ms-2">Usar un nuevo número</span>
+                  </label>
+                </div>
+              </div>
+              <div class="mb-2" data-new-fields-for="plin">
+                <label class="form-label">Número asociado</label>
                 <input type="text" class="form-control" th:field="*{telefono}">
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
               </div>
               <div>
-                <label class="form-label">Codigo o referencia</label>
+                <label class="form-label">Código o referencia</label>
                 <input type="text" class="form-control" th:field="*{codigoOperacion}">
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('codigoOperacion')}" th:errors="*{codigoOperacion}"></div>
               </div>
             </div>
 
             <div class="payment-extra" data-payment-panel="tarjeta">
               <h6>Pago con tarjeta</h6>
-              <div class="mb-2">
-                <label class="form-label">Numero de tarjeta</label>
+              <div th:with="tarjetas=${resumen.metodosGuardados != null ? resumen.metodosGuardados.?[tipo == T(eventos.piura.model.enums.MetodoPago).TARJETA] : {}}">
+                <div class="mb-3" th:if="${!tarjetas.isEmpty()}">
+                  <label class="form-label">Tarjetas guardadas</label>
+                  <div class="vstack gap-2">
+                    <label class="form-check border rounded-3 p-3" th:each="met : ${tarjetas}">
+                      <input class="form-check-input"
+                             type="radio"
+                             th:field="*{metodoGuardadoId}"
+                             th:value="${met.id()}"
+                             data-saved-option="tarjeta">
+                      <span class="form-check-label ms-2">
+                        <span class="fw-semibold" th:text="${met.etiqueta()}">Tarjeta guardada</span>
+                        <small class="d-block text-muted" th:text="${met.descripcion()}">Detalle</small>
+                      </span>
+                    </label>
+                  </div>
+                  <label class="form-check border rounded-3 p-3">
+                    <input class="form-check-input"
+                           type="radio"
+                           th:field="*{metodoGuardadoId}"
+                           value=""
+                           data-saved-option="tarjeta">
+                    <span class="form-check-label ms-2">Usar una nueva tarjeta</span>
+                  </label>
+                </div>
+              </div>
+              <div class="mb-2" data-new-fields-for="tarjeta">
+                <label class="form-label">Número de tarjeta</label>
                 <input type="text" class="form-control" placeholder="4111 1111 1111 1111" th:field="*{tarjetaNumero}">
                 <div class="form-text text-danger" th:if="${#fields.hasErrors('tarjetaNumero')}" th:errors="*{tarjetaNumero}"></div>
               </div>
-              <div class="row g-2">
+              <div class="row g-2" data-new-fields-for="tarjeta">
                 <div class="col">
-                  <label class="form-label">Expiracion (MM/AA)</label>
+                  <label class="form-label">Expiración (MM/AA)</label>
                   <input type="text" class="form-control" placeholder="08/28" th:field="*{tarjetaExpiracion}">
                   <div class="form-text text-danger" th:if="${#fields.hasErrors('tarjetaExpiracion')}" th:errors="*{tarjetaExpiracion}"></div>
                 </div>
@@ -136,11 +216,24 @@
                   <div class="form-text text-danger" th:if="${#fields.hasErrors('tarjetaCvv')}" th:errors="*{tarjetaCvv}"></div>
                 </div>
               </div>
-              <div class="mb-2">
+              <div class="mb-2" data-new-fields-for="tarjeta">
                 <label class="form-label">Titular</label>
                 <input type="text" class="form-control" th:field="*{tarjetaTitular}">
                 <div class="form-text text-danger" th:if="${#fields.hasErrors('tarjetaTitular')}" th:errors="*{tarjetaTitular}"></div>
               </div>
+            </div>
+
+            <div class="border rounded-3 p-3 bg-light-subtle d-none" data-save-section>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" th:field="*{guardarMetodo}" id="guardarMetodo" data-save-checkbox>
+                <label class="form-check-label" for="guardarMetodo">Guardar este método para próximos pagos</label>
+              </div>
+              <div class="mb-2 d-none" data-alias-wrapper>
+                <label class="form-label" for="aliasMetodo">Alias (opcional)</label>
+                <input type="text" class="form-control" th:field="*{aliasMetodo}" id="aliasMetodo" data-alias-input>
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('aliasMetodo')}" th:errors="*{aliasMetodo}"></div>
+              </div>
+              <div class="small text-muted" data-save-hint></div>
             </div>
 
             <div class="payment-extra" data-payment-panel="billetera">
@@ -188,18 +281,109 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   (() => {
-    const radios = document.querySelectorAll('[data-payment-option]');
+    const methodRadios = document.querySelectorAll('[data-payment-option]');
     const panels = document.querySelectorAll('.payment-extra');
+    const saveSection = document.querySelector('[data-save-section]');
+    const saveCheckbox = document.querySelector('[data-save-checkbox]');
+    const aliasWrapper = document.querySelector('[data-alias-wrapper]');
+    const aliasInput = document.querySelector('[data-alias-input]');
+    const saveHint = document.querySelector('[data-save-hint]');
+    const hints = {
+      tarjeta: 'Guardaremos la tarjeta para que no tengas que ingresarla nuevamente.',
+      yape: 'Guardaremos este número para futuros pagos con Yape.',
+      plin: 'Guardaremos este número para futuros pagos con Plin.'
+    };
+
+    function getSavedRadios(method) {
+      return document.querySelectorAll([data-saved-option=]);
+    }
+
+    function isNewSelection(method) {
+      const radios = Array.from(getSavedRadios(method));
+      if (radios.length === 0) {
+        return true;
+      }
+      const checked = radios.find(r => r.checked);
+      return !checked || !checked.value;
+    }
+
+    function updateNewFields(method) {
+      const showNew = isNewSelection(method);
+      document.querySelectorAll([data-new-fields-for=]).forEach(block => {
+        block.classList.toggle('d-none', !showNew);
+      });
+      updateSaveSection(method, showNew);
+    }
+
+    function resetSavedSelection(method) {
+      const radios = Array.from(getSavedRadios(method));
+      if (radios.length === 0) {
+        updateNewFields(method);
+        return;
+      }
+      const alreadyChecked = radios.some(r => r.checked);
+      if (!alreadyChecked) {
+        const newOption = radios.find(r => !r.value);
+        if (newOption) {
+          newOption.checked = true;
+        }
+      }
+      updateNewFields(method);
+    }
+
+    function updateSaveSection(method, canSave) {
+      if (!saveSection || !saveCheckbox) {
+        return;
+      }
+      const applicable = canSave && ['tarjeta', 'yape', 'plin'].includes(method);
+      saveSection.classList.toggle('d-none', !applicable);
+      if (!applicable) {
+        saveCheckbox.checked = false;
+        toggleAliasVisibility();
+        return;
+      }
+      if (saveHint) {
+        saveHint.textContent = hints[method] || '';
+      }
+      toggleAliasVisibility();
+    }
+
+    function toggleAliasVisibility() {
+      if (!aliasWrapper || !saveCheckbox) {
+        return;
+      }
+      const visible = saveCheckbox.checked && !saveSection.classList.contains('d-none');
+      aliasWrapper.classList.toggle('d-none', !visible);
+      if (!visible && aliasInput) {
+        aliasInput.value = '';
+      }
+    }
 
     function togglePanels() {
       const selected = document.querySelector('[data-payment-option]:checked');
-      const option = selected?.dataset.paymentOption;
+      const option = selected ? selected.dataset.paymentOption : null;
       panels.forEach(panel => {
         panel.classList.toggle('d-none', panel.dataset.paymentPanel !== option);
       });
+      if (option) {
+        resetSavedSelection(option);
+      } else {
+        updateSaveSection(null, false);
+      }
     }
 
-    radios.forEach(r => r.addEventListener('change', togglePanels));
+    Array.from(document.querySelectorAll('[data-saved-option]')).forEach(radio => {
+      radio.addEventListener('change', () => {
+        const method = radio.dataset.savedOption;
+        updateNewFields(method);
+      });
+    });
+
+    methodRadios.forEach(radio => radio.addEventListener('change', togglePanels));
+    if (saveCheckbox) {
+      saveCheckbox.addEventListener('change', toggleAliasVisibility);
+    }
+
     togglePanels();
   })();
 </script>

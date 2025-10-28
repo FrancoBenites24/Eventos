@@ -15,9 +15,8 @@
                       precio=${card.precioCentavos != null ? card.precioCentavos : 0}">
       <div class="ratio ratio-16x9 position-relative">
         <img class="card-img-top object-fit-cover"
-             th:src="${tieneImagen} ? @{${imagen}} : @{/img/placeholder-event.png}"
+             th:src="${tieneImagen} ? ${imagen} : @{/img/placeholder-event.png}"
              alt="Evento"/>
-        <span class="badge position-absolute top-0 start-0 m-3 bg-dark-subtle text-dark text-uppercase py-2 px-3">
           <span th:text="${categoria}">Categoria</span>
         </span>
       </div>

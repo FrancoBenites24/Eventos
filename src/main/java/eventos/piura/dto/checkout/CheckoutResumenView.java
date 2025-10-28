@@ -12,7 +12,8 @@ public record CheckoutResumenView(
         int totalCentavos,
         String moneda,
         List<MetodoPago> metodos,
-        Integer saldoBilleteraCentavos
+        Integer saldoBilleteraCentavos,
+        List<MetodoPagoGuardadoView> metodosGuardados
 ) {
     public BigDecimal subtotalMoneda() {
         return BigDecimal.valueOf(subtotalCentavos).movePointLeft(2);
@@ -26,3 +27,4 @@ public record CheckoutResumenView(
         return BigDecimal.valueOf(totalCentavos).movePointLeft(2);
     }
 }
+

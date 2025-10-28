@@ -37,7 +37,7 @@ public class EventoController {
     public String detalleEvento(@PathVariable UUID eventoId, Model model) {
         EventoDetalleView detalle = eventoDetalleService.obtenerDetallePublicado(eventoId);
         List<String> imagenes = detalle.getEvento().getImagenes();
-        String imagenPrincipal = imagenes.isEmpty() ? "/img/placeholder-event.jpg" : imagenes.get(0);
+        String imagenPrincipal = imagenes.isEmpty() ? "/img/placeholder-event.png" : imagenes.get(0);
         String ubicacion = Stream.of(
                         detalle.getEvento().getDireccion(),
                         detalle.getEvento().getDistrito(),

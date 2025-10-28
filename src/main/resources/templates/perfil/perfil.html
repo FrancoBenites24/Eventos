@@ -1,315 +1,311 @@
 <!DOCTYPE html>
-
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${#strings.isEmpty(usuario?.nombreCompleto) ? 'Perfil' : usuario.nombreCompleto + ' - Perfil'}">Perfil</title>
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Estilos del perfil -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/perfil.css}">
 </head>
-
 <body class="bg-soft">
 
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <!-- NAVBAR global (ya existente) -->
-    <div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="container-xxl py-4 py-md-5 profile-page">
 
-
-    <main class="container-xxl my-4 my-md-5">
-        <!-- Header perfil -->
-        <section class="card card-glow border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-            <div class="card-body p-4 p-md-5">
-                <div class="row g-4 align-items-center">
-                    <!-- Avatar / iniciales -->
-                    <div class="col-auto">
-                        <div class="avatar-xl position-relative">
-                            <div class="avatar-circle"
-                                th:text="${!#strings.isEmpty(usuario?.iniciales) ? usuario.iniciales : 'U'}">
-                                CR</div>
-                            <span class="avatar-badge" data-bs-toggle="tooltip" title="Insignia Nivel"
-                                th:text="${nivelActual != null ? nivelActual : 0}">5</span>
-                        </div>
+    <section class="profile-card card border-0 rounded-4 shadow-lg mb-4">
+        <div class="card-body p-4 p-lg-5">
+            <div class="row g-4 align-items-center">
+                <div class="col-md-auto">
+                    <div class="avatar-xl position-relative">
+                        <div class="avatar-circle" th:text="${!#strings.isEmpty(usuario?.iniciales) ? usuario.iniciales : 'U'}">CR</div>
+                        <span class="avatar-badge d-flex align-items-center gap-1" th:text="${nivelActual != null ? nivelActual : 0}">
+                            0
+                        </span>
                     </div>
-
-
-                    <!-- Datos principales -->
-                    <div class="col">
-                        <div class="d-flex flex-wrap align-items-center gap-2">
-                            <h2 class="m-0 fw-semibold text-dark-cyan"
-                                th:text="${#strings.isEmpty(usuario?.nombreCompleto) ? 'Usuario' : usuario.nombreCompleto}">Carlos Rodríguez</h2>
-                            <span class="badge bg-cyan-subtle text-cyan d-inline-flex align-items-center gap-1" th:if="${usuario?.correoVerificado}">
-                                <i class="bi bi-check-circle-fill"></i> Verificado
+                </div>
+                <div class="col">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <h1 class="profile-name mb-0" th:text="${#strings.isEmpty(usuario?.nombreCompleto) ? 'Usuario' : usuario.nombreCompleto}">
+                            Carlos Rodríguez
+                        </h1>
+                        <span class="badge bg-cyan-subtle text-cyan d-inline-flex align-items-center gap-1" th:if="${usuario?.correoVerificado}">
+                            <i class="bi bi-check-circle-fill"></i> Verificado
+                        </span>
+                    </div>
+                    <div class="text-secondary mt-1" th:text="${'@' + (usuario?.username?:'usuario')}">@carlosrod</div>
+                    <div class="profile-meta mt-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-envelope-fill text-cyan"></i>
+                            <span th:text="${usuario?.correo?:'No registrado'}">carlos.rodriguez@email.com</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-telephone-fill text-cyan"></i>
+                            <span th:text="${usuario?.telefono?:'Sin teléfono'}">987654321</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-calendar-check text-cyan"></i>
+                            <span th:text="${'Miembro desde ' + (#strings.isEmpty(usuario?.creadoEn) ? 'por definir' : usuario.creadoEn)}">
+                                Miembro desde enero de 2024
                             </span>
                         </div>
-                        <div class="text-secondary mt-1" th:text="${'@' + (usuario?.username?:'usuario')}"
-                            aria-label="handle">@carlosrod</div>
-
-
-                        <div class="d-flex flex-wrap gap-3 mt-3 small">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-envelope-fill text-cyan"></i>
-                                <span th:text="${usuario?.correo?:'No registrado'}">carlos.rodriguez@email.com</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-telephone-fill text-cyan"></i>
-                                <span th:text="${usuario?.telefono?:'Sin telefono'}">987654321</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-calendar-check text-cyan"></i>
-                                <span th:text="${'Miembro desde ' + (#strings.isEmpty(usuario?.creadoEn) ? 'por definir' : usuario.creadoEn)}">Miembro desde enero de
-                                    2024</span>
-                            </div>
-                            <div>
-                                <span th:replace="~{perfil/_badges :: estado(${usuario?.estado?:'ACTIVO'})}"></span>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- Tarjeta gamificación -->
-                    <div class="col-12 col-lg-4">
-                        <div class="card bg-gradient-cyan text-white border-0 rounded-4 shadow-sm">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <i class="bi bi-award"></i>
-                                    <span th:text="${'Nivel ' + (nivelActual?:'—')}">Nivel 5</span>
-                                    <span class="ms-auto fw-semibold" th:text="${puntosActuales?:0}">2450</span>
-                                </div>
-                                <div class="progress bg-cyan-700" role="progressbar" aria-label="Progreso puntos"
-                                    aria-valuemin="0" aria-valuemax="100">
-                                    <div class="progress-bar bg-white" th:style="${'width:' + (progresoPct?:0) + '%'}"
-                                        style="width:82%"></div>
-                                </div>
-                                <div class="d-flex justify-content-between small mt-2">
-                                    <span
-                                        th:text="${puntosRestantes!=null? (puntosRestantes + ' pts restantes'): 'Completa eventos para ganar puntos'}">150 pts restantes</span>
-                                    <span>🏆</span>
-                                </div>
-                            </div>
+                        <div>
+                            <span th:replace="~{perfil/_badges :: estado(${usuario?.estado?:'ACTIVO'})}"></span>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Stats + billetera + historial -->
-            <div class="row g-4 px-4 pb-5">
-
-                <!-- KPIs -->
-                <div class="col-12">
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6 col-lg-3">
-                            <span
-                                th:replace="~{perfil/_cards :: statCard('Eventos Asistidos','bi-calendar-event', stats?.eventosAsistidos)}"></span>
-                        </div>
-                        <div class="col-12 col-md-6 col-lg-3">
-                            <span th:replace="~{perfil/_cards :: statCard('Reseñas Escritas','bi-star', stats?.resenas)}"></span>
-                        </div>
-                        <div class="col-12 col-md-6 col-lg-3">
-                            <span
-                                th:replace="~{perfil/_cards :: statCard('Órdenes Totales','bi-bag-check', stats?.ordenes)}"></span>
-                        </div>
-                        <div class="col-12 col-md-6 col-lg-3">
-                            <span
-                                th:replace="~{perfil/_cards :: statCard('Entradas Activas','bi-ticket-perforated', stats?.entradasActivas)}"></span>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Billetera -->
-                <div class="col-12 col-lg-6 ms-auto">
-                    <div class="card border-0 rounded-4 shadow-sm h-100">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center gap-2 mb-3">
-                                <span class="icon-pill"><i class="bi bi-wallet2"></i></span>
-                                <div>
-                                    <h5 class="m-0">Mi Billetera</h5>
-                                    <div class="text-secondary small">Saldo disponible</div>
-                                </div>
-                            </div>
-                            <div class="balance-box mb-3">
-                                <div class="display-6 fw-semibold"
-                                    th:text="${billeteraSaldo!=null? ('S/ ' + #numbers.formatDecimal(billeteraSaldo, 1, 'COMMA', 2, 'POINT')) : 'S/ 0.00'}">
-                                    S/ 150.00</div>
-                                <span class="badge rounded-pill bg-success-subtle text-success">+5% vs. mes pasado</span>
-                            </div>
-                            <div class="vstack gap-2">
-                                <button class="btn btn-outline-cyan w-100"><i class="bi bi-plus-circle me-2"></i>Recargar
-                                    saldo</button>
-                                <button class="btn btn-outline-secondary w-100"><i class="bi bi-cash-coin me-2"></i>Retirar
-                                    fondos</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="col-12 col-lg-6">
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6">
-                            <div class="card border-0 rounded-4 shadow-sm h-100">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <span class="icon-pill"><i class="bi bi-ticket"></i></span>
-                                        <div>
-                                            <h6 class="m-0">Entradas activas</h6>
-                                            <p class="text-secondary small mb-0">Boletos listos para usar</p>
-                                        </div>
-                                    </div>
-                                    <div class="display-4 fw-semibold mt-3">0</div>
-                                    <div class="text-secondary small">Revisa tus órdenes para descargar tus tickets.</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="card border-0 rounded-4 shadow-sm h-100">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <span class="icon-pill"><i class="bi bi-bullseye"></i></span>
-                                        <div>
-                                            <h6 class="m-0">Logros pendientes</h6>
-                                            <p class="text-secondary small mb-0">Completa acciones para subir de nivel.</p>
-                                        </div>
-                                    </div>
-                                    <ul class="small text-secondary mt-3 ps-3">
-                                        <li>Asiste a 1 evento más</li>
-                                        <li>Escribe 2 reseñas nuevas</li>
-                                        <li>Comparte un evento con tus amigos</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Historial de eventos y reseñas -->
-            <div class="row g-4 px-4 pb-5">
-                <div class="col-12 col-lg-8">
-                    <div class="card border-0 rounded-4 shadow-sm mb-4">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <h5 class="section-title m-0">
-                                    <i class="bi bi-clock-history me-2"></i>Historial de Eventos
-                                </h5>
-                                <a class="btn btn-outline-secondary btn-sm" href="#">Ver todo</a>
-                            </div>
-
-                            <div class="row g-3" th:if="${eventos != null && !eventos.isEmpty()}">
-                                <div class="col-12 col-md-6 col-xl-4" th:each="ev : ${eventos}">
-                                    <span th:replace="~{perfil/_cards :: eventCard(${ev})}"></span>
-                                </div>
-                            </div>
-                            <div class="text-center text-secondary py-4" th:if="${eventos == null || eventos.isEmpty()}">
-                                Todavía no hay datos</div>
-                        </div>
-                    </div>
-
-                    <div class="card border-0 rounded-4 shadow-sm">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <h5 class="section-title m-0">
-                                    <i class="bi bi-chat-square-text me-2"></i>Tus Reseñas
-                                </h5>
-                                <a class="btn btn-outline-secondary btn-sm" href="#">Escribir reseña</a>
-                            </div>
-
-                            <div class="vstack gap-3" th:if="${resenas != null && !resenas.isEmpty()}">
-                                <div class="review-item" th:each="r : ${resenas}">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div>
-                                            <h6 class="mb-1" th:text="${r.evento}">Concierto Indie Lima</h6>
-                                            <div class="small text-secondary">
-                                                <i class="bi bi-star-fill text-warning me-1" th:each="i : ${#numbers.sequence(1, r.rating)}"></i>
-                                                <i class="bi bi-star" th:each="i : ${#numbers.sequence(r.rating + 1, 5)}"></i>
-                                            </div>
-                                        </div>
-                                        <div class="text-secondary small" th:text="${r.fecha}">16 mar 2025</div>
-                                    </div>
-                                    <p class="mb-0" th:text="${r.comentario}">Increíble experiencia, excelente organización
-                                        y lineup espectacular.</p>
-                                </div>
-                            </div>
-                            <div class="text-center text-secondary py-4" th:if="${resenas == null || resenas.isEmpty()}">
-                                Todavía no hay datos</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Lateral derecho: Transacciones & Órdenes -->
                 <div class="col-12 col-lg-4">
-                    <div class="card border-0 rounded-4 shadow-sm mb-4">
+                    <div class="level-card card border-0 rounded-4 text-white mb-3">
                         <div class="card-body p-4">
-                            <h5 class="section-title"><i class="bi bi-arrow-left-right me-2"></i>Transacciones Recientes
-                            </h5>
-                            <div class="vstack gap-3" th:if="${txs != null && !txs.isEmpty()}">
-                                <div class="tx-item" th:each="t : ${txs}">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <span class="tx-icon"
-                                            th:classappend=" ${t.tipo=='CR'} ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
-                                            <i class="bi"
-                                                th:classappend=" ${t.tipo=='CR'} ? 'bi-arrow-down-left' : 'bi-arrow-up-right'"></i>
-                                        </span>
-                                        <div class="flex-grow-1">
-                                            <div class="fw-medium" th:text="${t.concepto}">Recarga</div>
-                                            <div class="text-secondary small" th:text="${t.fecha}">20 mar, 09:30</div>
-                                        </div>
-                                        <div class="fw-semibold"
-                                            th:classappend=" ${t.tipo=='CR'} ? ' text-success' : ' text-danger'"
-                                            th:text="${t.monto}">+S/ 100.00</div>
-                                    </div>
-                                </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-award"></i>
+                                <div class="fw-semibold" th:text="${'Nivel ' + (nivelActual?:0)}">Nivel 5</div>
+                                <span class="ms-auto fs-5 fw-semibold" th:text="${puntosActuales?:0}">2450</span>
                             </div>
-                            <div class="text-center text-secondary py-4" th:if="${txs == null || txs.isEmpty()}">Todavía no
-                                hay datos</div>
+                            <div class="progress mt-3 level-progress" role="progressbar" aria-label="Progreso puntos"
+                                 aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" th:style="${'width:' + (progresoPct?:0) + '%'}" style="width:80%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between small mt-3">
+                                <span th:text="${puntosRestantes != null ? puntosRestantes + ' pts restantes' : 'Completa eventos para ganar puntos'}">
+                                    550 pts restantes
+                                </span>
+                                <span>
+                                    <i class="bi bi-trophy-fill me-1"></i>Siguiente recompensa
+                                </span>
+                            </div>
                         </div>
                     </div>
+                    <button class="btn btn-outline-cyan w-100 d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-gear"></i>
+                        Configuración
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
 
-
-                    <div class="card border-0 rounded-4 shadow-sm">
-                        <div class="card-body p-4">
-                            <h5 class="section-title"><i class="bi bi-bag-check me-2"></i>Órdenes Recientes</h5>
-                            <div class="vstack gap-3" th:if="${ordenes != null && !ordenes.isEmpty()}">
-                                <div class="order-item" th:each="o : ${ordenes}">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <span class="badge rounded-pill fw-semibold"
-                                            th:classappend="${o.estadoClase}"
-                                            th:text="${o.estadoEtiqueta}">PAGADA</span>
-                                        <div class="flex-grow-1">
-                                            <a th:href="@{/ordenes/{id}(id=${o.id})}" class="link-dark fw-medium"
-                                                th:text="${o.tituloEvento}">Festival de Música Electrónica 2025</a>
-                                            <div class="text-secondary small" th:text="${o.fecha}">10 feb</div>
-                                            <div class="text-secondary small" th:text="${'Método: ' + o.metodoPago}">Método: Tarjeta</div>
-                                        </div>
-                                        <div class="text-end">
-                                            <div class="fw-semibold" th:text="${o.total}">S/ 250.00</div>
-                                            <a class="btn btn-outline-cyan btn-sm mt-1"
-                                                th:href="@{/ordenes/{id}/boletos(id=${o.id})}"><i
-                                                    class="bi bi-ticket-perforated me-1"></i>Ver Boletas</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-center text-secondary py-4" th:if="${ordenes == null || ordenes.isEmpty()}">
-                                Todavía no hay datos</div>
-                        </div>
+    <section class="row g-3 g-lg-4 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="stat-card card border-0 rounded-4 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <span class="icon-pill"><i class="bi bi-calendar-event"></i></span>
+                    <div>
+                        <div class="stat-value" th:text="${stats?.eventosAsistidos != null ? stats.eventosAsistidos : 0}">12</div>
+                        <div class="stat-label">Eventos Asistidos</div>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card card border-0 rounded-4 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <span class="icon-pill"><i class="bi bi-star"></i></span>
+                    <div>
+                        <div class="stat-value" th:text="${stats?.resenas != null ? stats.resenas : 0}">8</div>
+                        <div class="stat-label">Reseñas Escritas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card card border-0 rounded-4 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <span class="icon-pill"><i class="bi bi-bag-check"></i></span>
+                    <div>
+                        <div class="stat-value" th:text="${stats?.ordenes != null ? stats.ordenes : 0}">15</div>
+                        <div class="stat-label">Órdenes Totales</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card card border-0 rounded-4 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <span class="icon-pill"><i class="bi bi-ticket-perforated"></i></span>
+                    <div>
+                        <div class="stat-value" th:text="${stats?.entradasActivas != null ? stats.entradasActivas : 0}">3</div>
+                        <div class="stat-label">Entradas Activas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 rounded-4 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="section-title mb-0"><i class="bi bi-calendar2-check me-2"></i>Mis Eventos</h5>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary btn-sm rounded-pill" type="button">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm rounded-pill" type="button">
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
 
-    <!-- FOOTER global (ya existente) -->
-    <div th:replace="~{fragments/footer :: footer}"></div>
+                    <div class="row g-3" th:if="${eventos != null && !eventos.isEmpty()}">
+                        <div class="col-12 col-md-6" th:each="ev : ${eventos}">
+                            <article class="event-card card border-0 rounded-4 shadow-sm h-100 overflow-hidden">
+                                <div class="ratio ratio-16x9 bg-soft">
+                                    <img th:if="${ev.imgUrl != null}" th:src="${ev.imgUrl}" class="event-img" alt="Evento">
+                                </div>
+                                <div class="card-body">
+                                    <span class="badge rounded-pill bg-cyan-subtle text-cyan mb-2"
+                                          th:text="${ev.categoria != null ? ev.categoria : 'General'}">Música</span>
+                                    <h6 class="fw-semibold mb-2 line-clamp-2" th:text="${ev.titulo}">Festival de Música Electrónica 2025</h6>
+                                    <ul class="list-unstyled small text-secondary mb-3 vstack gap-2">
+                                        <li><i class="bi bi-calendar3 me-2 text-cyan"></i><span th:text="${ev.fecha}">15 mar 2025, 15:00</span></li>
+                                        <li><i class="bi bi-check2-circle me-2 text-cyan"></i><span th:text="${'Check-in: ' + ev.checkIn}">Check-in: 15 mar 2025, 14:45</span></li>
+                                    </ul>
+                                    <span class="badge rounded-pill fw-semibold"
+                                          th:classappend="${ev.checkIn != null and #strings.contains(ev.checkIn, 'Disponible') ? ' bg-info-subtle text-info' : ' bg-success-subtle text-success'}"
+                                          th:text="${ev.checkIn != null and #strings.contains(ev.checkIn, 'Disponible') ? 'PRÓXIMO' : 'COMPLETADO'}">
+                                        COMPLETADO
+                                    </span>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                    <div class="text-center text-secondary py-5" th:if="${eventos == null || eventos.isEmpty()}">
+                        Aún no tienes eventos registrados.
+                    </div>
+                </div>
+            </div>
 
+            <div class="card border-0 rounded-4 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="section-title mb-0"><i class="bi bi-chat-square-quote me-2"></i>Mis Reseñas</h5>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary btn-sm rounded-pill" type="button">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm rounded-pill" type="button">
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));</script>
+                    <div class="review-box" th:if="${resenas != null && !resenas.isEmpty()}" th:each="resena : ${resenas}">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="fw-semibold" th:text="${resena.tituloEvento()}">Festival de Música Electrónica 2025</div>
+                            <span class="text-secondary small" th:text="${resena.fecha()}">16 mar 2025</span>
+                        </div>
+                        <div class="rating mb-2">
+                            <i class="bi bi-star-fill" th:each="i : ${#numbers.sequence(1, resena.puntuacion())}"></i>
+                        </div>
+                        <p class="mb-0 text-secondary" th:text="${resena.comentario()}">
+                            Increíble experiencia, excelente organización y lineup espectacular.
+                        </p>
+                    </div>
+
+                    <div class="text-center text-secondary py-5" th:if="${resenas == null || resenas.isEmpty()}">
+                        Aún no has escrito reseñas.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 rounded-4 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h5 class="section-title mb-1">Mi Billetera</h5>
+                            <span class="text-secondary small">Saldo disponible</span>
+                        </div>
+                        <i class="bi bi-wallet2 text-cyan fs-4"></i>
+                    </div>
+                    <div class="balance-box mb-3">
+                        <div class="display-5 fw-semibold" th:text="${'S/ ' + #numbers.formatDecimal(billeteraSaldo, 1, 2)}">S/ 150.00</div>
+                        <span class="badge rounded-pill bg-cyan-subtle text-cyan">Saldo actual</span>
+                    </div>
+                    <div class="vstack gap-2">
+                                <a class="btn btn-cyan w-100 d-flex align-items-center justify-content-center gap-2"
+                                   th:href="@{/billetera}">
+                                    <i class="bi bi-plus-circle"></i> Recargar saldo
+                                </a>
+                        <button class="btn btn-outline-cyan w-100 d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-cash-coin"></i> Retirar fondos
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="section-title mb-3"><i class="bi bi-arrow-left-right me-2"></i>Transacciones Recientes</h5>
+                    <div class="vstack gap-3" th:if="${txs != null && !txs.isEmpty()}">
+                        <div class="tx-item" th:each="tx : ${txs}">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="tx-icon"
+                                      th:classappend="${tx.tipo().equalsIgnoreCase('CR') ? ' bg-success-subtle text-success' : ' bg-danger-subtle text-danger'}">
+                                    <i class="bi"
+                                       th:classappend="${tx.tipo().equalsIgnoreCase('CR') ? ' bi-arrow-down-left' : ' bi-arrow-up-right'}"></i>
+                                </span>
+                                <div class="flex-grow-1">
+                                    <div class="fw-medium" th:text="${tx.concepto()}">Recarga</div>
+                                    <div class="text-secondary small" th:text="${tx.fecha()}">20 mar, 09:30</div>
+                                </div>
+                                <div class="fw-semibold"
+                                     th:classappend="${tx.tipo().equalsIgnoreCase('CR') ? ' text-success' : ' text-danger'}"
+                                     th:text="${tx.monto()}">
+                                    +S/ 100.00
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center text-secondary py-4" th:if="${txs == null || txs.isEmpty()}">
+                        No hay transacciones recientes.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="section-title mb-3"><i class="bi bi-bag-check me-2"></i>Órdenes Recientes</h5>
+                    <div class="vstack gap-3" th:if="${ordenes != null && !ordenes.isEmpty()}">
+                        <div class="order-item" th:each="orden : ${ordenes}">
+                            <div class="d-flex align-items-start gap-3">
+                                <span class="badge rounded-pill fw-semibold"
+                                      th:classappend="${orden.estadoClase()}"
+                                      th:text="${orden.estadoEtiqueta()}">
+                                    Pagada
+                                </span>
+                                <div class="flex-grow-1">
+                                    <a class="link-dark fw-medium d-block" th:href="@{/ordenes/{id}(id=${orden.id()})}"
+                                       th:text="${orden.tituloEvento()}">
+                                        Festival de Música Electrónica 2025
+                                    </a>
+                                    <div class="text-secondary small" th:text="${orden.fecha()}">10 feb</div>
+                                    <div class="text-secondary small" th:text="${orden.metodoPago()}">Método: Tarjeta</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-semibold" th:text="${orden.total()}">S/ 250.00</div>
+                                    <a class="btn btn-outline-cyan btn-sm mt-2" th:href="@{/ordenes/{id}/boletos(id=${orden.id()})}">
+                                        <i class="bi bi-ticket-perforated me-1"></i>Ver Boletas
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center text-secondary py-4" th:if="${ordenes == null || ordenes.isEmpty()}">
+                        Todavía no registras órdenes.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

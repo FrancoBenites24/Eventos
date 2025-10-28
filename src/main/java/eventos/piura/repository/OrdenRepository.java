@@ -24,4 +24,9 @@ public interface OrdenRepository extends JpaRepository<Orden, UUID> {
     List<Orden> findTop5ByCompradorIdOrderByCreadoEnDesc(UUID compradorId);
 
     long countByCompradorId(UUID compradorId);
+
+    @Query("select coalesce(sum(o.totalCentavos), 0) from Orden o " +
+            "where o.comprador.id = :compradorId and o.estado = :estado")
+    long sumTotalCentavosByCompradorIdAndEstado(@Param("compradorId") UUID compradorId,
+                                                @Param("estado") EstadoOrden estado);
 }

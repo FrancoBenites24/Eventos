@@ -1,47 +1,53 @@
 :root {
     --cyan: #00c2cb;
-    /* cian principal */
     --cyan-600: #00aab2;
-    /* variante oscura */
     --cyan-700: #008e95;
-    /* para barras */
     --cyan-soft: #e9f9ff;
-    /* fondo muy claro */
+    --text-dark: #07363a;
+    --text-muted: #607577;
 }
 
-
-/* fondo general suave */
-.bg-soft {
-    background: linear-gradient(to bottom right, var(--cyan-soft), #f6fdff);
+body.bg-soft {
+    background: linear-gradient(135deg, rgba(233, 249, 255, 0.85), #f6fdff);
 }
 
-
-/* tarjetas con brillo sutil */
-.card-glow {
-    box-shadow: 0 10px 30px rgba(0, 194, 203, .08);
+.profile-page {
+    position: relative;
+    z-index: 1;
 }
 
+.profile-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, #ffffff 100%);
+    box-shadow: 0 24px 60px rgba(0, 194, 203, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.profile-name {
+    font-size: 1.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.profile-meta {
+    display: grid;
+    gap: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
 
 .text-cyan {
     color: var(--cyan) !important;
 }
 
-.text-dark-cyan {
-    color: #02363a;
-}
-
 .bg-cyan-subtle {
-    background-color: rgba(0, 194, 203, .12) !important;
-}
-
-.bg-cyan-700 {
-    background-color: var(--cyan-700) !important;
+    background-color: rgba(0, 194, 203, 0.12) !important;
 }
 
 .btn-cyan {
     background: var(--cyan);
     color: #fff;
-    border: 0;
+    border: none;
+    box-shadow: 0 10px 20px rgba(0, 194, 203, 0.3);
 }
 
 .btn-cyan:hover {
@@ -59,26 +65,35 @@
     color: #fff;
 }
 
-
-.section-title {
-    font-weight: 600;
-    color: #1d2b2c;
-}
-
 .icon-pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: rgba(0, 194, 203, .12);
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: rgba(0, 194, 203, 0.15);
     color: var(--cyan);
-    font-size: 1.1rem;
+    font-size: 1.2rem;
 }
 
+.stat-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 16px 40px rgba(0, 194, 203, 0.14);
+}
 
-/* avatar con iniciales */
+.stat-value {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
 .avatar-xl {
     width: 96px;
     height: 96px;
@@ -95,7 +110,7 @@
     justify-content: center;
     font-weight: 700;
     font-size: 1.6rem;
-    box-shadow: 0 10px 24px rgba(0, 194, 203, .25);
+    box-shadow: 0 10px 24px rgba(0, 194, 203, 0.3);
 }
 
 .avatar-badge {
@@ -105,61 +120,95 @@
     background: #fff;
     color: var(--cyan);
     border-radius: 50rem;
-    padding: .25rem .5rem;
+    padding: 0.25rem 0.5rem;
     font-weight: 700;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
-
-/* tarjeta gamificación */
-.bg-gradient-cyan {
-    background: linear-gradient(160deg, #00aab2, #00c2cb);
+.level-card {
+    background: linear-gradient(160deg, #0099a2, #00c2cb);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
 }
 
+.level-progress {
+    height: 0.6rem;
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 50rem;
+}
 
-/* billetera */
+.level-progress .progress-bar {
+    background: #ffffff;
+    border-radius: 50rem;
+}
+
+.section-title {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
 .balance-box {
-    border: 1px solid rgba(0, 0, 0, .06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 16px;
     padding: 1.25rem;
     background: #fff;
+    box-shadow: inset 0 0 0 1px rgba(0, 194, 203, 0.05);
 }
 
-
-/* transacciones */
 .tx-item {
-    border: 1px solid rgba(0, 0, 0, .06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 16px;
-    padding: .75rem 1rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.95);
 }
 
 .tx-icon {
     display: inline-flex;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
     align-items: center;
     justify-content: center;
+    font-size: 1rem;
 }
 
+.event-card {
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    background: #fbffff;
+}
 
-/* eventos */
 .event-card .event-img {
     width: 100%;
     height: 220px;
     object-fit: cover;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-
-/* reseñas */
 .review-box {
-    border: 1px solid rgba(0, 0, 0, .06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 16px;
-    padding: 1rem;
+    padding: 1.25rem;
     background: #f5feff;
+    box-shadow: inset 0 0 0 1px rgba(0, 194, 203, 0.05);
 }
 
 .rating i {
     margin-right: 2px;
     color: #ffc107;
+}
+
+@media (max-width: 575.98px) {
+    .profile-name {
+        font-size: 1.5rem;
+    }
+
+    .avatar-xl {
+        width: 80px;
+        height: 80px;
+    }
+
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        font-size: 1.3rem;
+    }
 }

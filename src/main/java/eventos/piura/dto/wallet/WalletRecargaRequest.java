@@ -1,33 +1,35 @@
-package eventos.piura.dto.checkout;
+package eventos.piura.dto.wallet;
 
 import eventos.piura.model.enums.MetodoPago;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
 @Setter
-public class CheckoutPagoRequest {
+public class WalletRecargaRequest {
+
+    @NotNull
+    @DecimalMin(value = "1.00", message = "El monto mínimo es 1.00")
+    private BigDecimal monto;
 
     @NotNull
     private MetodoPago metodo;
 
     private UUID metodoGuardadoId;
 
-    // Datos para Yape/Plin
     @Size(max = 20)
     private String telefono;
 
     @Size(max = 20)
     private String codigoOperacion;
 
-    // Datos para tarjeta
     @Size(max = 19)
     private String tarjetaNumero;
 
@@ -39,16 +41,6 @@ public class CheckoutPagoRequest {
 
     @Size(max = 80)
     private String tarjetaTitular;
-
-    // Datos para boleta/envio
-    @NotBlank
-    @Size(max = 120)
-    private String nombreCompleto;
-
-    @NotBlank
-    @Email
-    @Size(max = 120)
-    private String correoElectronico;
 
     private boolean guardarMetodo;
 

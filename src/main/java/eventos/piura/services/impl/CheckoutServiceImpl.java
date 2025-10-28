@@ -5,10 +5,12 @@ import eventos.piura.dto.checkout.BoletaView;
 import eventos.piura.dto.checkout.CheckoutItemView;
 import eventos.piura.dto.checkout.CheckoutPagoRequest;
 import eventos.piura.dto.checkout.CheckoutResumenView;
+import eventos.piura.dto.checkout.MetodoPagoGuardadoView;
 import eventos.piura.model.Billetera;
 import eventos.piura.model.Evento;
 import eventos.piura.model.EventoEntradaTipo;
 import eventos.piura.model.Orden;
+import eventos.piura.model.MetodoPagoGuardado;
 import eventos.piura.model.OrdenItem;
 import eventos.piura.model.Usuario;
 import eventos.piura.model.WalletTx;
@@ -21,6 +23,7 @@ import eventos.piura.repository.OrdenRepository;
 import eventos.piura.repository.WalletTxRepository;
 import eventos.piura.services.CarritoService;
 import eventos.piura.services.CheckoutService;
+import eventos.piura.services.MetodoPagoGuardadoService;
 import eventos.piura.services.carrito.CarritoSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +36,6 @@ import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -55,6 +57,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     private final CarritoSession carritoSession;
     private final BilleteraRepository billeteraRepository;
     private final WalletTxRepository walletTxRepository;
+    private final MetodoPagoGuardadoService metodoPagoGuardadoService;
 
     @Value("${app.currency:PEN}")
     private String currency;
@@ -64,6 +67,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     public CheckoutResumenView construirResumen(Usuario usuario) {
         Map<UUID, CarritoSession.CarritoSessionItem> items = carritoSession.getItems();
         List<MetodoPago> metodos = new ArrayList<>(EnumSet.allOf(MetodoPago.class));
+        List<MetodoPagoGuardadoView> guardados = metodoPagoGuardadoService.listarGuardados(usuario.getId());
 
         if (items.isEmpty()) {
             Integer saldo = billeteraRepository.findByUsuarioId(usuario.getId())
@@ -72,7 +76,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             if (saldo == null) {
                 metodos.remove(MetodoPago.BILLETERA);
             }
-            return new CheckoutResumenView(List.of(), 0, 0, 0, currencySymbol(), metodos, saldo);
+            return new CheckoutResumenView(List.of(), 0, 0, 0, currencySymbol(), metodos, saldo, guardados);
         }
 
         Map<UUID, Evento> eventos = eventoRepository.findAllById(
@@ -117,7 +121,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             metodos.remove(MetodoPago.BILLETERA);
         }
 
-        return new CheckoutResumenView(detalle, subtotal, igv, total, currencySymbol(), metodos, saldoBilletera);
+        return new CheckoutResumenView(detalle, subtotal, igv, total, currencySymbol(), metodos, saldoBilletera, guardados);
     }
 
     @Override
@@ -127,7 +131,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             throw new IllegalStateException("Tu carrito esta vacio.");
         }
 
-        validarMedioPago(request);
+        MetodoPagoGuardado metodoGuardado = validarMedioPago(usuario, request);
 
         CheckoutResumenView resumen = construirResumen(usuario);
         if (resumen.items().isEmpty()) {
@@ -142,7 +146,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         Map<UUID, Evento> eventos = eventoRepository.findAllById(itemsPorEvento.keySet()).stream()
                 .collect(Collectors.toMap(Evento::getId, e -> e));
 
-        String referenciaPago = generarReferenciaPago(request);
+        String referenciaPago = generarReferenciaPago(request, metodoGuardado);
         MetodoPago metodo = request.getMetodo();
 
         if (metodo == MetodoPago.BILLETERA) {
@@ -198,13 +202,14 @@ public class CheckoutServiceImpl implements CheckoutService {
         }
 
         carritoService.limpiar();
+        guardarMetodoSiCorresponde(usuario, request, metodo, metodoGuardado);
 
         return new BoletaView(
                 generarCodigoBoleta(),
                 request.getNombreCompleto(),
                 request.getCorreoElectronico(),
                 metodo,
-                descripcionPago(request),
+                descripcionPago(request, metodoGuardado),
                 boletaItems,
                 resumen.subtotalCentavos(),
                 resumen.igvCentavos(),
@@ -214,33 +219,54 @@ public class CheckoutServiceImpl implements CheckoutService {
         );
     }
 
-    private void validarMedioPago(CheckoutPagoRequest request) {
+    private MetodoPagoGuardado validarMedioPago(Usuario usuario, CheckoutPagoRequest request) {
         MetodoPago metodo = request.getMetodo();
         if (metodo == null) {
-            throw new IllegalArgumentException("Debes seleccionar un método de pago.");
+            throw new IllegalArgumentException("Debes seleccionar un metodo de pago.");
+        }
+
+        MetodoPagoGuardado metodoGuardado = null;
+        UUID guardadoId = request.getMetodoGuardadoId();
+        if (guardadoId != null) {
+            metodoGuardado = metodoPagoGuardadoService.obtenerParaUsuario(guardadoId, usuario.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("El metodo de pago guardado no esta disponible."));
+            if (metodoGuardado.getTipo() != metodo) {
+                throw new IllegalArgumentException("El metodo guardado seleccionado no coincide con el tipo de pago elegido.");
+            }
         }
 
         switch (metodo) {
             case YAPE, PLIN -> {
-                if (!StringUtils.hasText(request.getTelefono())) {
-                    throw new IllegalArgumentException("Debes ingresar el numero asociado al pago movil.");
+                if (metodoGuardado == null) {
+                    if (!StringUtils.hasText(request.getTelefono())) {
+                        throw new IllegalArgumentException("Debes ingresar el numero asociado al pago movil.");
+                    }
+                    request.setTelefono(request.telefonoSanitizado());
+                } else {
+                    request.setTelefono(metodoGuardado.getTelefono());
                 }
                 if (!StringUtils.hasText(request.getCodigoOperacion())) {
                     throw new IllegalArgumentException("Debes ingresar el codigo o referencia de la operacion.");
                 }
             }
             case TARJETA -> {
-                if (!StringUtils.hasText(request.getTarjetaNumero())
-                        || !StringUtils.hasText(request.getTarjetaExpiracion())
-                        || !StringUtils.hasText(request.getTarjetaCvv())
-                        || !StringUtils.hasText(request.getTarjetaTitular())) {
-                    throw new IllegalArgumentException("Debes completar los datos de la tarjeta.");
+                if (!StringUtils.hasText(request.getTarjetaCvv())) {
+                    throw new IllegalArgumentException("Debes ingresar el CVV de la tarjeta.");
+                }
+                if (metodoGuardado == null) {
+                    if (!StringUtils.hasText(request.getTarjetaNumero())
+                            || !StringUtils.hasText(request.getTarjetaExpiracion())
+                            || !StringUtils.hasText(request.getTarjetaTitular())) {
+                        throw new IllegalArgumentException("Debes completar los datos de la tarjeta.");
+                    }
                 }
             }
             case BILLETERA -> {
-                // Validación en procesarPagoBilletera
+                // Validacion adicional en procesarPagoBilletera
             }
         }
+
+        return metodoGuardado;
     }
 
     private void procesarPagoBilletera(Usuario usuario, int totalCentavos) {
@@ -261,6 +287,33 @@ public class CheckoutServiceImpl implements CheckoutService {
         walletTxRepository.save(tx);
     }
 
+    private void guardarMetodoSiCorresponde(Usuario usuario,
+                                            CheckoutPagoRequest request,
+                                            MetodoPago metodo,
+                                            MetodoPagoGuardado metodoGuardado) {
+        if (!request.isGuardarMetodo() || metodoGuardado != null) {
+            return;
+        }
+        String alias = StringUtils.hasText(request.getAliasMetodo()) ? request.getAliasMetodo().trim() : null;
+        switch (metodo) {
+            case TARJETA -> metodoPagoGuardadoService.guardarTarjeta(
+                    usuario,
+                    request.getTarjetaNumero(),
+                    request.getTarjetaExpiracion(),
+                    request.getTarjetaTitular(),
+                    alias
+            );
+            case YAPE, PLIN -> metodoPagoGuardadoService.guardarWallet(
+                    usuario,
+                    metodo,
+                    request.telefonoSanitizado(),
+                    alias
+            );
+            default -> {
+            }
+        }
+    }
+
     private int calcularIgv(int subtotalCentavos) {
         return BigDecimal.valueOf(subtotalCentavos)
                 .multiply(IGV_PORCENTAJE)
@@ -268,19 +321,49 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .intValueExact();
     }
 
-    private String descripcionPago(CheckoutPagoRequest request) {
+    private String descripcionPago(CheckoutPagoRequest request, MetodoPagoGuardado guardado) {
         return switch (request.getMetodo()) {
-            case YAPE -> "Yape - Operacion " + request.codigoOperacionSanitizado();
-            case PLIN -> "Plin - Operacion " + request.codigoOperacionSanitizado();
-            case TARJETA -> "Tarjeta ****" + ultimosDigitos(request.getTarjetaNumero());
+            case YAPE -> descripcionWallet("Yape", request, guardado);
+            case PLIN -> descripcionWallet("Plin", request, guardado);
+            case TARJETA -> {
+                if (guardado != null) {
+                    String marca = StringUtils.hasText(guardado.getMarca()) ? guardado.getMarca() : "Tarjeta";
+                    String mascara = StringUtils.hasText(guardado.getMascara()) ? guardado.getMascara() : "****";
+                    yield marca + " " + mascara;
+                }
+                yield "Tarjeta ****" + ultimosDigitos(request.getTarjetaNumero());
+            }
             case BILLETERA -> "Billetera digital";
         };
     }
 
-    private String generarReferenciaPago(CheckoutPagoRequest request) {
+    private String descripcionWallet(String etiqueta, CheckoutPagoRequest request, MetodoPagoGuardado guardado) {
+        String alias = null;
+        if (guardado != null) {
+            if (StringUtils.hasText(guardado.getAlias())) {
+                alias = guardado.getAlias();
+            } else if (StringUtils.hasText(guardado.getMascara())) {
+                alias = guardado.getMascara();
+            } else if (StringUtils.hasText(guardado.getIdentificador())) {
+                alias = guardado.getIdentificador();
+            }
+        }
+        if (!StringUtils.hasText(alias)) {
+            alias = request.telefonoSanitizado();
+        }
+        String operacion = request.codigoOperacionSanitizado();
+        if (StringUtils.hasText(alias)) {
+            return etiqueta + " - Operacion " + operacion + " (" + alias + ")";
+        }
+        return etiqueta + " - Operacion " + operacion;
+    }
+
+    private String generarReferenciaPago(CheckoutPagoRequest request, MetodoPagoGuardado guardado) {
         return switch (request.getMetodo()) {
             case YAPE, PLIN -> request.codigoOperacionSanitizado();
-            case TARJETA -> ultimosDigitos(request.getTarjetaNumero());
+            case TARJETA -> guardado != null && StringUtils.hasText(guardado.getIdentificador())
+                    ? guardado.getIdentificador()
+                    : ultimosDigitos(request.getTarjetaNumero());
             case BILLETERA -> "BILLETERA";
         };
     }
