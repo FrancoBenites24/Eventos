@@ -86,166 +86,217 @@
                                 </div>
                                 <div class="d-flex justify-content-between small mt-2">
                                     <span
-                                        th:text="${puntosRestantes!=null? (puntosRestantes + ' pts restantes') : '—'}">550
-                                        pts restantes</span>
-                                    <span th:text="${progresoPct!=null? (progresoPct + '%') : '0%'}">82%</span>
-                                </div>
-                                <div class="small mt-3 opacity-75">Siguiente recompensa: Cupón 15% descuento</div>
-                                <div class="d-grid mt-3">
-                                    <a class="btn btn-light text-cyan fw-semibold" th:href="@{/perfil/configuracion}"><i
-                                            class="bi bi-gear me-2"></i>Configuración</a>
+                                        th:text="${puntosRestantes!=null? (puntosRestantes + ' pts restantes'): 'Completa eventos para ganar puntos'}">150 pts restantes</span>
+                                    <span>🏆</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
 
+            <!-- Stats + billetera + historial -->
+            <div class="row g-4 px-4 pb-5">
 
-        <!-- KPI + Billetera -->
-        <section class="row g-3 g-lg-4 align-items-stretch mb-4">
-            <div class="col-12 col-md-6 col-lg-3">
-                <span
-                    th:replace="~{perfil/_cards :: statCard('Eventos Asistidos','bi-calendar-event', stats?.eventosAsistidos)}"></span>
-            </div>
-            <div class="col-12 col-md-6 col-lg-3">
-                <span th:replace="~{perfil/_cards :: statCard('Reseñas Escritas','bi-star', stats?.resenas)}"></span>
-            </div>
-            <div class="col-12 col-md-6 col-lg-3">
-                <span
-                    th:replace="~{perfil/_cards :: statCard('Órdenes Totales','bi-bag-check', stats?.ordenes)}"></span>
-            </div>
-            <div class="col-12 col-md-6 col-lg-3">
-                <span
-                    th:replace="~{perfil/_cards :: statCard('Entradas Activas','bi-ticket-perforated', stats?.entradasActivas)}"></span>
-            </div>
-            <!-- Billetera -->
-            <div class="col-12 col-lg-6 ms-auto">
-                <div class="card border-0 rounded-4 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <span class="icon-pill"><i class="bi bi-wallet2"></i></span>
-                            <div>
-                                <h5 class="m-0">Mi Billetera</h5>
-                                <div class="text-secondary small">Saldo disponible</div>
-                            </div>
+                <!-- KPIs -->
+                <div class="col-12">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <span
+                                th:replace="~{perfil/_cards :: statCard('Eventos Asistidos','bi-calendar-event', stats?.eventosAsistidos)}"></span>
                         </div>
-                        <div class="balance-box mb-3">
-                            <div class="display-6 fw-semibold"
-                                th:text="${billeteraSaldo!=null? ('S/ ' + #numbers.formatDecimal(billeteraSaldo, 1, 'COMMA', 2, 'POINT')) : 'S/ 0.00'}">
-                                S/ 150.00</div>
-                            <div class="text-secondary small">Saldo actual</div>
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <span th:replace="~{perfil/_cards :: statCard('Reseñas Escritas','bi-star', stats?.resenas)}"></span>
                         </div>
-                        <div class="d-grid">
-                            <a class="btn btn-cyan" th:href="@{/billetera/recargar}"><i
-                                    class="bi bi-plus-circle me-2"></i>Recargar Saldo</a>
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <span
+                                th:replace="~{perfil/_cards :: statCard('Órdenes Totales','bi-bag-check', stats?.ordenes)}"></span>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <span
+                                th:replace="~{perfil/_cards :: statCard('Entradas Activas','bi-ticket-perforated', stats?.entradasActivas)}"></span>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
 
 
-        <section class="row g-3 g-lg-4">
-            <!-- Mis Eventos (cards) -->
-            <div class="col-12 col-lg-8">
-                <div class="card border-0 rounded-4 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <h5 class="section-title"><i class="bi bi-calendar4-week me-2"></i>Mis Eventos</h5>
-                        <div class="row g-3" th:if="${eventos != null && !eventos.isEmpty()}">
-                            <div class="col-12 col-md-6" th:each="ev : ${eventos}">
-                                <span th:replace="~{perfil/_cards :: eventCard(ev)}"></span>
+                <!-- Billetera -->
+                <div class="col-12 col-lg-6 ms-auto">
+                    <div class="card border-0 rounded-4 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <span class="icon-pill"><i class="bi bi-wallet2"></i></span>
+                                <div>
+                                    <h5 class="m-0">Mi Billetera</h5>
+                                    <div class="text-secondary small">Saldo disponible</div>
+                                </div>
+                            </div>
+                            <div class="balance-box mb-3">
+                                <div class="display-6 fw-semibold"
+                                    th:text="${billeteraSaldo!=null? ('S/ ' + #numbers.formatDecimal(billeteraSaldo, 1, 'COMMA', 2, 'POINT')) : 'S/ 0.00'}">
+                                    S/ 150.00</div>
+                                <span class="badge rounded-pill bg-success-subtle text-success">+5% vs. mes pasado</span>
+                            </div>
+                            <div class="vstack gap-2">
+                                <button class="btn btn-outline-cyan w-100"><i class="bi bi-plus-circle me-2"></i>Recargar
+                                    saldo</button>
+                                <button class="btn btn-outline-secondary w-100"><i class="bi bi-cash-coin me-2"></i>Retirar
+                                    fondos</button>
                             </div>
                         </div>
-                        <div class="text-center text-secondary py-4" th:if="${eventos == null || eventos.isEmpty()}">
-                            Todavía no hay datos</div>
                     </div>
                 </div>
 
 
-                <!-- Mis Reseñas -->
-                <div class="card border-0 rounded-4 shadow-sm">
-                    <div class="card-body p-4">
-                        <h5 class="section-title"><i class="bi bi-chat-quote me-2"></i>Mis Reseñas</h5>
-                        <div th:if="${resenas != null && !resenas.isEmpty()}" class="vstack gap-3">
-                            <div class="review-box" th:each="r : ${resenas}">
-                                <div class="d-flex justify-content-between align-items-start gap-3">
-                                    <div>
-                                        <h6 class="mb-1" th:text="${r.tituloEvento}">Festival de Música Electrónica 2025
-                                        </h6>
-                                        <div class="rating mb-2" th:utext="${r.htmlEstrellas}">
-                                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                                class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                                class="bi bi-star-fill"></i>
+                <div class="col-12 col-lg-6">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="card border-0 rounded-4 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="icon-pill"><i class="bi bi-ticket"></i></span>
+                                        <div>
+                                            <h6 class="m-0">Entradas activas</h6>
+                                            <p class="text-secondary small mb-0">Boletos listos para usar</p>
                                         </div>
                                     </div>
-                                    <div class="text-secondary small" th:text="${r.fecha}">16 mar 2025</div>
+                                    <div class="display-4 fw-semibold mt-3">0</div>
+                                    <div class="text-secondary small">Revisa tus órdenes para descargar tus tickets.</div>
                                 </div>
-                                <p class="mb-0" th:text="${r.comentario}">Increíble experiencia, excelente organización
-                                    y lineup espectacular.</p>
                             </div>
                         </div>
-                        <div class="text-center text-secondary py-4" th:if="${resenas == null || resenas.isEmpty()}">
-                            Todavía no hay datos</div>
+                        <div class="col-12 col-md-6">
+                            <div class="card border-0 rounded-4 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="icon-pill"><i class="bi bi-bullseye"></i></span>
+                                        <div>
+                                            <h6 class="m-0">Logros pendientes</h6>
+                                            <p class="text-secondary small mb-0">Completa acciones para subir de nivel.</p>
+                                        </div>
+                                    </div>
+                                    <ul class="small text-secondary mt-3 ps-3">
+                                        <li>Asiste a 1 evento más</li>
+                                        <li>Escribe 2 reseñas nuevas</li>
+                                        <li>Comparte un evento con tus amigos</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Lateral derecho: Transacciones & Órdenes -->
-            <div class="col-12 col-lg-4">
-                <div class="card border-0 rounded-4 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <h5 class="section-title"><i class="bi bi-arrow-left-right me-2"></i>Transacciones Recientes
-                        </h5>
-                        <div class="vstack gap-3" th:if="${txs != null && !txs.isEmpty()}">
-                            <div class="tx-item" th:each="t : ${txs}">
-                                <div class="d-flex align-items-center gap-3">
-                                    <span class="tx-icon"
-                                        th:classappend=" ${t.tipo=='CR'} ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
-                                        <i class="bi"
-                                            th:classappend=" ${t.tipo=='CR'} ? 'bi-arrow-down-left' : 'bi-arrow-up-right'"></i>
-                                    </span>
-                                    <div class="flex-grow-1">
-                                        <div class="fw-medium" th:text="${t.concepto}">Recarga</div>
-                                        <div class="text-secondary small" th:text="${t.fecha}">20 mar, 09:30</div>
-                                    </div>
-                                    <div class="fw-semibold"
-                                        th:classappend=" ${t.tipo=='CR'} ? ' text-success' : ' text-danger'"
-                                        th:text="${t.monto}">+S/ 100.00</div>
+            <!-- Historial de eventos y reseñas -->
+            <div class="row g-4 px-4 pb-5">
+                <div class="col-12 col-lg-8">
+                    <div class="card border-0 rounded-4 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h5 class="section-title m-0">
+                                    <i class="bi bi-clock-history me-2"></i>Historial de Eventos
+                                </h5>
+                                <a class="btn btn-outline-secondary btn-sm" href="#">Ver todo</a>
+                            </div>
+
+                            <div class="row g-3" th:if="${eventos != null && !eventos.isEmpty()}">
+                                <div class="col-12 col-md-6 col-xl-4" th:each="ev : ${eventos}">
+                                    <span th:replace="~{perfil/_cards :: eventCard(${ev})}"></span>
                                 </div>
                             </div>
+                            <div class="text-center text-secondary py-4" th:if="${eventos == null || eventos.isEmpty()}">
+                                Todavía no hay datos</div>
                         </div>
-                        <div class="text-center text-secondary py-4" th:if="${txs == null || txs.isEmpty()}">Todavía no
-                            hay datos</div>
+                    </div>
+
+                    <div class="card border-0 rounded-4 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h5 class="section-title m-0">
+                                    <i class="bi bi-chat-square-text me-2"></i>Tus Reseñas
+                                </h5>
+                                <a class="btn btn-outline-secondary btn-sm" href="#">Escribir reseña</a>
+                            </div>
+
+                            <div class="vstack gap-3" th:if="${resenas != null && !resenas.isEmpty()}">
+                                <div class="review-item" th:each="r : ${resenas}">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <h6 class="mb-1" th:text="${r.evento}">Concierto Indie Lima</h6>
+                                            <div class="small text-secondary">
+                                                <i class="bi bi-star-fill text-warning me-1" th:each="i : ${#numbers.sequence(1, r.rating)}"></i>
+                                                <i class="bi bi-star" th:each="i : ${#numbers.sequence(r.rating + 1, 5)}"></i>
+                                            </div>
+                                        </div>
+                                        <div class="text-secondary small" th:text="${r.fecha}">16 mar 2025</div>
+                                    </div>
+                                    <p class="mb-0" th:text="${r.comentario}">Increíble experiencia, excelente organización
+                                        y lineup espectacular.</p>
+                                </div>
+                            </div>
+                            <div class="text-center text-secondary py-4" th:if="${resenas == null || resenas.isEmpty()}">
+                                Todavía no hay datos</div>
+                        </div>
                     </div>
                 </div>
 
-
-                <div class="card border-0 rounded-4 shadow-sm">
-                    <div class="card-body p-4">
-                        <h5 class="section-title"><i class="bi bi-bag-check me-2"></i>Órdenes Recientes</h5>
-                        <div class="vstack gap-3" th:if="${ordenes != null && !ordenes.isEmpty()}">
-                            <div class="order-item" th:each="o : ${ordenes}">
-                                <div class="d-flex align-items-center gap-3">
-                                    <span
-                                        class="badge rounded-pill bg-success-subtle text-success fw-semibold">PAGADA</span>
-                                    <div class="flex-grow-1">
-                                        <a th:href="@{/ordenes/{id}(id=${o.id})}" class="link-dark fw-medium"
-                                            th:text="${o.tituloEvento}">Festival de Música Electrónica 2025</a>
-                                        <div class="text-secondary small" th:text="${o.fecha}">10 feb</div>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="fw-semibold" th:text="${o.total}">S/ 250.00</div>
-                                        <a class="btn btn-outline-cyan btn-sm mt-1"
-                                            th:href="@{/ordenes/{id}/boletos(id=${o.id})}"><i
-                                                class="bi bi-ticket-perforated me-1"></i>Ver Boletas</a>
+                <!-- Lateral derecho: Transacciones & Órdenes -->
+                <div class="col-12 col-lg-4">
+                    <div class="card border-0 rounded-4 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="section-title"><i class="bi bi-arrow-left-right me-2"></i>Transacciones Recientes
+                            </h5>
+                            <div class="vstack gap-3" th:if="${txs != null && !txs.isEmpty()}">
+                                <div class="tx-item" th:each="t : ${txs}">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="tx-icon"
+                                            th:classappend=" ${t.tipo=='CR'} ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                                            <i class="bi"
+                                                th:classappend=" ${t.tipo=='CR'} ? 'bi-arrow-down-left' : 'bi-arrow-up-right'"></i>
+                                        </span>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-medium" th:text="${t.concepto}">Recarga</div>
+                                            <div class="text-secondary small" th:text="${t.fecha}">20 mar, 09:30</div>
+                                        </div>
+                                        <div class="fw-semibold"
+                                            th:classappend=" ${t.tipo=='CR'} ? ' text-success' : ' text-danger'"
+                                            th:text="${t.monto}">+S/ 100.00</div>
                                     </div>
                                 </div>
                             </div>
+                            <div class="text-center text-secondary py-4" th:if="${txs == null || txs.isEmpty()}">Todavía no
+                                hay datos</div>
                         </div>
-                        <div class="text-center text-secondary py-4" th:if="${ordenes == null || ordenes.isEmpty()}">
-                            Todavía no hay datos</div>
+                    </div>
+
+
+                    <div class="card border-0 rounded-4 shadow-sm">
+                        <div class="card-body p-4">
+                            <h5 class="section-title"><i class="bi bi-bag-check me-2"></i>Órdenes Recientes</h5>
+                            <div class="vstack gap-3" th:if="${ordenes != null && !ordenes.isEmpty()}">
+                                <div class="order-item" th:each="o : ${ordenes}">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="badge rounded-pill fw-semibold"
+                                            th:classappend="${o.estadoClase}"
+                                            th:text="${o.estadoEtiqueta}">PAGADA</span>
+                                        <div class="flex-grow-1">
+                                            <a th:href="@{/ordenes/{id}(id=${o.id})}" class="link-dark fw-medium"
+                                                th:text="${o.tituloEvento}">Festival de Música Electrónica 2025</a>
+                                            <div class="text-secondary small" th:text="${o.fecha}">10 feb</div>
+                                            <div class="text-secondary small" th:text="${'Método: ' + o.metodoPago}">Método: Tarjeta</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-semibold" th:text="${o.total}">S/ 250.00</div>
+                                            <a class="btn btn-outline-cyan btn-sm mt-1"
+                                                th:href="@{/ordenes/{id}/boletos(id=${o.id})}"><i
+                                                    class="bi bi-ticket-perforated me-1"></i>Ver Boletas</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center text-secondary py-4" th:if="${ordenes == null || ordenes.isEmpty()}">
+                                Todavía no hay datos</div>
+                        </div>
                     </div>
                 </div>
             </div>

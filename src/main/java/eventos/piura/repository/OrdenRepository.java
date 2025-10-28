@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface OrdenRepository extends JpaRepository<Orden, UUID> {
@@ -19,4 +20,8 @@ public interface OrdenRepository extends JpaRepository<Orden, UUID> {
             "where o.evento.id = :eventoId and o.estado = :estado")
     long sumTotalCentavosByEventoIdAndEstado(@Param("eventoId") UUID eventoId,
                                              @Param("estado") EstadoOrden estado);
+
+    List<Orden> findTop5ByCompradorIdOrderByCreadoEnDesc(UUID compradorId);
+
+    long countByCompradorId(UUID compradorId);
 }

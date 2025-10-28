@@ -31,8 +31,8 @@
               </div>
               <div class="ms-md-auto text-md-end">
                 <div class="small">Cantidad: <strong th:text="${item.cantidad()}">1</strong></div>
-                <div class="small">Precio: <strong th:text="${resumen.moneda()} + ' ' + #numbers.formatDecimal(item.precioCentavos() / 100.0, 1, 2)}">S/ 0.00</strong></div>
-                <div class="fw-semibold">Subtotal: <span th:text="${resumen.moneda()} + ' ' + #numbers.formatDecimal(item.subtotalCentavos() / 100.0, 1, 2)}">S/ 0.00</span></div>
+                <div class="small">Precio: <strong th:text="${resumen.moneda() + ' ' + #numbers.formatDecimal(item.precioCentavos() / 100.0, 1, 2)}">S/ 0.00</strong></div>
+                <div class="fw-semibold">Subtotal: <span th:text="${resumen.moneda() + ' ' + #numbers.formatDecimal(item.subtotalCentavos() / 100.0, 1, 2)}">S/ 0.00</span></div>
               </div>
             </div>
           </div>
@@ -53,16 +53,16 @@
         <div class="card-body">
           <div class="d-flex justify-content-between mb-2">
             <span>Subtotal</span>
-            <span th:text="${resumen.moneda()} + ' ' + #numbers.formatDecimal(resumen.subtotalCentavos() / 100.0, 1, 2)">S/ 0.00</span>
+            <span th:text="${resumen.moneda() + ' ' + #numbers.formatDecimal(resumen.subtotalCentavos() / 100.0, 1, 2)}">S/ 0.00</span>
           </div>
           <div class="d-flex justify-content-between mb-2">
             <span>IGV (18%)</span>
-            <span th:text="${resumen.moneda()} + ' ' + #numbers.formatDecimal(resumen.igvCentavos() / 100.0, 1, 2)">S/ 0.00</span>
+            <span th:text="${resumen.moneda() + ' ' + #numbers.formatDecimal(resumen.igvCentavos() / 100.0, 1, 2)}">S/ 0.00</span>
           </div>
           <hr>
           <div class="d-flex justify-content-between align-items-center mb-3">
             <span class="fw-semibold">Total</span>
-            <span class="fw-bold fs-5" th:text="${resumen.moneda()} + ' ' + #numbers.formatDecimal(resumen.totalCentavos() / 100.0, 1, 2)">S/ 0.00</span>
+            <span class="fw-bold fs-5" th:text="${resumen.moneda() + ' ' + #numbers.formatDecimal(resumen.totalCentavos() / 100.0, 1, 2)}">S/ 0.00</span>
           </div>
         </div>
       </section>
