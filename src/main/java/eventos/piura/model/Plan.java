@@ -23,8 +23,8 @@ public class Plan extends AuditableEntity {
   private String nombre;
 
   @PositiveOrZero
-  @Column(name = "monto_mensual_soles", nullable = false)
-  private Integer montoMensualSoles;
+  @Column(name = "monto_mensual_centavos", nullable = false)
+  private Integer montoMensualCentavos;
 
   @Column(columnDefinition = "jsonb", nullable = false)
   private String caracteristicas = "{}";

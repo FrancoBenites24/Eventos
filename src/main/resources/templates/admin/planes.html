@@ -4,8 +4,10 @@
 <body>
 <div class="d-flex">
   <nav th:replace="admin/fragments/sidebar :: sidebar('planes')"></nav>
+
   <main class="flex-grow-1 bg-body-tertiary" style="min-height:100vh;">
     <header th:replace="admin/fragments/topbar :: topbar('Planes de Suscripción')"></header>
+
     <div class="container-fluid p-4">
 
       <div class="d-flex justify-content-between align-items-center mb-3">
@@ -16,101 +18,85 @@
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm">Nuevo Plan</button>
       </div>
 
+      <!-- Toasts -->
+      <div aria-live="polite" aria-atomic="true" class="position-relative">
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1080">
+          <div class="toast align-items-center text-bg-success border-0" role="alert"
+               aria-live="assertive" aria-atomic="true" th:if="${toastSuccess}">
+            <div class="d-flex">
+              <div class="toast-body" th:text="${toastSuccess}">Operación exitosa.</div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+          </div>
+          <div class="toast align-items-center text-bg-danger border-0" role="alert"
+               aria-live="assertive" aria-atomic="true" th:if="${toastError}">
+            <div class="d-flex">
+              <div class="toast-body" th:text="${toastError}">Ocurrió un error.</div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="card shadow-sm">
         <div class="card-body">
           <div class="table-responsive">
             <table class="table align-middle">
               <thead class="table-light">
-                <tr>
-                  <th>Código</th><th>Nombre</th><th>Precio Mensual</th><th>Características</th><th>Suscriptores</th><th>Estado</th><th>Acciones</th>
-                </tr>
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Precio Mensual</th>
+                <th>Características</th>
+                <th>Suscriptores</th>
+                <th>Estado</th>
+                <th class="text-nowrap">Acciones</th>
+              </tr>
               </thead>
               <tbody>
-                <!-- Fila ejemplo 1 -->
-                <tr>
-                  <td><span class="badge text-bg-light">PLAN_BASIC</span></td>
-                  <td>Plan Básico</td>
-                  <td>S/ 29.99</td>
-                  <td>
-                    <span class="badge rounded-pill text-bg-light">5 eventos</span>
-                    <span class="badge rounded-pill text-bg-light">100 asistentes</span>
-                  </td>
-                  <td>45</td>
-                  <td><span class="badge text-bg-info">ACTIVO</span></td>
-                  <td class="d-flex">
-                    <button class="btn btn-sm btn-outline-secondary me-2"
-                            data-bs-toggle="modal" data-bs-target="#modalForm"
-                            data-id="1"
-                            data-codigo="PLAN_BASIC"
-                            data-nombre="Plan Básico"
-                            data-precio="29.99"
-                            data-caracteristicas='{"eventos":5,"asistentes":100}'
-                            data-activo="true">✏️</button>
-                    <form th:action="@{|/admin/planes/1/eliminar|}" method="post" class="d-inline">
-                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                      <button class="btn btn-sm btn-outline-danger" type="submit">🗑️</button>
-                    </form>
-                  </td>
-                </tr>
+              <tr th:each="p : ${planes}">
+                <td><span class="badge text-bg-light" th:text="${p.codigo}">COD</span></td>
+                <td th:text="${p.nombre}">Nombre</td>
 
-                <!-- Fila ejemplo 2 -->
-                <tr>
-                  <td><span class="badge text-bg-light">PLAN_PRO</span></td>
-                  <td>Plan Profesional</td>
-                  <td>S/ 79.99</td>
-                  <td>
-                    <span class="badge rounded-pill text-bg-light">20 eventos</span>
-                    <span class="badge rounded-pill text-bg-light">500 asistentes</span>
-                  </td>
-                  <td>128</td>
-                  <td><span class="badge text-bg-info">ACTIVO</span></td>
-                  <td class="d-flex">
-                    <button class="btn btn-sm btn-outline-secondary me-2"
-                            data-bs-toggle="modal" data-bs-target="#modalForm"
-                            data-id="2"
-                            data-codigo="PLAN_PRO"
-                            data-nombre="Plan Profesional"
-                            data-precio="79.99"
-                            data-caracteristicas='{"eventos":20,"asistentes":500}'
-                            data-activo="true">✏️</button>
-                    <form th:action="@{|/admin/planes/2/eliminar|}" method="post" class="d-inline">
-                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                      <button class="btn btn-sm btn-outline-danger" type="submit">🗑️</button>
-                    </form>
-                  </td>
-                </tr>
+                <!-- centavos → S/ con 2 decimales -->
+                <td th:text="${'S/ ' + #numbers.formatDecimal(p.montoMensualCentavos / 100.0, 1, 2)}">S/ 0.00</td>
 
-                <!--
-                Versión dinámica con Thymeleaf:
-                <tr th:each="p : ${planes}">
-                  <td><span class="badge text-bg-light" th:text="${p.codigo}">COD</span></td>
-                  <td th:text="${p.nombre}">Nombre</td>
-                  <td th:text="${'S/ ' + #numbers.formatDecimal(p.precioMensual, 1, 2)}">S/ 0.00</td>
-                  <td>
-                    <span class="badge rounded-pill text-bg-light"
-                          th:each="tag : ${p.tags}" th:text="${tag}">caract</span>
-                  </td>
-                  <td th:text="${p.totalSuscriptores}">0</td>
-                  <td>
-                    <span class="badge" th:classappend="${p.activo} ? ' text-bg-info' : ' text-bg-secondary'"
-                          th:text="${p.activo} ? 'ACTIVO' : 'INACTIVO'">ACTIVO</span>
-                  </td>
-                  <td class="d-flex">
-                    <button class="btn btn-sm btn-outline-secondary me-2"
-                            data-bs-toggle="modal" data-bs-target="#modalForm"
-                            th:attr="data-id=${p.id},data-codigo=${p.codigo},data-nombre=${p.nombre},
-                                     data-precio=${p.precioMensual},
-                                     data-caracteristicas=${p.caracteristicasJson},
-                                     data-activo=${p.activo}">
-                      ✏️
-                    </button>
-                    <form th:action="@{|/admin/planes/${p.id}/eliminar|}" method="post" class="d-inline">
-                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                      <button class="btn btn-sm btn-outline-danger" type="submit">🗑️</button>
-                    </form>
-                  </td>
-                </tr>
-                -->
+                <!-- Render de badges desde JSON en el cliente -->
+                <td>
+                  <div class="d-flex gap-2 flex-wrap caract-badges"
+                       th:attr="data-caracteristicas=${p.caracteristicas}"></div>
+                </td>
+
+                <!-- si no tienes tabla de suscriptores aún, deja guion -->
+                <td>—</td>
+
+                <td>
+                  <span class="badge"
+                        th:classappend="${p.activo} ? ' text-bg-info' : ' text-bg-secondary'"
+                        th:text="${p.activo} ? 'ACTIVO' : 'INACTIVO'">ACTIVO</span>
+                </td>
+
+                <td class="d-flex">
+                  <button class="btn btn-sm btn-outline-secondary me-2"
+                          data-bs-toggle="modal" data-bs-target="#modalForm"
+                          th:attr="data-id=${p.id},
+                                   data-codigo=${p.codigo},
+                                   data-nombre=${p.nombre},
+                                   data-precio=${p.montoMensualCentavos / 100.0},
+                                   data-caracteristicas=${p.caracteristicas},
+                                   data-activo=${p.activo}">✏️</button>
+
+                  <form th:action="@{|/admin/planes/${p.id}/eliminar|}" method="post" class="d-inline"
+                        onsubmit="return confirm('¿Eliminar plan?');">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button class="btn btn-sm btn-outline-danger" type="submit">🗑️</button>
+                  </form>
+                </td>
+              </tr>
+
+              <tr th:if="${#lists.isEmpty(planes)}">
+                <td colspan="7" class="text-center text-muted">No hay planes registrados.</td>
+              </tr>
               </tbody>
             </table>
           </div>
@@ -122,8 +108,8 @@
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <form th:action="@{/admin/planes}" method="post" id="planForm">
-              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-              <input type="hidden" name="id" th:value="${plan?.id}" />
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+              <input type="hidden" name="id"/>
 
               <div class="modal-header">
                 <h5 class="modal-title">Nuevo / Editar Plan</h5>
@@ -134,27 +120,24 @@
                 <div class="row g-3">
                   <div class="col-md-4">
                     <label class="form-label">Código</label>
-                    <input name="codigo" class="form-control" maxlength="40" required th:value="${plan?.codigo}" />
+                    <input name="codigo" class="form-control" maxlength="40" required/>
                   </div>
                   <div class="col-md-8">
                     <label class="form-label">Nombre</label>
-                    <input name="nombre" class="form-control" maxlength="80" required th:value="${plan?.nombre}" />
+                    <input name="nombre" class="form-control" maxlength="80" required/>
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Monto Mensual (S/)</label>
-                    <input name="precioMensual" type="number" class="form-control" min="0" step="0.01" required
-                           th:value="${plan?.precioMensual}" />
+                    <input name="precioMensual" type="number" class="form-control" min="0" step="0.01" required/>
                   </div>
                   <div class="col-md-8">
                     <label class="form-label">Características (JSON)</label>
                     <textarea name="caracteristicasJson" class="form-control" rows="4"
-                              placeholder='{"eventos":5,"asistentes":100}' required
-                              th:text="${plan?.caracteristicasJson}">{{}}</textarea>
-                    <div class="form-text">Ej.: {"eventos":5,"asistentes":100}</div>
+                              placeholder='{"max_eventos":5,"asistentes":100,"soporte":"Email"}' required></textarea>
+                    <div class="form-text">Escribe un JSON válido. Se mostrará como chips.</div>
                   </div>
                   <div class="col-12 form-check form-switch mt-2">
-                    <input name="activo" class="form-check-input" type="checkbox" id="planActivo"
-                           th:checked="${plan == null} ? true : ${plan.activo}" />
+                    <input name="activo" class="form-check-input" type="checkbox" id="planActivo" checked/>
                     <label for="planActivo" class="form-check-label">Activo</label>
                   </div>
                 </div>
@@ -175,47 +158,67 @@
 
 <th:block th:replace="admin/fragments/scripts :: scripts"></th:block>
 
-<!-- (Opcional) Precarga + validación JSON antes de enviar -->
 <script>
+// Renderiza las características JSON como badges
+function renderBadges() {
+  document.querySelectorAll('.caract-badges').forEach(c => {
+    c.innerHTML = '';
+    const raw = c.getAttribute('data-caracteristicas') || '{}';
+    try {
+      const obj = JSON.parse(raw);
+      Object.entries(obj).forEach(([k, v]) => {
+        const span = document.createElement('span');
+        span.className = 'badge rounded-pill text-bg-light';
+        span.textContent = (typeof v === 'object') ? `${k}` : `${v}`;
+        c.appendChild(span);
+      });
+    } catch(e) {
+      const bad = document.createElement('span');
+      bad.className = 'badge rounded-pill text-bg-danger';
+      bad.textContent = 'JSON inválido';
+      c.appendChild(bad);
+    }
+  });
+}
+
+// Precarga modal (editar / nuevo)
 document.addEventListener('show.bs.modal', function (ev) {
   if (ev.target.id !== 'modalForm') return;
   const btn = ev.relatedTarget;
-  if (!btn) return;
-
   const form = document.getElementById('planForm');
   if (!form) return;
 
-  // Si es "Nuevo Plan" (sin data-id), limpiar
-  if (!btn.getAttribute('data-id')) {
+  if (!btn || !btn.getAttribute('data-id')) {
     form.reset();
     form.querySelector('input[name="id"]').value = '';
+    form.querySelector('#planActivo').checked = true;
     return;
   }
-
-  // Precargar datos para edición
   form.querySelector('input[name="id"]').value = btn.getAttribute('data-id') || '';
   form.querySelector('input[name="codigo"]').value = btn.getAttribute('data-codigo') || '';
   form.querySelector('input[name="nombre"]').value = btn.getAttribute('data-nombre') || '';
   form.querySelector('input[name="precioMensual"]').value = btn.getAttribute('data-precio') || '';
-  form.querySelector('textarea[name="caracteristicasJson"]').value = btn.getAttribute('data-caracteristicas') || '';
-  const activo = btn.getAttribute('data-activo') === 'true';
-  const chk = form.querySelector('#planActivo');
-  if (chk) chk.checked = activo;
+  form.querySelector('textarea[name="caracteristicasJson"]').value = btn.getAttribute('data-caracteristicas') || '{}';
+  form.querySelector('#planActivo').checked = (btn.getAttribute('data-activo') === 'true');
 });
 
-// Validación básica de JSON antes de enviar
+// Valida JSON al enviar
 document.addEventListener('DOMContentLoaded', function () {
+  renderBadges();
+
   const form = document.getElementById('planForm');
   if (!form) return;
   form.addEventListener('submit', function (e) {
     const txt = form.querySelector('textarea[name="caracteristicasJson"]').value.trim();
-    try {
-      JSON.parse(txt);
-    } catch (err) {
+    try { JSON.parse(txt); }
+    catch (err) {
       e.preventDefault();
       alert('El campo "Características (JSON)" no contiene un JSON válido.');
     }
   });
+
+  // Mostrar toasts si existen
+  document.querySelectorAll('.toast').forEach(t => new bootstrap.Toast(t).show());
 });
 </script>
 </body>
