@@ -10,7 +10,6 @@ public class AdminDashboardController {
 
     @GetMapping({"", "/"})
     public String dashboard() {
-        // templates/admin/dashboard.html
         return "admin/dashboard";
     }
 }
