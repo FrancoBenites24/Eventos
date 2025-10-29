@@ -1,4 +1,3 @@
-// Evento.java
 package eventos.piura.model;
 
 import eventos.piura.model.enums.EstadoEvento;

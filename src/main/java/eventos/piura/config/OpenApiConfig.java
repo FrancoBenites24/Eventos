@@ -12,9 +12,9 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Eventos Piura API")
+                        .title("Eventia API")
                         .version("1.0")
-                        .description("API para la aplicación de eventos de Piura"));
+                        .description("API para Eventia"));
     }
 
 }

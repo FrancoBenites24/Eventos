@@ -31,10 +31,10 @@ public class CheckoutPagoRequest {
     @Size(max = 19)
     private String tarjetaNumero;
 
-    @Pattern(regexp = "^(0[1-9]|1[0-2])/\\d{2}$", message = "Formato MM/AA")
+    @Pattern(regexp = "^(?:$|(0[1-9]|1[0-2])/\\d{2})$", message = "Formato MM/AA")
     private String tarjetaExpiracion;
 
-    @Pattern(regexp = "^\\d{3,4}$", message = "CVV invalido")
+    @Pattern(regexp = "^(?:$|\\d{3,4})$", message = "CVV invalido")
     private String tarjetaCvv;
 
     @Size(max = 80)

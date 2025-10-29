@@ -1,8 +1,12 @@
 package eventos.piura.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name="wal_tx")
@@ -19,5 +23,7 @@ public class WalletTx extends AuditableEntity {
   @Positive @Column(name="monto_centavos", nullable=false)
   private Integer montoCentavos;
 
-  @Column(columnDefinition="jsonb", nullable=false) private String referencia = "{}";
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(columnDefinition="jsonb", nullable=false)
+  private JsonNode referencia = JsonNodeFactory.instance.objectNode();
 }

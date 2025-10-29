@@ -1,5 +1,7 @@
 package eventos.piura.services.impl;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import eventos.piura.dto.checkout.BoletaItemView;
 import eventos.piura.dto.checkout.BoletaView;
 import eventos.piura.dto.checkout.CheckoutItemView;
@@ -283,7 +285,10 @@ public class CheckoutServiceImpl implements CheckoutService {
         tx.setTipo("DB");
         tx.setConcepto("COMPRA_ENTRADAS");
         tx.setMontoCentavos(totalCentavos);
-        tx.setReferencia("{\"tipo\":\"COMPRA\",\"descripcion\":\"Pago de entradas\"}");
+        ObjectNode referencia = JsonNodeFactory.instance.objectNode();
+        referencia.put("tipo", "COMPRA");
+        referencia.put("descripcion", "Pago de entradas");
+        tx.setReferencia(referencia);
         walletTxRepository.save(tx);
     }
 

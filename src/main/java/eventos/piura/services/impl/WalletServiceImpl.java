@@ -1,5 +1,8 @@
 package eventos.piura.services.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import eventos.piura.dto.PerfilTransaccionView;
 import eventos.piura.dto.checkout.MetodoPagoGuardadoView;
 import eventos.piura.dto.wallet.WalletRecargaRequest;
@@ -25,6 +28,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 import java.util.UUID;
 
 @Service
@@ -35,6 +39,8 @@ public class WalletServiceImpl implements WalletService {
     private static final Locale LOCALE_ES_PE = Locale.forLanguageTag("es-PE");
     private static final DateTimeFormatter TX_FORMATTER =
             DateTimeFormatter.ofPattern("d MMM, HH:mm", LOCALE_ES_PE);
+    private static final Pattern TARJETA_EXP_PATTERN = Pattern.compile("^(0[1-9]|1[0-2])/\\d{2}$");
+    private static final Pattern TARJETA_CVV_PATTERN = Pattern.compile("^\\d{3,4}$");
 
     private final BilleteraRepository billeteraRepository;
     private final WalletTxRepository walletTxRepository;
@@ -115,15 +121,27 @@ public class WalletServiceImpl implements WalletService {
                 }
             }
             case TARJETA -> {
-                if (!StringUtils.hasText(request.getTarjetaCvv())) {
-                    throw new IllegalArgumentException("Debes ingresar el CVV de la tarjeta.");
-                }
                 if (guardado == null) {
-                    if (!StringUtils.hasText(request.getTarjetaNumero())
-                            || !StringUtils.hasText(request.getTarjetaExpiracion())
-                            || !StringUtils.hasText(request.getTarjetaTitular())) {
+                    String numero = request.tarjetaNumeroSanitizado();
+                    String expiracion = request.tarjetaExpiracionSanitizada();
+                    String titular = request.tarjetaTitularSanitizado();
+                    String cvv = request.tarjetaCvvSanitizado();
+                    if (!StringUtils.hasText(numero)
+                            || !StringUtils.hasText(expiracion)
+                            || !StringUtils.hasText(titular)
+                            || !StringUtils.hasText(cvv)) {
                         throw new IllegalArgumentException("Debes completar los datos de la tarjeta.");
                     }
+                    if (!TARJETA_EXP_PATTERN.matcher(expiracion).matches()) {
+                        throw new IllegalArgumentException("La expiración de la tarjeta no es válida.");
+                    }
+                    if (!TARJETA_CVV_PATTERN.matcher(cvv).matches()) {
+                        throw new IllegalArgumentException("El CVV de la tarjeta no es válido.");
+                    }
+                    request.setTarjetaNumero(numero);
+                    request.setTarjetaExpiracion(expiracion);
+                    request.setTarjetaTitular(titular);
+                    request.setTarjetaCvv(cvv);
                 }
             }
             case BILLETERA -> {
@@ -183,29 +201,30 @@ public class WalletServiceImpl implements WalletService {
         );
     }
 
-    private String construirReferencia(MetodoPago metodo,
-                                       WalletRecargaRequest request,
-                                       MetodoPagoGuardado guardado) {
+    private JsonNode construirReferencia(MetodoPago metodo,
+                                         WalletRecargaRequest request,
+                                         MetodoPagoGuardado guardado) {
         String codigo = request.codigoOperacionSanitizado();
         String telefono = request.telefonoSanitizado();
         if (guardado != null) {
             telefono = guardado.getTelefono();
         }
+        ObjectNode node = JsonNodeFactory.instance.objectNode();
+        node.put("metodo", metodo.name());
         return switch (metodo) {
-            case YAPE, PLIN -> String.format(Locale.ROOT,
-                    "{\"metodo\":\"%s\",\"telefono\":\"%s\",\"codigo\":\"%s\"}",
-                    metodo.name(),
-                    telefono != null ? telefono : "",
-                    codigo != null ? codigo : "");
+            case YAPE, PLIN -> {
+                node.put("telefono", telefono != null ? telefono : "");
+                node.put("codigo", codigo != null ? codigo : "");
+                yield node;
+            }
             case TARJETA -> {
                 String identificador = guardado != null && StringUtils.hasText(guardado.getIdentificador())
                         ? guardado.getIdentificador()
                         : ultimosDigitos(request.getTarjetaNumero());
-                yield String.format(Locale.ROOT,
-                        "{\"metodo\":\"TARJETA\",\"ultimos4\":\"%s\"}",
-                        identificador);
+                node.put("ultimos4", identificador);
+                yield node;
             }
-            case BILLETERA -> "{\"metodo\":\"BILLETERA\"}";
+            case BILLETERA -> node;
             default -> throw new IllegalArgumentException("Metodo de pago no soportado: " + metodo);
         };
     }

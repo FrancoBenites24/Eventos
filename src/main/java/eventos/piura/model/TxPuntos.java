@@ -1,4 +1,3 @@
-// TxPuntos.java
 package eventos.piura.model;
 
 import jakarta.persistence.*;

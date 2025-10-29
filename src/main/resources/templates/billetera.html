@@ -85,7 +85,7 @@
 
                         <div class="payment-extra" data-payment-panel="yape">
                             <h6>Pago con Yape</h6>
-                            <div th:with="yapes=${resumen.metodosGuardados() != null ? resumen.metodosGuardados().?[tipo == T(eventos.piura.model.enums.MetodoPago).YAPE] : {}}">
+                            <div th:with="yapes=${resumen.metodosGuardados() != null ? resumen.metodosGuardados().?[tipo != null and tipo.name() == 'YAPE'] : T(java.util.Collections).emptyList()}">
                                 <div class="mb-3" th:if="${!yapes.isEmpty()}">
                                     <label class="form-label">Yapes guardados</label>
                                     <div class="vstack gap-2">
@@ -122,7 +122,7 @@
 
                         <div class="payment-extra" data-payment-panel="plin">
                             <h6>Pago con Plin</h6>
-                            <div th:with="plines=${resumen.metodosGuardados() != null ? resumen.metodosGuardados().?[tipo == T(eventos.piura.model.enums.MetodoPago).PLIN] : {}}">
+                            <div th:with="plines=${resumen.metodosGuardados() != null ? resumen.metodosGuardados().?[tipo != null and tipo.name() == 'PLIN'] : T(java.util.Collections).emptyList()}">
                                 <div class="mb-3" th:if="${!plines.isEmpty()}">
                                     <label class="form-label">Plin guardados</label>
                                     <div class="vstack gap-2">
@@ -159,7 +159,7 @@
 
                         <div class="payment-extra" data-payment-panel="tarjeta">
                             <h6>Pago con tarjeta</h6>
-                            <div th:with="tarjetas=${resumen.metodosGuardados() != null ? resumen.metodosGuardados().?[tipo == T(eventos.piura.model.enums.MetodoPago).TARJETA] : {}}">
+                            <div th:with="tarjetas=${resumen.metodosGuardados() != null ? resumen.metodosGuardados().?[tipo != null and tipo.name() == 'TARJETA'] : T(java.util.Collections).emptyList()}">
                                 <div class="mb-3" th:if="${!tarjetas.isEmpty()}">
                                     <label class="form-label">Tarjetas guardadas</label>
                                     <div class="vstack gap-2">

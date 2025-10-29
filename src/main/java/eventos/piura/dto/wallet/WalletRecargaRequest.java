@@ -33,10 +33,10 @@ public class WalletRecargaRequest {
     @Size(max = 19)
     private String tarjetaNumero;
 
-    @Pattern(regexp = "^(0[1-9]|1[0-2])/\\d{2}$", message = "Formato MM/AA")
+    @Pattern(regexp = "^(?:|(0[1-9]|1[0-2])/\\d{2})$", message = "Formato MM/AA")
     private String tarjetaExpiracion;
 
-    @Pattern(regexp = "^\\d{3,4}$", message = "CVV invalido")
+    @Pattern(regexp = "^(?:|\\d{3,4})$", message = "CVV invalido")
     private String tarjetaCvv;
 
     @Size(max = 80)
@@ -53,5 +53,21 @@ public class WalletRecargaRequest {
 
     public String codigoOperacionSanitizado() {
         return codigoOperacion != null ? codigoOperacion.trim() : null;
+    }
+
+    public String tarjetaExpiracionSanitizada() {
+        return tarjetaExpiracion != null ? tarjetaExpiracion.trim() : null;
+    }
+
+    public String tarjetaCvvSanitizado() {
+        return tarjetaCvv != null ? tarjetaCvv.trim() : null;
+    }
+
+    public String tarjetaTitularSanitizado() {
+        return tarjetaTitular != null ? tarjetaTitular.trim() : null;
+    }
+
+    public String tarjetaNumeroSanitizado() {
+        return tarjetaNumero != null ? tarjetaNumero.trim() : null;
     }
 }
