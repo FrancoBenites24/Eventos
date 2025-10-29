@@ -1,6 +1,7 @@
 // src/main/java/eventos/piura/service/impl/RolServiceImpl.java
 package eventos.piura.service.impl;
 
+import eventos.piura.dto.RolDetalleDto;
 import eventos.piura.dto.RolForm;
 import eventos.piura.model.Permiso;
 import eventos.piura.model.Rol;
@@ -12,7 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -34,6 +39,20 @@ public class RolServiceImpl implements RolService {
   public Rol obtener(UUID id) {
     return rolRepo.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Rol no encontrado."));
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public RolDetalleDto obtenerDetalle(UUID id) {
+    Rol rol = rolRepo.findWithPermisosById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Rol no encontrado."));
+    RolDetalleDto dto = new RolDetalleDto();
+    dto.setId(rol.getId());
+    dto.setNombre(rol.getNombre());
+    dto.setPermisosIds(rol.getPermisos().stream()
+        .map(Permiso::getId)
+        .collect(Collectors.toSet()));
+    return dto;
   }
 
   @Override

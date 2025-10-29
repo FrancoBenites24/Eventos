@@ -1,6 +1,7 @@
 // src/main/java/eventos/piura/controller/admin/RolAdminController.java
 package eventos.piura.controller.admin;
 
+import eventos.piura.dto.RolDetalleDto;
 import eventos.piura.dto.RolForm;
 import eventos.piura.model.Permiso;
 import eventos.piura.model.Rol;
@@ -58,6 +59,12 @@ public class RolAdminController {
       ra.addFlashAttribute("rolForm", form);
     }
     return "redirect:/admin/roles";
+  }
+
+  @GetMapping("/{id}")
+  @ResponseBody
+  public RolDetalleDto detalle(@PathVariable UUID id) {
+    return rolService.obtenerDetalle(id);
   }
 
   @PostMapping("/{id}/eliminar")

@@ -13,8 +13,7 @@
           <h2 class="h5 mb-0">Roles del Sistema</h2>
           <small class="text-muted">Define permisos por rol</small>
         </div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"
-                data-id="" data-nombre="" data-permisos="">
+        <button id="btnNuevoRol" type="button" class="btn btn-primary">
           Nuevo Rol
         </button>
       </div>
@@ -56,18 +55,15 @@
                 <td th:text="${r.usuarioRoles != null ? #lists.size(r.usuarioRoles) : 0}">0</td>
                 <td th:text="${r.permisos != null ? #lists.size(r.permisos) : 0}">0</td>
                 <td th:text="${#temporals.format(r.creadoEn, 'dd/MM/yyyy')}">—</td>
-                <td class="d-flex">
-                  <button class="btn btn-sm btn-outline-secondary me-2"
-                          data-bs-toggle="modal" data-bs-target="#modalForm"
-                          th:attr="data-id=${r.id},
-                                   data-nombre=${r.nombre},
-                                   data-permisos=${r.permisos != null ? #strings.listJoin(r.permisos.![id], ',') : ''}">
-                    ✏️
+                <td class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-secondary btn-editar-rol"
+                          th:attr="data-rol-id=${r.id}">
+                    Editar
                   </button>
                   <form th:action="@{|/admin/roles/${r.id}/eliminar|}" method="post" class="d-inline"
                         onsubmit="return confirm('¿Eliminar rol?');">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
                   </form>
                 </td>
               </tr>
@@ -104,7 +100,7 @@
                 <div class="mb-3">
                   <label class="form-label">Permisos</label>
                   <select class="form-select" multiple th:field="*{permisosIds}">
-                    <option th:each="p: ${permisos}" th:value="${p.id}" th:text="${p.codigo}">PERM</option>
+                    <option th:each="p: ${permisos}" th:value="${p.id}" th:text="${p.nombre}">PERM</option>
                   </select>
                 </div>
               </div>
@@ -126,30 +122,74 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Autodisparar toasts si existen
-  document.querySelectorAll('.toast').forEach(t => new bootstrap.Toast(t).show());
+  const toastEls = document.querySelectorAll('.toast');
+  if (typeof bootstrap !== 'undefined') {
+    toastEls.forEach(el => bootstrap.Toast.getOrCreateInstance(el).show());
+  }
 
-  // Pre-carga del modal para editar
   const modalEl = document.getElementById('modalForm');
-  modalEl.addEventListener('show.bs.modal', (ev) => {
-    const btn = ev.relatedTarget;
-    if (!btn) return;
-    const id = btn.getAttribute('data-id') || '';
-    const nombre = btn.getAttribute('data-nombre') || '';
-    const permisosCsv = btn.getAttribute('data-permisos') || '';
-    const form = modalEl.querySelector('form');
+  if (!modalEl) {
+    return;
+  }
 
-    // Resetea
-    form.reset();
-    form.querySelector('input[name="id"]').value = id;
-    form.querySelector('input[name="nombre"]').value = nombre;
+  if (typeof bootstrap === 'undefined') {
+    console.error('Bootstrap JS no esta disponible, no se pueden gestionar roles.');
+    alert('No se pudo cargar Bootstrap. Actualiza la pagina.');
+    return;
+  }
 
-    // Selecciona permisos en el <select multiple>
-    const select = form.querySelector('select[name="permisosIds"]');
-    const set = new Set(permisosCsv.split(',').filter(Boolean));
-    for (const opt of select.options) {
-      opt.selected = set.has(opt.value);
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+  const form = modalEl.querySelector('form');
+  const idInput = form?.querySelector('input[name="id"]');
+  const nombreInput = form?.querySelector('input[name="nombre"]');
+  const selectPermisos = form?.querySelector('select[name="permisosIds"]');
+  const modalTitle = modalEl.querySelector('.modal-title');
+
+  const resetForm = () => {
+    form?.reset();
+    if (idInput) idInput.value = '';
+    if (selectPermisos) {
+      Array.from(selectPermisos.options).forEach(opt => {
+        opt.selected = false;
+      });
     }
+  };
+
+  const btnNuevo = document.getElementById('btnNuevoRol');
+  btnNuevo?.addEventListener('click', () => {
+    resetForm();
+    if (modalTitle) modalTitle.textContent = 'Nuevo Rol';
+    modal.show();
+  });
+
+  document.querySelectorAll('.btn-editar-rol').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const rolId = btn.getAttribute('data-rol-id');
+      if (!rolId) {
+        return;
+      }
+
+      resetForm();
+      if (modalTitle) modalTitle.textContent = 'Editar Rol';
+
+      try {
+        const resp = await fetch(`/admin/roles/${rolId}`);
+        if (!resp.ok) throw new Error(`Estado ${resp.status}`);
+        const data = await resp.json();
+        if (idInput) idInput.value = data.id || '';
+        if (nombreInput) nombreInput.value = data.nombre || '';
+        if (selectPermisos) {
+          const seleccionados = new Set((data.permisosIds || []).map(String));
+          Array.from(selectPermisos.options).forEach(opt => {
+            opt.selected = seleccionados.has(opt.value);
+          });
+        }
+        modal.show();
+      } catch (err) {
+        console.error('Error cargando rol', err);
+        alert('No fue posible cargar la informacion del rol seleccionado.');
+      }
+    });
   });
 });
 </script>

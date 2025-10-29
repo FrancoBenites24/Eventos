@@ -1,6 +1,7 @@
 // src/main/java/eventos/piura/service/RolService.java
 package eventos.piura.service;
 
+import eventos.piura.dto.RolDetalleDto;
 import eventos.piura.dto.RolForm;
 import eventos.piura.model.Rol;
 
@@ -12,6 +13,8 @@ public interface RolService {
   List<Rol> listarConRelaciones();
 
   Rol obtener(UUID id);
+
+  RolDetalleDto obtenerDetalle(UUID id);
 
   Rol crear(RolForm form);
 

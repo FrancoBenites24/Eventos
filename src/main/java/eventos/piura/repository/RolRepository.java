@@ -17,4 +17,7 @@ public interface RolRepository extends JpaRepository<Rol, UUID> {
   // Para evitar N+1 al listar: traemos permisos y enlaces a usuarios
   @EntityGraph(attributePaths = {"permisos", "usuarioRoles"})
   List<Rol> findAll();
+
+  @EntityGraph(attributePaths = {"permisos"})
+  Optional<Rol> findWithPermisosById(UUID id);
 }
