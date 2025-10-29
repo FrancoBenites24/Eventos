@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <!-- Badge de estado de usuario -->
+    <th:block th:fragment="estado(estado)">
+        <span class="badge rounded-pill fw-semibold" th:text="${estado}"
+            th:classappend=" ${estado=='ACTIVO'}? ' bg-success-subtle text-success' : (${estado=='BLOQUEADO'}? ' bg-warning-subtle text-warning' : ' bg-danger-subtle text-danger')">
+            ACTIVO
+        </span>
+    </th:block>
+</body>
+
+</html>

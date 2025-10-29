@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <!-- KPI genérico -->
+    <th:block th:fragment="statCard(titulo, icono, numero)">
+        <div class="card border-0 rounded-4 shadow-sm h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="icon-pill"><i class="bi" th:classappend=" ${icono}"></i></span>
+                    <div>
+                        <div class="display-6 fw-semibold" th:text="${numero!=null? numero : 0}">0</div>
+                        <div class="text-secondary" th:text="${titulo}">Título</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+
+    <!-- Card de evento del historial -->
+    <th:block th:fragment="eventCard(ev)">
+        <div class="card event-card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+            <img th:if="${ev.imgUrl!=null}" th:src="${ev.imgUrl}" class="event-img" alt="Imagen del evento">
+            <div class="ratio ratio-16x9 bg-soft" th:if="${ev.imgUrl==null}"></div>
+            <div class="card-body">
+                <span class="badge rounded-pill bg-secondary-subtle text-secondary mb-2"
+                    th:text="${ev.categoria?:'General'}">Música</span>
+                <h6 class="fw-semibold" th:text="${ev.titulo}">Título evento</h6>
+                <ul class="list-unstyled small text-secondary mb-0 vstack gap-2">
+                    <li><i class="bi bi-calendar3 me-2 text-cyan"></i><span th:text="${ev.fecha}">15 mar 2025,
+                            15:00</span></li>
+                    <li><i class="bi bi-check2-circle me-2 text-cyan"></i><span
+                            th:text="${'Check-in: ' + (ev.checkIn?:'—')}">Check-in: 15 mar 2025, 14:45</span></li>
+                </ul>
+                <span class="badge rounded-pill ms-1 mt-3 bg-success-subtle text-success fw-semibold">COMPLETADO</span>
+            </div>
+        </div>
+    </th:block>
+</body>
+
+</html>

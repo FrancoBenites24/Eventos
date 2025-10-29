@@ -8,12 +8,16 @@ import eventos.piura.model.Usuario;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    Optional<Usuario> findByUsername(String username);
-    Optional<Usuario> findByEmail(String email);
+public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
+    Optional<Usuario> findByUsernameIgnoreCase(String username);
+    Optional<Usuario> findByCorreoIgnoreCase(String correo);
+    boolean existsByUsernameIgnoreCase(String username);
+    boolean existsByCorreoIgnoreCase(String correo);
+    boolean existsByDni(String dni);
 
-    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.usuarioRoles ur LEFT JOIN FETCH ur.rol WHERE u.username = :username")
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.roles WHERE u.username = :username")
     Optional<Usuario> findByUsernameWithRoles(@Param("username") String username);
 
     //dashboard

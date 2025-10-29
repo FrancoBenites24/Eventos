@@ -1,42 +1,39 @@
 package eventos.piura.model;
 
+import eventos.piura.model.enums.EstadoPago;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "pagos", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "referencia")
-})
-@Data
+@Table(name = "pag_pago")
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class Pago {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Pago extends AuditableEntity {
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "orden_id")
+  private Orden orden;
 
-    @Positive
-    private Double montoTotal;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  private EstadoPago estado = EstadoPago.CREADO;
 
-    @NotBlank
-    @Column(nullable = false, length = 30)
-    private String metodo; // tarjeta, billetera, yape, plin
+  @NotBlank
+  @Size(max = 40)
+  @Column(nullable = false, length = 40)
+  private String proveedor; // YAPE, PLIN, TARJETA, BILLETERA
 
-    @Column(length = 100)
-    private String referencia;
+  @Size(max = 120)
+  @Column(name = "referencia_externa", length = 120)
+  private String referenciaExterna;
 
-    @NotBlank
-    private String estado = "pendiente";
+  @PositiveOrZero
+  @Column(name = "monto_centavos", nullable = false)
+  private Integer montoCentavos;
 
-    @PositiveOrZero
-    private Double comisionPlataforma = 0.0;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
-
-    @Column(name = "creado_en", nullable = false, updatable = false)
-    private LocalDateTime creadoEn = LocalDateTime.now();
+  @NotBlank
+  @Size(max = 10)
+  @Column(nullable = false, length = 10)
+  private String moneda = "PEN";
 }

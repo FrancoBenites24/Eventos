@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="categoryPills(porCat)">
+  <section class="mb-4">
+    <h6 class="fw-semibold mb-3">Explora por categoria</h6>
+    <div class="d-flex flex-wrap gap-2">
+      <a th:each="entry : ${porCat}"
+         href="#"
+         class="pill"
+         th:text="${entry.key != null ? entry.key : 'Categoria'}">Categoria</a>
+    </div>
+  </section>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="offcanvasCart">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCart" aria-labelledby="offcanvasCartLabel">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2" id="offcanvasCartLabel">
+        <i class="bi bi-bag"></i> Mi Carrito
+        <span class="badge bg-dark-subtle text-dark ms-2" data-cart-count th:text="${cart != null} ? ${cart.totalCantidad} : 0">0</span>
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+
+    <div class="offcanvas-body">
+      <div th:if="${cart == null or #lists.isEmpty(cart.items)}" class="text-center text-muted py-5">
+        <i class="bi bi-bag fs-1 d-block mb-2"></i>
+        Tu carrito esta vacio.
+      </div>
+
+      <div th:if="${cart != null and !#lists.isEmpty(cart.items)}" class="vstack gap-3">
+        <div class="d-flex align-items-start gap-3 border rounded-3 p-2"
+             th:each="it : ${cart.items}">
+          <div class="flex-grow-1">
+            <div class="fw-semibold" th:text="${it.titulo}">Evento</div>
+            <div class="small text-muted mb-1" th:text="${it.tipoNombre}">Tipo</div>
+            <div class="small text-muted d-flex align-items-center gap-1 flex-wrap">
+              <span>Cant.: <span th:text="${it.cantidad}">1</span></span>
+              <span>&middot;</span>
+              <span>Precio: S/ <span th:text="${#numbers.formatDecimal(it.precioCentavos / 100.0, 1, 2)}">0.00</span></span>
+            </div>
+            <div class="small">Subtotal: <strong>S/ <span th:text="${#numbers.formatDecimal(it.subtotalCentavos / 100.0, 1, 2)}">0.00</span></strong></div>
+          </div>
+          <button class="btn btn-outline-danger btn-sm ms-auto" type="button"
+                  data-cart-remove th:attr="data-entrada-id=${it.entradaTipoId}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="offcanvas-footer border-top p-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="fw-semibold">Total</span>
+        <span class="fs-5 fw-bold">S/ <span th:text="${cart != null} ? ${#numbers.formatDecimal(cart.totalCentavos / 100.0, 1, 2)} : '0.00'">0.00</span></span>
+      </div>
+      <div class="d-grid gap-2">
+        <a href="/checkout" class="btn btn-teal btn-lg">Ir a pagar</a>
+        <button class="btn btn-outline-secondary w-100" type="button" data-cart-clear>Vaciar carrito</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-teal btn-lg rounded-circle shadow position-fixed fab-cart"
+          type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart">
+    <i class="bi bi-bag"></i>
+    <span class="badge bg-dark-subtle text-dark position-absolute top-0 start-100 translate-middle rounded-pill px-2 small invisible"
+          data-cart-count>0</span>
+  </button>
+</th:block>
+</body>
+</html>

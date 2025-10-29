@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Checkout - Eventia</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+  <link rel="stylesheet" th:href="@{/main.css}">
+</head>
+<body>
+<nav th:replace="fragments/navbar :: navbar"></nav>
+
+<main class="container py-5">
+  <div class="row g-4">
+    <div class="col-12 col-lg-8">
+      <section class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Tus entradas</h5>
+          <span class="badge bg-dark-subtle text-dark" th:text="${#lists.size(resumen.items)} + ' items'">0 items</span>
+        </div>
+        <div class="list-group list-group-flush">
+          <div class="list-group-item" th:each="item : ${resumen.items}">
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+              <div>
+                <h6 class="mb-1" th:text="${item.eventoTitulo()}">Evento</h6>
+                <div class="small text-muted" th:text="${item.tipoNombre()}">Tipo de entrada</div>
+                <div class="small text-muted" th:text="${item.eventoLugar()}">Lugar</div>
+                <div class="small text-muted" th:if="${item.eventoFecha() != null}"
+                     th:text="${#temporals.format(item.eventoFecha(), 'dd MMM yyyy, HH:mm')}">Fecha</div>
+              </div>
+              <div class="ms-md-auto text-md-end">
+                <div class="small">Cantidad: <strong th:text="${item.cantidad()}">1</strong></div>
+                <div class="small">Precio: <strong th:text="${resumen.moneda() + ' ' + #numbers.formatDecimal(item.precioCentavos() / 100.0, 1, 2)}">S/ 0.00</strong></div>
+                <div class="fw-semibold">Subtotal: <span th:text="${resumen.moneda() + ' ' + #numbers.formatDecimal(item.subtotalCentavos() / 100.0, 1, 2)}">S/ 0.00</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="list-group-item text-center py-5" th:if="${#lists.isEmpty(resumen.items)}">
+            <i class="bi bi-bag-x fs-1 mb-2"></i>
+            <p class="mb-2">Tu carrito esta vacio.</p>
+            <a class="btn btn-outline-primary" th:href="@{/eventos}">Explorar eventos</a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <section class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <h6 class="mb-0">Resumen</h6>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span>Subtotal</span>
+            <span th:text="${resumen.moneda() + ' ' + #numbers.formatDecimal(resumen.subtotalCentavos() / 100.0, 1, 2)}">S/ 0.00</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>IGV (18%)</span>
+            <span th:text="${resumen.moneda() + ' ' + #numbers.formatDecimal(resumen.igvCentavos() / 100.0, 1, 2)}">S/ 0.00</span>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="fw-semibold">Total</span>
+            <span class="fw-bold fs-5" th:text="${resumen.moneda() + ' ' + #numbers.formatDecimal(resumen.totalCentavos() / 100.0, 1, 2)}">S/ 0.00</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card shadow-sm">
+        <div class="card-header bg-white">
+          <h6 class="mb-0">Metodo de pago</h6>
+        </div>
+        <div class="card-body">
+          <form th:action="@{/checkout/pagar}" th:object="${pago}" method="post" class="vstack gap-3">
+            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+
+            <div>
+              <label class="form-label">Selecciona un metodo</label>
+              <div class="vstack gap-2">
+                <label class="form-check border rounded-3 p-3" th:each="metodo : ${resumen.metodos}">
+                  <input class="form-check-input"
+                         type="radio"
+                         th:field="*{metodo}"
+                         th:value="${metodo}"
+                         th:data-payment-option="${metodo.name().toLowerCase()}"
+                         required>
+                  <span class="form-check-label ms-2" th:text="${metodo.name()}">Metodo</span>
+                </label>
+              </div>
+              <div class="form-text text-danger" th:if="${#fields.hasErrors('metodo')}" th:errors="*{metodo}"></div>
+            </div>
+
+            <div class="payment-extra" data-payment-panel="yape">
+              <h6>Pago con Yape</h6>
+              <div th:with="yapes=${resumen.metodosGuardados != null ? resumen.metodosGuardados.?[tipo != null and tipo.name() == 'YAPE'] : T(java.util.Collections).emptyList()}">
+                <div class="mb-3" th:if="${!yapes.isEmpty()}">
+                  <label class="form-label">Yapes guardados</label>
+                  <div class="vstack gap-2">
+                    <label class="form-check border rounded-3 p-3" th:each="met : ${yapes}">
+                      <input class="form-check-input"
+                             type="radio"
+                             th:field="*{metodoGuardadoId}"
+                             th:value="${met.id()}"
+                             data-saved-option="yape">
+                      <span class="form-check-label ms-2">
+                        <span class="fw-semibold" th:text="${met.etiqueta()}">Yape</span>
+                        <small class="d-block text-muted" th:text="${met.descripcion()}">Numero guardado</small>
+                      </span>
+                    </label>
+                  </div>
+                  <label class="form-check border rounded-3 p-3">
+                    <input class="form-check-input"
+                           type="radio"
+                           th:field="*{metodoGuardadoId}"
+                           value=""
+                           data-saved-option="yape">
+                    <span class="form-check-label ms-2">Usar un nuevo numero</span>
+                  </label>
+                </div>
+              </div>
+              <div class="mb-2" data-new-fields-for="yape">
+                <label class="form-label">Numero asociado</label>
+                <input type="text" class="form-control" th:field="*{telefono}">
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Codigo o referencia</label>
+                <input type="text" class="form-control" th:field="*{codigoOperacion}">
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('codigoOperacion')}" th:errors="*{codigoOperacion}"></div>
+              </div>
+            </div>
+
+            <div class="payment-extra" data-payment-panel="plin">
+              <h6>Pago con Plin</h6>
+              <div th:with="plines=${resumen.metodosGuardados != null ? resumen.metodosGuardados.?[tipo != null and tipo.name() == 'PLIN'] : T(java.util.Collections).emptyList()}">
+                <div class="mb-3" th:if="${!plines.isEmpty()}">
+                  <label class="form-label">Plin guardados</label>
+                  <div class="vstack gap-2">
+                    <label class="form-check border rounded-3 p-3" th:each="met : ${plines}">
+                      <input class="form-check-input"
+                             type="radio"
+                             th:field="*{metodoGuardadoId}"
+                             th:value="${met.id()}"
+                             data-saved-option="plin">
+                      <span class="form-check-label ms-2">
+                        <span class="fw-semibold" th:text="${met.etiqueta()}">Plin</span>
+                        <small class="d-block text-muted" th:text="${met.descripcion()}">Numero guardado</small>
+                      </span>
+                    </label>
+                  </div>
+                  <label class="form-check border rounded-3 p-3">
+                    <input class="form-check-input"
+                           type="radio"
+                           th:field="*{metodoGuardadoId}"
+                           value=""
+                           data-saved-option="plin">
+                    <span class="form-check-label ms-2">Usar un nuevo numero</span>
+                  </label>
+                </div>
+              </div>
+              <div class="mb-2" data-new-fields-for="plin">
+                <label class="form-label">Numero asociado</label>
+                <input type="text" class="form-control" th:field="*{telefono}">
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Codigo o referencia</label>
+                <input type="text" class="form-control" th:field="*{codigoOperacion}">
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('codigoOperacion')}" th:errors="*{codigoOperacion}"></div>
+              </div>
+            </div>
+
+            <div class="payment-extra" data-payment-panel="tarjeta">
+              <h6>Pago con tarjeta</h6>
+              <div th:with="tarjetas=${resumen.metodosGuardados != null ? resumen.metodosGuardados.?[tipo != null and tipo.name() == 'TARJETA'] : T(java.util.Collections).emptyList()}">
+                <div class="mb-3" th:if="${!tarjetas.isEmpty()}">
+                  <label class="form-label">Tarjetas guardadas</label>
+                  <div class="vstack gap-2">
+                    <label class="form-check border rounded-3 p-3" th:each="met : ${tarjetas}">
+                      <input class="form-check-input"
+                             type="radio"
+                             th:field="*{metodoGuardadoId}"
+                             th:value="${met.id()}"
+                             data-saved-option="tarjeta">
+                      <span class="form-check-label ms-2">
+                        <span class="fw-semibold" th:text="${met.etiqueta()}">Tarjeta guardada</span>
+                        <small class="d-block text-muted" th:text="${met.descripcion()}">Detalle</small>
+                      </span>
+                    </label>
+                  </div>
+                  <label class="form-check border rounded-3 p-3">
+                    <input class="form-check-input"
+                           type="radio"
+                           th:field="*{metodoGuardadoId}"
+                           value=""
+                           data-saved-option="tarjeta">
+                    <span class="form-check-label ms-2">Usar una nueva tarjeta</span>
+                  </label>
+                </div>
+              </div>
+              <div class="mb-2" data-new-fields-for="tarjeta">
+                <label class="form-label">Numero de tarjeta</label>
+                <input type="text" class="form-control" placeholder="4111 1111 1111 1111" th:field="*{tarjetaNumero}">
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('tarjetaNumero')}" th:errors="*{tarjetaNumero}"></div>
+              </div>
+              <div class="row g-2">
+                <div class="col" data-new-fields-for="tarjeta">
+                  <label class="form-label">Expiracion (MM/AA)</label>
+                  <input type="text" class="form-control" placeholder="08/28" th:field="*{tarjetaExpiracion}">
+                  <div class="form-text text-danger" th:if="${#fields.hasErrors('tarjetaExpiracion')}" th:errors="*{tarjetaExpiracion}"></div>
+                </div>
+                <div class="col">
+                  <label class="form-label">CVV</label>
+                  <input type="text" class="form-control" placeholder="123" th:field="*{tarjetaCvv}">
+                  <div class="form-text text-danger" th:if="${#fields.hasErrors('tarjetaCvv')}" th:errors="*{tarjetaCvv}"></div>
+                </div>
+              </div>
+              <div class="mb-2" data-new-fields-for="tarjeta">
+                <label class="form-label">Titular</label>
+                <input type="text" class="form-control" th:field="*{tarjetaTitular}">
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('tarjetaTitular')}" th:errors="*{tarjetaTitular}"></div>
+              </div>
+            </div>
+
+            <div class="border rounded-3 p-3 bg-light-subtle d-none" data-save-section>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" th:field="*{guardarMetodo}" id="guardarMetodo" data-save-checkbox>
+                <label class="form-check-label" for="guardarMetodo">Guardar este metodo para proximos pagos</label>
+              </div>
+              <div class="mb-2 d-none" data-alias-wrapper>
+                <label class="form-label" for="aliasMetodo">Alias (opcional)</label>
+                <input type="text" class="form-control" th:field="*{aliasMetodo}" id="aliasMetodo" data-alias-input>
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('aliasMetodo')}" th:errors="*{aliasMetodo}"></div>
+              </div>
+              <div class="small text-muted" data-save-hint></div>
+            </div>
+
+            <div class="payment-extra" data-payment-panel="billetera">
+              <h6>Billetera digital</h6>
+              <div class="alert alert-info mb-2">
+                <div th:if="${resumen.saldoBilleteraCentavos() != null}">
+                  Saldo disponible:
+                  <strong th:text="${#strings.concat(resumen.moneda(), ' ', #numbers.formatDecimal(resumen.saldoBilleteraCentavos() / 100.0, 1, 2))}">S/ 0.00</strong>
+                </div>
+                <div th:if="${resumen.saldoBilleteraCentavos() == null}">
+                  Aun no activas tu billetera digital.
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label">Nombre completo</label>
+              <input type="text" class="form-control" th:field="*{nombreCompleto}">
+              <div class="form-text text-danger" th:if="${#fields.hasErrors('nombreCompleto')}" th:errors="*{nombreCompleto}"></div>
+            </div>
+
+            <div>
+              <label class="form-label">Correo electronico</label>
+              <input type="email" class="form-control" th:field="*{correoElectronico}">
+              <div class="form-text text-danger" th:if="${#fields.hasErrors('correoElectronico')}" th:errors="*{correoElectronico}"></div>
+            </div>
+
+            <div class="d-grid gap-2 mt-2">
+              <button type="submit" class="btn btn-teal btn-lg">Pagar</button>
+              <a th:href="@{/eventos}" class="btn btn-outline-secondary btn-sm">Seguir comprando</a>
+            </div>
+
+            <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}">
+              <span th:each="err : ${#fields.globalErrors()}" th:text="${err}">Error</span>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  (() => {
+    const methodRadios = document.querySelectorAll('[data-payment-option]');
+    const panels = document.querySelectorAll('.payment-extra');
+    const saveSection = document.querySelector('[data-save-section]');
+    const saveCheckbox = document.querySelector('[data-save-checkbox]');
+    const aliasWrapper = document.querySelector('[data-alias-wrapper]');
+    const aliasInput = document.querySelector('[data-alias-input]');
+    const saveHint = document.querySelector('[data-save-hint]');
+    const hints = {
+      tarjeta: 'Guardaremos la tarjeta para que no tengas que ingresarla nuevamente.',
+      yape: 'Guardaremos este numero para futuros pagos con Yape.',
+      plin: 'Guardaremos este numero para futuros pagos con Plin.'
+    };
+
+    function getSavedRadios(method) {
+      if (!method) {
+        return [];
+      }
+      return document.querySelectorAll('[data-saved-option="' + method + '"]');
+    }
+
+    function isNewSelection(method) {
+      const radios = Array.from(getSavedRadios(method));
+      if (radios.length === 0) {
+        return true;
+      }
+      const checked = radios.find(r => r.checked);
+      return !checked || !checked.value;
+    }
+
+    function updateNewFields(method) {
+      if (!method) {
+        updateSaveSection(null, false);
+        return;
+      }
+      const showNew = isNewSelection(method);
+      document.querySelectorAll('[data-new-fields-for="' + method + '"]').forEach(block => {
+        block.classList.toggle('d-none', !showNew);
+      });
+      updateSaveSection(method, showNew);
+    }
+
+    function resetSavedSelection(method) {
+      const radios = Array.from(getSavedRadios(method));
+      if (radios.length === 0) {
+        updateNewFields(method);
+        return;
+      }
+      const alreadyChecked = radios.some(r => r.checked);
+      if (!alreadyChecked) {
+        const newOption = radios.find(r => !r.value);
+        if (newOption) {
+          newOption.checked = true;
+        }
+      }
+      updateNewFields(method);
+    }
+
+    function updateSaveSection(method, canSave) {
+      if (!saveSection || !saveCheckbox) {
+        return;
+      }
+      const applicable = canSave && ['tarjeta', 'yape', 'plin'].includes(method);
+      saveSection.classList.toggle('d-none', !applicable);
+      if (!applicable) {
+        saveCheckbox.checked = false;
+        toggleAliasVisibility();
+        return;
+      }
+      if (saveHint) {
+        saveHint.textContent = hints[method] || '';
+      }
+      toggleAliasVisibility();
+    }
+
+    function toggleAliasVisibility() {
+      if (!aliasWrapper || !saveCheckbox) {
+        return;
+      }
+      const visible = saveCheckbox.checked && !saveSection.classList.contains('d-none');
+      aliasWrapper.classList.toggle('d-none', !visible);
+      if (!visible && aliasInput) {
+        aliasInput.value = '';
+      }
+    }
+
+    function togglePanels() {
+      const selected = document.querySelector('[data-payment-option]:checked');
+      const option = selected ? selected.dataset.paymentOption : null;
+      panels.forEach(panel => {
+        panel.classList.toggle('d-none', panel.dataset.paymentPanel !== option);
+      });
+      if (option) {
+        resetSavedSelection(option);
+      } else {
+        updateSaveSection(null, false);
+      }
+    }
+
+    Array.from(document.querySelectorAll('[data-saved-option]')).forEach(radio => {
+      radio.addEventListener('change', () => {
+        const method = radio.dataset.savedOption;
+        updateNewFields(method);
+      });
+    });
+
+    methodRadios.forEach(radio => radio.addEventListener('change', togglePanels));
+    if (saveCheckbox) {
+      saveCheckbox.addEventListener('change', toggleAliasVisibility);
+    }
+
+    togglePanels();
+  })();
+</script>
+</body>
+</html>
+

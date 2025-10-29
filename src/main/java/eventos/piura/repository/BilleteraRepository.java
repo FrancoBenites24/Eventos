@@ -2,11 +2,10 @@ package eventos.piura.repository;
 
 import eventos.piura.model.Billetera;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
-@Repository
-public interface BilleteraRepository extends JpaRepository<Billetera, Long> {
-    Optional<Billetera> findByUsuarioId(Long usuarioId);
+public interface BilleteraRepository extends JpaRepository<Billetera, UUID> {
+    Optional<Billetera> findByUsuarioId(UUID usuarioId);
 }

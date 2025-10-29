@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centro de eventos - Nuevo evento</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" th:href="@{/css/organizador.css}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body class="organizer-body">
+<div class="organizer-layout">
+  <div th:replace="~{organizador/fragments/sidebar :: sidebar('eventos')}"></div>
+
+  <div class="organizer-main">
+    <div th:replace="~{organizador/fragments/topbar :: topbar(${usuario})}"></div>
+
+    <section class="organizer-content">
+      <header class="org-page-title">
+        <div>
+          <h1>Crear nuevo evento</h1>
+          <p>Completa la información del evento y publica cuando estés listo.</p>
+        </div>
+        <a class="org-btn-outline" th:href="@{/organizador/eventos}">
+          <i class="bi bi-arrow-left"></i> Volver al listado
+        </a>
+      </header>
+
+      <article class="org-card">
+        <form th:action="@{/organizador/eventos}" th:object="${form}" method="post" enctype="multipart/form-data" class="vstack gap-4">
+          <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+
+          <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger mb-0">
+            <span th:each="err : ${#fields.globalErrors()}" th:text="${err}">Error</span>
+          </div>
+
+          <section>
+            <h5 class="mb-3">Información general</h5>
+            <div class="row g-3">
+              <div class="col-12 col-lg-8">
+                <label class="org-label">Título del evento<span class="text-danger">*</span></label>
+                <input type="text" class="form-control org-form-control"
+                       th:field="*{titulo}"
+                       th:classappend="${#fields.hasErrors('titulo')} ? ' is-invalid'">
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}">Requerido</div>
+              </div>
+              <div class="col-12 col-lg-4">
+                <label class="org-label">Categoría</label>
+                <select class="form-select org-form-control"
+                        th:field="*{categoriaId}"
+                        th:classappend="${#fields.hasErrors('categoriaId')} ? ' is-invalid'">
+                  <option value="">Selecciona una categoría</option>
+                  <option th:each="cat : ${categorias}"
+                          th:value="${cat.id}"
+                          th:text="${cat.nombre}"></option>
+                </select>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('categoriaId')}" th:errors="*{categoriaId}"></div>
+              </div>
+              <div class="col-12">
+                <label class="org-label">Descripción</label>
+                <textarea rows="4" class="form-control org-form-control"
+                          th:field="*{descripcion}"
+                          placeholder="Cuenta la historia del evento, artistas, actividades..."></textarea>
+              </div>
+              <div class="col-12">
+                <label class="org-label">Imagenes del evento</label>
+                <input type="file" class="form-control org-form-control"
+                       id="imagenes"
+                       name="imagenes"
+                       accept="image/*"
+                       multiple
+                       th:classappend="${#fields.hasErrors('imagenes')} ? ' is-invalid'">
+                <div class="form-text">Puedes subir hasta 5 imagenes en formato JPG, PNG, GIF o WEBP.</div>
+                <div class="invalid-feedback"
+                     th:if="${#fields.hasErrors('imagenes')}"
+                     th:text="${#fields.errors('imagenes')[0]}"></div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h5 class="mb-3">Fechas y horarios</h5>
+            <div class="row g-3">
+              <div class="col-sm-6 col-lg-3">
+                <label class="org-label">Inicio (fecha)<span class="text-danger">*</span></label>
+                <input type="date" class="form-control org-form-control"
+                       th:field="*{inicioFecha}"
+                       th:classappend="${#fields.hasErrors('inicioFecha')} ? ' is-invalid'">
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('inicioFecha')}" th:errors="*{inicioFecha}"></div>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <label class="org-label">Inicio (hora)<span class="text-danger">*</span></label>
+                <input type="time" class="form-control org-form-control"
+                       th:field="*{inicioHora}"
+                       th:classappend="${#fields.hasErrors('inicioHora')} ? ' is-invalid'">
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('inicioHora')}" th:errors="*{inicioHora}"></div>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <label class="org-label">Fin (fecha)<span class="text-danger">*</span></label>
+                <input type="date" class="form-control org-form-control"
+                       th:field="*{finFecha}"
+                       th:classappend="${#fields.hasErrors('finFecha')} ? ' is-invalid'">
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('finFecha')}" th:errors="*{finFecha}"></div>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <label class="org-label">Fin (hora)<span class="text-danger">*</span></label>
+                <input type="time" class="form-control org-form-control"
+                       th:field="*{finHora}"
+                       th:classappend="${#fields.hasErrors('finHora')} ? ' is-invalid'">
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('finHora')}" th:errors="*{finHora}"></div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h5 class="mb-3">Ubicación</h5>
+            <p class="text-muted small mb-3">
+              Arrastra el marcador o haz clic en el mapa para actualizar automáticamente la dirección.
+              Puedes ajustar los campos manualmente si lo necesitas.
+            </p>
+            <div class="ratio ratio-16x9 rounded-4 overflow-hidden mb-3 border">
+              <div id="eventMap"></div>
+            </div>
+            <div class="row g-3">
+              <div class="col-12 col-lg-6">
+                <label class="org-label">Dirección</label>
+                <input type="text" class="form-control org-form-control" th:field="*{direccion}">
+              </div>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <label class="org-label">Distrito</label>
+                <input type="text" class="form-control org-form-control" th:field="*{distrito}">
+              </div>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <label class="org-label">Provincia</label>
+                <input type="text" class="form-control org-form-control" th:field="*{provincia}">
+              </div>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <label class="org-label">Departamento</label>
+                <input type="text" class="form-control org-form-control" th:field="*{departamento}">
+              </div>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <label class="org-label">País</label>
+                <input type="text" class="form-control org-form-control" th:field="*{pais}">
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <label class="org-label">Latitud</label>
+                <input type="number" step="any" class="form-control org-form-control" th:field="*{latitud}">
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <label class="org-label">Longitud</label>
+                <input type="number" step="any" class="form-control org-form-control" th:field="*{longitud}">
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">Tipos de entrada<span class="text-danger">*</span></h5>
+              <div class="d-flex gap-2">
+                <button type="button" class="org-btn-outline" id="addEntradaBtn">
+                  <i class="bi bi-plus-circle"></i> Añadir tipo
+                </button>
+              </div>
+            </div>
+
+            <div class="alert alert-info small" th:if="${#fields.hasErrors('entradas')}">
+              <span th:errors="*{entradas}">Complete los datos de entradas.</span>
+            </div>
+
+            <div id="entradasContainer" class="vstack gap-3">
+              <div class="entrada-item border rounded-4 p-3" data-entry-row
+                   th:each="entrada,stat : *{entradas}">
+                <div class="row g-3 align-items-end">
+                  <div class="col-12 col-md-3">
+                    <label class="org-label">Tipo de catálogo<span class="text-danger">*</span></label>
+                    <select class="form-select org-form-control"
+                            th:field="*{entradas[__${stat.index}__].tipoCatalogoId}"
+                            th:classappend="${#fields.hasErrors('entradas[' + stat.index + '].tipoCatalogoId')} ? ' is-invalid'">
+                      <option value="">Selecciona un tipo</option>
+                      <option th:each="tipo : ${tiposEntrada}" th:value="${tipo.id}" th:text="${tipo.nombre}"></option>
+                    </select>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('entradas[' + stat.index + '].tipoCatalogoId')}"
+                         th:errors="*{entradas[__${stat.index}__].tipoCatalogoId}"></div>
+                  </div>
+                  <div class="col-12 col-md-3">
+                    <label class="org-label">Nombre visible<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control org-form-control"
+                           th:field="*{entradas[__${stat.index}__].nombreVisible}"
+                           th:classappend="${#fields.hasErrors('entradas[' + stat.index + '].nombreVisible')} ? ' is-invalid'">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('entradas[' + stat.index + '].nombreVisible')}"
+                         th:errors="*{entradas[__${stat.index}__].nombreVisible}"></div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <label class="org-label">Precio (S/)<span class="text-danger">*</span></label>
+                    <input type="number" min="0" step="0.01" class="form-control org-form-control"
+                           th:field="*{entradas[__${stat.index}__].precio}"
+                           th:classappend="${#fields.hasErrors('entradas[' + stat.index + '].precio')} ? ' is-invalid'">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('entradas[' + stat.index + '].precio')}"
+                         th:errors="*{entradas[__${stat.index}__].precio}"></div>
+                  </div>
+                  <div class="col-6 col-md-2">
+                    <label class="org-label">Cupo<span class="text-danger">*</span></label>
+                    <input type="number" min="1" step="1" class="form-control org-form-control"
+                           th:field="*{entradas[__${stat.index}__].cupo}"
+                           th:classappend="${#fields.hasErrors('entradas[' + stat.index + '].cupo')} ? ' is-invalid'">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('entradas[' + stat.index + '].cupo')}"
+                         th:errors="*{entradas[__${stat.index}__].cupo}"></div>
+                  </div>
+                  <div class="col-12 col-md-1 d-flex justify-content-md-end">
+                    <button type="button" class="btn btn-outline-danger w-100"
+                            data-remove-entry
+                            th:if="${#lists.size(form.entradas) > 1}">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" th:field="*{publicar}" id="publicarEvento">
+              <label class="form-check-label" for="publicarEvento">
+                Publicar evento inmediatamente después de guardar
+              </label>
+            </div>
+            <div class="d-flex gap-2">
+              <a class="org-btn-outline" th:href="@{/organizador/eventos}">
+                Cancelar
+              </a>
+              <button class="org-btn-teal" type="submit">
+                <i class="bi bi-check-circle"></i> Guardar evento
+              </button>
+            </div>
+          </section>
+        </form>
+      </article>
+    </section>
+  </div>
+</div>
+
+<template id="entradaTemplate">
+  <div class="entrada-item border rounded-4 p-3" data-entry-row>
+    <div class="row g-3 align-items-end">
+      <div class="col-12 col-md-3">
+        <label class="org-label">Tipo de catálogo<span class="text-danger">*</span></label>
+        <select class="form-select org-form-control" data-field="tipoCatalogoId" required>
+          <option value="">Selecciona un tipo</option>
+          <option th:each="tipo : ${tiposEntrada}" th:value="${tipo.id}" th:text="${tipo.nombre}"></option>
+        </select>
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="org-label">Nombre visible<span class="text-danger">*</span></label>
+        <input type="text" class="form-control org-form-control" data-field="nombreVisible" required>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="org-label">Precio (S/)<span class="text-danger">*</span></label>
+        <input type="number" min="0" step="0.01" class="form-control org-form-control" data-field="precio" value="0">
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="org-label">Cupo<span class="text-danger">*</span></label>
+        <input type="number" min="1" step="1" class="form-control org-form-control" data-field="cupo" value="100">
+      </div>
+      <div class="col-12 col-md-1 d-flex justify-content-md-end">
+        <button type="button" class="btn btn-outline-danger w-100" data-remove-entry>
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(() => {
+  const mapElement = document.getElementById('eventMap');
+  if (!mapElement) return;
+
+  const latInput = document.getElementById('latitud');
+  const lngInput = document.getElementById('longitud');
+  const direccionInput = document.getElementById('direccion');
+  const distritoInput = document.getElementById('distrito');
+  const provinciaInput = document.getElementById('provincia');
+  const departamentoInput = document.getElementById('departamento');
+  const paisInput = document.getElementById('pais');
+
+  const defaultLat = parseFloat(latInput?.value) || -5.178289;
+  const defaultLng = parseFloat(lngInput?.value) || -80.654888;
+
+  const map = L.map('eventMap').setView([defaultLat, defaultLng], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  const marker = L.marker([defaultLat, defaultLng], {draggable: true}).addTo(map);
+
+  function updatePosition(lat, lng, skipReverse) {
+    if (latInput) latInput.value = lat.toFixed(6);
+    if (lngInput) lngInput.value = lng.toFixed(6);
+    if (!skipReverse) {
+      reverseGeocode(lat, lng);
+    }
+  }
+
+  function reverseGeocode(lat, lng) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+    fetch(url, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
+      .then(resp => resp.ok ? resp.json() : null)
+      .then(data => {
+        if (!data || !data.address) return;
+        const addr = data.address;
+        if (direccionInput && (!direccionInput.value || direccionInput.value.trim() === '')) {
+          direccionInput.value = data.display_name || '';
+        }
+        if (distritoInput) distritoInput.value = addr.suburb || addr.district || addr.city_district || distritoInput.value;
+        if (provinciaInput) provinciaInput.value = addr.province || addr.county || provinciaInput.value;
+        if (departamentoInput) departamentoInput.value = addr.state || departamentoInput.value;
+        if (paisInput) paisInput.value = addr.country || paisInput.value;
+      })
+      .catch(() => {});
+  }
+
+  marker.on('dragend', (ev) => {
+    const {lat, lng} = ev.target.getLatLng();
+    updatePosition(lat, lng);
+  });
+
+  map.on('click', (ev) => {
+    marker.setLatLng(ev.latlng);
+    updatePosition(ev.latlng.lat, ev.latlng.lng);
+  });
+
+  updatePosition(defaultLat, defaultLng, true);
+})();
+
+(() => {
+  const container = document.getElementById('entradasContainer');
+  const template = document.getElementById('entradaTemplate');
+  const addBtn = document.getElementById('addEntradaBtn');
+  if (!container || !template) return;
+
+  function assignNames(row, index) {
+    row.querySelectorAll('[data-field]').forEach(input => {
+      const field = input.dataset.field;
+      input.name = `entradas[${index}].${field}`;
+      input.id = `entradas_${index}_${field}`;
+      if (field === 'precio' && !input.value) input.value = '0';
+      if (field === 'cupo' && !input.value) input.value = '100';
+    });
+    row.dataset.entryRow = index;
+  }
+
+  function refreshRemoveButtons() {
+    const rows = container.querySelectorAll('[data-entry-row]');
+    rows.forEach(row => {
+      const removeBtn = row.querySelector('[data-remove-entry]');
+      if (!removeBtn) return;
+      removeBtn.disabled = rows.length <= 1;
+    });
+  }
+
+  addBtn?.addEventListener('click', () => {
+    const index = container.querySelectorAll('[data-entry-row]').length;
+    const clone = template.content.firstElementChild.cloneNode(true);
+    assignNames(clone, index);
+    container.appendChild(clone);
+    refreshRemoveButtons();
+  });
+
+  container.addEventListener('click', (event) => {
+    const target = event.target.closest('[data-remove-entry]');
+    if (!target) return;
+    const row = target.closest('[data-entry-row]');
+    const rows = container.querySelectorAll('[data-entry-row]');
+    if (rows.length <= 1) return;
+    row.remove();
+    // Reasignar nombres
+    Array.from(container.querySelectorAll('[data-entry-row]')).forEach((currentRow, idx) => {
+      currentRow.querySelectorAll('[data-field]').forEach(input => {
+        const field = input.dataset.field;
+        input.name = `entradas[${idx}].${field}`;
+        input.id = `entradas_${idx}_${field}`;
+      });
+    });
+    refreshRemoveButtons();
+  });
+
+  refreshRemoveButtons();
+})();
+</script>
+</body>
+</html>

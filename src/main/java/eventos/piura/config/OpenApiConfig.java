@@ -5,10 +5,6 @@ import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import eventos.piura.services.BilleteraService;
-import eventos.piura.services.EventoService;
-import eventos.piura.services.PerfilService;
-
 @Configuration
 public class OpenApiConfig {
 
@@ -16,23 +12,9 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Eventos Piura API")
+                        .title("Eventia API")
                         .version("1.0")
-                        .description("API para la aplicación de eventos de Piura"));
+                        .description("API para Eventia"));
     }
 
-    @Bean
-    public BilleteraService billeteraService() {
-        return new BilleteraService();
-    }
-    
-    @Bean
-    public EventoService eventoService() {
-        return new EventoService();
-    }
-    
-    @Bean
-    public PerfilService perfilService() {
-        return new PerfilService();
-    }
 }
