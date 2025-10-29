@@ -42,109 +42,125 @@
 
         <div th:class="${tabActiva == null || tabActiva == 'perfil'} ? 'org-form-grid' : 'org-form-grid d-none'"
              data-org-content="perfil">
-          <div class="d-flex align-items-center gap-3 flex-wrap">
-            <div class="org-avatar" style="width:64px;height:64px;border-radius:22px;font-size:1.3rem;" th:text="${perfil.iniciales}">AN</div>
-            <div>
-              <h5 class="mb-1">Informacion personal</h5>
-              <p class="text-muted small mb-2">Actualiza la informacion de perfil y detalles personales</p>
-              <button class="org-btn-outline" type="button"><i class="bi bi-upload"></i> Cambiar foto</button>
+          <form method="post" th:action="@{/organizador/configuracion/perfil}" enctype="multipart/form-data">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <div class="org-avatar" style="width:64px;height:64px;border-radius:22px;font-size:1.3rem;" th:text="${perfil.iniciales}">AN</div>
+              <div>
+                <h5 class="mb-1">Informacion personal</h5>
+                <p class="text-muted small mb-2">Actualiza la informacion de perfil y detalles personales</p>
+                <label class="org-btn-outline mb-0" style="cursor:pointer;">
+                  <i class="bi bi-upload"></i> Cambiar foto
+                  <input type="file" name="foto" accept="image/*" style="display:none;">
+                </label>
+              </div>
             </div>
-          </div>
 
-          <div class="org-form-grid two">
-            <div>
-              <label class="org-label">Nombre</label>
-              <input type="text" class="form-control org-form-control" th:value="${perfil.nombre}">
+            <div class="org-form-grid two mt-3">
+              <div>
+                <label class="org-label">Nombre</label>
+                <input name="nombre" type="text" class="form-control org-form-control" th:value="${perfil.nombre}">
+              </div>
+              <div>
+                <label class="org-label">Apellido</label>
+                <input name="apellido" type="text" class="form-control org-form-control" th:value="${perfil.apellido}">
+              </div>
+              <div>
+                <label class="org-label">Correo electronico</label>
+                <input name="correo" type="email" class="form-control org-form-control" th:value="${perfil.correo}">
+              </div>
+              <div>
+                <label class="org-label">Telefono</label>
+                <input name="telefono" type="tel" class="form-control org-form-control" th:value="${perfil.telefono}">
+              </div>
             </div>
-            <div>
-              <label class="org-label">Apellido</label>
-              <input type="text" class="form-control org-form-control" th:value="${perfil.apellido}">
-            </div>
-            <div>
-              <label class="org-label">Correo electronico</label>
-              <input type="email" class="form-control org-form-control" th:value="${perfil.correo}">
-            </div>
-            <div>
-              <label class="org-label">Telefono</label>
-              <input type="tel" class="form-control org-form-control" th:value="${perfil.telefono}">
-            </div>
-          </div>
 
-          <div>
-            <label class="org-label">Biografia</label>
-            <textarea rows="4" class="form-control org-form-control" th:text="${perfil.bio}"></textarea>
-          </div>
+            <div class="mt-3">
+              <label class="org-label">Biografia</label>
+              <textarea name="bio" rows="4" class="form-control org-form-control" th:text="${perfil.bio}"></textarea>
+            </div>
 
-          <div class="org-card-footer">
-            <button class="org-btn-outline" type="button">Cancelar</button>
-            <button class="org-btn-teal" type="button">
-              <i class="bi bi-save"></i> Guardar cambios
-            </button>
-          </div>
+            <div class="org-card-footer mt-3">
+              <a class="org-btn-outline" th:href="@{/organizador/configuracion?tab=perfil}">Cancelar</a>
+              <button class="org-btn-teal" type="submit">
+                <i class="bi bi-save"></i> Guardar cambios
+              </button>
+            </div>
+          </form>
         </div>
 
         <div th:class="${tabActiva == 'organizacion'} ? 'org-form-grid d-grid' : 'org-form-grid d-none'"
              data-org-content="organizacion">
-          <div>
-            <h5 class="mb-1">Detalles de la organizacion</h5>
-            <p class="text-muted small mb-3">Configura la informacion de tu empresa u organizacion</p>
-          </div>
-          <div class="org-form-grid two">
+          <form method="post" th:action="@{/organizador/configuracion/organizacion}" enctype="multipart/form-data">
             <div>
-              <label class="org-label">Nombre de la organizacion</label>
-              <input type="text" class="form-control org-form-control" th:value="${organizacion.nombre}">
+              <h5 class="mb-1">Detalles de la organizacion</h5>
+              <p class="text-muted small mb-3">Configura la informacion de tu empresa u organizacion</p>
             </div>
-            <div>
-              <label class="org-label">Sitio web</label>
-              <input type="text" class="form-control org-form-control" th:value="${organizacion.web}">
+            <div class="org-form-grid two">
+              <div>
+                <label class="org-label">Nombre de la organizacion</label>
+                <input name="nombre" type="text" class="form-control org-form-control" th:value="${organizacion.nombre}">
+              </div>
+              <div>
+                <label class="org-label">Sitio web</label>
+                <input name="web" type="text" class="form-control org-form-control" th:value="${organizacion.web}">
+              </div>
+              <div>
+                <label class="org-label">Correo corporativo</label>
+                <input name="correoOrg" type="email" class="form-control org-form-control" th:value="${organizacion.correo}">
+              </div>
+              <div>
+                <label class="org-label">Telefono</label>
+                <input name="telefonoOrg" type="tel" class="form-control org-form-control" th:value="${organizacion.telefono}">
+              </div>
+              <div class="col-12">
+                <label class="org-label">Direccion</label>
+                <input name="direccion" type="text" class="form-control org-form-control" th:value="${organizacion.direccion}">
+              </div>
+              <div>
+                <label class="org-label">RUC</label>
+                <input name="ruc" type="text" class="form-control org-form-control" th:value="${organizacion.ruc}">
+              </div>
             </div>
-            <div>
-              <label class="org-label">Correo corporativo</label>
-              <input type="email" class="form-control org-form-control" th:value="${organizacion.correo}">
+            <div class="mt-3">
+              <label class="org-label">Logo</label>
+              <input name="logo" type="file" accept="image/*" class="form-control org-form-control">
             </div>
-            <div>
-              <label class="org-label">Telefono</label>
-              <input type="tel" class="form-control org-form-control" th:value="${organizacion.telefono}">
+            <div class="org-card-footer">
+              <a class="org-btn-outline" th:href="@{/organizador/configuracion?tab=organizacion}">Descartar</a>
+              <button class="org-btn-teal" type="submit">
+                <i class="bi bi-save"></i> Guardar cambios
+              </button>
             </div>
-            <div class="col-12">
-              <label class="org-label">Direccion</label>
-              <input type="text" class="form-control org-form-control" th:value="${organizacion.direccion}">
-            </div>
-            <div>
-              <label class="org-label">RUC</label>
-              <input type="text" class="form-control org-form-control" th:value="${organizacion.ruc}">
-            </div>
-          </div>
-          <div class="org-card-footer">
-            <button class="org-btn-outline" type="button">Descartar</button>
-            <button class="org-btn-teal" type="button">
-              <i class="bi bi-save"></i> Guardar cambios
-            </button>
-          </div>
+          </form>
         </div>
 
-        <div th:class="${tabActiva == 'notificaciones'} ? 'org-form-grid d-grid' : 'org-form-grid d-none'"
-             data-org-content="notificaciones">
+     <div th:class="${tabActiva == 'notificaciones'} ? 'org-form-grid d-grid' : 'org-form-grid d-none'"
+       data-org-content="notificaciones">
           <div>
             <h5 class="mb-1">Preferencias de notificacion</h5>
             <p class="text-muted small mb-3">Elige como quieres recibir novedades de tus eventos</p>
           </div>
-          <div class="d-grid gap-3">
-            <label class="d-flex justify-content-between align-items-center p-3 rounded-4 border" th:each="noti : ${notificaciones}">
-              <div>
-                <span class="fw-semibold" th:text="${noti.titulo}">Ventas diarias</span>
-                <p class="text-muted small mb-0" th:text="${noti.descripcion}">Recibe un resumen con las ventas del dia</p>
-              </div>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch"
-                       th:checked="${noti.activo}">
-              </div>
-            </label>
-          </div>
+            <div class="d-grid gap-3">
+              <label class="d-flex justify-content-between align-items-center p-3 rounded-4 border" th:each="noti : ${notificaciones}">
+                <div>
+                  <span class="fw-semibold" th:text="${noti.titulo}">Ventas diarias</span>
+                  <p class="text-muted small mb-0" th:text="${noti.mensaje}">Recibe un resumen con las ventas del dia</p>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                  <form th:action="@{'/organizador/configuracion/notificaciones/' + ${noti.id} + '/toggle'}" method="post" style="display:inline">
+                    <button class="org-btn-outline" type="submit" th:text="${noti.activo} ? 'Desactivar' : 'Activar'"></button>
+                  </form>
+                  <form th:action="@{'/organizador/configuracion/notificaciones/' + ${noti.id} + '/delete'}" method="post" style="display:inline">
+                    <button class="org-btn-outline text-danger" type="submit">Eliminar</button>
+                  </form>
+                </div>
+              </label>
+            </div>
         </div>
 
         <div th:class="${tabActiva == 'seguridad'} ? 'org-form-grid d-grid' : 'org-form-grid d-none'"
              data-org-content="seguridad">
+          <form method="post" th:action="@{/organizador/configuracion/seguridad/password}">
           <div>
             <h5 class="mb-1">Seguridad de la cuenta</h5>
             <p class="text-muted small mb-3">Administra la seguridad y privacidad de tu cuenta</p>
@@ -152,15 +168,15 @@
           <div class="org-form-grid two">
             <div>
               <label class="org-label">Contrasena actual</label>
-              <input type="password" class="form-control org-form-control" value="">
+              <input name="actual" type="password" class="form-control org-form-control" value="">
             </div>
             <div>
               <label class="org-label">Nueva contrasena</label>
-              <input type="password" class="form-control org-form-control" value="">
+              <input name="nueva" type="password" class="form-control org-form-control" value="">
             </div>
             <div>
               <label class="org-label">Confirmar contrasena</label>
-              <input type="password" class="form-control org-form-control" value="">
+              <input name="confirmacion" type="password" class="form-control org-form-control" value="">
             </div>
           </div>
           <div class="border rounded-4 p-3 d-flex justify-content-between align-items-center">
@@ -183,10 +199,11 @@
             </div>
           </div>
           <div class="org-card-footer">
-            <button class="org-btn-teal" type="button">
+            <button class="org-btn-teal" type="submit">
               <i class="bi bi-shield-lock"></i> Actualizar contrasena
             </button>
           </div>
+          </form>
         </div>
 
         <div th:class="${tabActiva == 'facturacion'} ? 'org-form-grid d-grid' : 'org-form-grid d-none'"
@@ -231,10 +248,22 @@
                 </div>
                 <div class="d-flex align-items-center gap-3">
                   <span class="fw-semibold" th:text="${item.monto}">$49.00</span>
-                  <a href="#" class="org-btn-outline"><i class="bi bi-file-earmark-arrow-down"></i> Factura</a>
+                  <a th:if="${item.archivoPath != null}" th:href="@{'/organizador/facturacion/factura/' + ${#strings.substring(item.archivoPath, item.archivoPath.lastIndexOf('/')+1)}}" class="org-btn-outline"><i class="bi bi-file-earmark-arrow-down"></i> Factura</a>
+                  <span th:if="${item.archivoPath == null}" class="text-muted small">Sin archivo</span>
                 </div>
               </div>
             </div>
+            <form method="post" th:action="@{/organizador/configuracion/facturacion/factura}" enctype="multipart/form-data" class="mt-3 d-grid gap-2">
+              <div class="org-form-grid two">
+                <input name="periodo" placeholder="Periodo (Ej. Enero 2025)" class="form-control">
+                <input name="monto" placeholder="Monto" class="form-control">
+                <input name="estado" placeholder="Estado (Pagado/Pendiente)" class="form-control">
+                <input name="archivo" type="file" accept="application/pdf" class="form-control">
+              </div>
+              <div class="d-flex gap-2">
+                <button class="org-btn-outline" type="submit"><i class="bi bi-upload"></i> Subir factura</button>
+              </div>
+            </form>
           </div>
         </div>
       </article>

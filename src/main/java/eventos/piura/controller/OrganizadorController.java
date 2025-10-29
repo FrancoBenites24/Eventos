@@ -24,6 +24,17 @@ import eventos.piura.repository.TipoEntradaCatalogoRepository;
 import eventos.piura.repository.UsuarioRepository;
 import eventos.piura.services.EventoImagenService;
 import eventos.piura.services.OrganizadorEventoService;
+import eventos.piura.services.OrganizadorConfigService;
+import eventos.piura.dto.organizador.OrganizacionDTO;
+import eventos.piura.dto.organizador.NotificationDTO;
+import eventos.piura.dto.organizador.PaymentMethodDTO;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,7 +43,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.validation.BindingResult;
@@ -83,6 +93,8 @@ public class OrganizadorController {
     private final TipoEntradaCatalogoRepository tipoEntradaCatalogoRepository;
     private final UsuarioViewMapper usuarioViewMapper;
     private final EventoImagenService eventoImagenService;
+    private final OrganizadorConfigService organizadorConfigService;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model, Authentication authentication) {
@@ -272,16 +284,286 @@ public class OrganizadorController {
         organizacion.put("ruc", "");
         model.addAttribute("organizacion", organizacion);
 
-        model.addAttribute("notificaciones", Collections.emptyList());
+        try {
+            List<NotificationDTO> notifs = organizadorConfigService.readNotificaciones(usuario.getId());
+            model.addAttribute("notificaciones", notifs);
+        } catch (Exception ex) {
+            model.addAttribute("notificaciones", Collections.emptyList());
+        }
         model.addAttribute("seguridad", Map.of("sesiones", Collections.emptyList()));
 
         Map<String, Object> facturacion = new HashMap<>();
         facturacion.put("plan", null);
-        facturacion.put("metodos", Collections.emptyList());
-        facturacion.put("historial", Collections.emptyList());
+        try {
+            List<PaymentMethodDTO> metodos = organizadorConfigService.readMetodosPago(usuario.getId());
+            facturacion.put("metodos", metodos);
+        } catch (Exception ex) {
+            facturacion.put("metodos", Collections.emptyList());
+        }
+        try {
+            List<eventos.piura.dto.organizador.FacturaDTO> facturas = organizadorConfigService.readFacturas(usuario.getId());
+            facturacion.put("historial", facturas);
+        } catch (Exception ex) {
+            facturacion.put("historial", Collections.emptyList());
+        }
         model.addAttribute("facturacion", facturacion);
 
         return "organizador/configuracion";
+    }
+
+    @PostMapping(value = "/configuracion/perfil")
+    public String guardarPerfil(@RequestParam String nombre,
+                                @RequestParam String apellido,
+                                @RequestParam String correo,
+                                @RequestParam(required = false) String telefono,
+                                @RequestParam(required = false) String bio,
+                                @RequestParam(required = false) MultipartFile foto,
+                                Authentication authentication,
+                                RedirectAttributes redirectAttributes) {
+        Usuario usuario = obtenerUsuario(authentication);
+        usuario.setNombre(nombre != null ? nombre.trim() : usuario.getNombre());
+        usuario.setApellido(apellido != null ? apellido.trim() : usuario.getApellido());
+        usuario.setCorreo(correo != null ? correo.trim().toLowerCase() : usuario.getCorreo());
+        usuario.setTelefono(telefono != null ? telefono.trim() : usuario.getTelefono());
+        usuarioRepository.save(usuario);
+
+        PerfilOrganizador perfil = perfilOrganizadorRepository.findByUsuarioId(usuario.getId()).orElseGet(() -> {
+            PerfilOrganizador p = new PerfilOrganizador();
+            p.setUsuario(usuario);
+            p.setNombrePublico(usuario.getNombre() + " " + usuario.getApellido());
+            return p;
+        });
+        perfil.setBiografia(bio);
+        perfilOrganizadorRepository.save(perfil);
+
+        try {
+            if (foto != null && !foto.isEmpty()) {
+                var opt = organizadorConfigService.guardarImagenPerfil(usuario.getId(), foto.getOriginalFilename(), foto.getBytes());
+                if (opt.isPresent()) {
+                    OrganizacionDTO org = organizadorConfigService.readOrganizacion(usuario.getId()).orElse(new OrganizacionDTO());
+                    // Usamos logoPath del JSON para almacenar la foto de perfil si no hay otro campo
+                    org.setLogoPath(opt.get());
+                    organizadorConfigService.writeOrganizacion(usuario.getId(), org);
+                }
+            }
+
+            NotificationDTO n = new NotificationDTO();
+            n.setId(java.util.UUID.randomUUID().toString());
+            n.setTipo("perfil");
+            n.setTitulo("Perfil actualizado");
+            n.setMensaje("Tu perfil ha sido actualizado correctamente.");
+            n.setDescripcion(n.getMensaje());
+            organizadorConfigService.pushNotificacion(usuario.getId(), n);
+        } catch (Exception ex) {
+            // no bloquear guardado en DB por errores de archivo
+        }
+
+        redirectAttributes.addFlashAttribute("successMessage", "Perfil guardado correctamente.");
+        return "redirect:/organizador/configuracion?tab=perfil";
+    }
+
+    @PostMapping(value = "/configuracion/organizacion")
+    public String guardarOrganizacion(@RequestParam String nombre,
+                                      @RequestParam(required = false) String ruc,
+                                      @RequestParam(required = false) String direccion,
+                                      @RequestParam(required = false) String correoOrg,
+                                      @RequestParam(required = false) String telefonoOrg,
+                                      @RequestParam(required = false) MultipartFile logo,
+                                      Authentication authentication,
+                                      RedirectAttributes redirectAttributes) {
+        Usuario usuario = obtenerUsuario(authentication);
+        OrganizacionDTO org = new OrganizacionDTO();
+        org.setNombre(nombre != null ? nombre.trim() : "");
+        org.setRuc(ruc != null ? ruc.trim() : "");
+        org.setDireccion(direccion != null ? direccion.trim() : "");
+        org.setCorreo(correoOrg != null ? correoOrg.trim() : usuario.getCorreo());
+        org.setTelefono(telefonoOrg != null ? telefonoOrg.trim() : usuario.getTelefono());
+
+        try {
+            if (logo != null && !logo.isEmpty()) {
+                var opt = organizadorConfigService.guardarImagenPerfil(usuario.getId(), logo.getOriginalFilename(), logo.getBytes());
+                opt.ifPresent(org::setLogoPath);
+            }
+            organizadorConfigService.writeOrganizacion(usuario.getId(), org);
+
+            NotificationDTO n = new NotificationDTO();
+            n.setId(java.util.UUID.randomUUID().toString());
+            n.setTipo("organizacion");
+            n.setTitulo("Organización actualizada");
+            n.setMensaje("Los datos de tu organización han sido guardados.");
+            n.setDescripcion(n.getMensaje());
+            organizadorConfigService.pushNotificacion(usuario.getId(), n);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No se pudo guardar la organización (error de archivos).");
+            return "redirect:/organizador/configuracion?tab=organizacion";
+        }
+
+        redirectAttributes.addFlashAttribute("successMessage", "Organización guardada correctamente.");
+        return "redirect:/organizador/configuracion?tab=organizacion";
+    }
+
+    @PostMapping(value = "/configuracion/seguridad/password")
+    public String cambiarPassword(@RequestParam String actual,
+                                  @RequestParam String nueva,
+                                  @RequestParam String confirmacion,
+                                  Authentication authentication,
+                                  RedirectAttributes redirectAttributes) {
+        Usuario usuario = obtenerUsuario(authentication);
+        if (!passwordEncoder.matches(actual, usuario.getContrasenaHash())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "La contraseña actual es incorrecta.");
+            return "redirect:/organizador/configuracion?tab=seguridad";
+        }
+        if (!nueva.equals(confirmacion)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "La nueva contraseña y la confirmación no coinciden.");
+            return "redirect:/organizador/configuracion?tab=seguridad";
+        }
+        if (nueva.length() < 8 || !nueva.matches(".*[A-Z].*") || !nueva.matches(".*[^A-Za-z0-9].*")) {
+            redirectAttributes.addFlashAttribute("errorMessage", "La contraseña debe tener al menos 8 caracteres, una mayúscula y un símbolo.");
+            return "redirect:/organizador/configuracion?tab=seguridad";
+        }
+        usuario.setContrasenaHash(passwordEncoder.encode(nueva));
+        usuarioRepository.save(usuario);
+        try {
+            NotificationDTO n = new NotificationDTO();
+            n.setId(java.util.UUID.randomUUID().toString());
+            n.setTipo("seguridad");
+            n.setTitulo("Contraseña cambiada");
+            n.setMensaje("Tu contraseña ha sido actualizada exitosamente.");
+            n.setDescripcion(n.getMensaje());
+            organizadorConfigService.pushNotificacion(usuario.getId(), n);
+        } catch (Exception ex) {
+            // ignore
+        }
+
+        redirectAttributes.addFlashAttribute("successMessage", "Contraseña actualizada.");
+        return "redirect:/organizador/configuracion?tab=seguridad";
+    }
+
+    @PostMapping(value = "/configuracion/facturacion/metodo")
+    public String agregarMetodoPago(@RequestParam String tipo,
+                                    @RequestParam String descripcion,
+                                    Authentication authentication,
+                                    RedirectAttributes redirectAttributes) {
+        Usuario usuario = obtenerUsuario(authentication);
+        PaymentMethodDTO metodo = new PaymentMethodDTO();
+        metodo.setTipo(tipo);
+        metodo.setDescripcion(descripcion);
+        // datos enmascarados: simple placeholder
+        metodo.setDatosEnmascarados("guardado_safe");
+        try {
+            organizadorConfigService.addMetodoPago(usuario.getId(), metodo);
+            NotificationDTO n = new NotificationDTO();
+            n.setId(java.util.UUID.randomUUID().toString());
+            n.setTipo("facturacion");
+            n.setTitulo("Método de pago agregado");
+            n.setMensaje("Se añadió un nuevo método de pago.");
+            n.setDescripcion(n.getMensaje());
+            organizadorConfigService.pushNotificacion(usuario.getId(), n);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No se pudo guardar el método de pago.");
+            return "redirect:/organizador/configuracion?tab=facturacion";
+        }
+        redirectAttributes.addFlashAttribute("successMessage", "Método de pago agregado.");
+        return "redirect:/organizador/configuracion?tab=facturacion";
+    }
+
+    @PostMapping(value = "/configuracion/facturacion/factura")
+    public String subirFactura(@RequestParam String periodo,
+                               @RequestParam String monto,
+                               @RequestParam String estado,
+                               @RequestParam(required = false) MultipartFile archivo,
+                               Authentication authentication,
+                               RedirectAttributes redirectAttributes) {
+        Usuario usuario = obtenerUsuario(authentication);
+        eventos.piura.dto.organizador.FacturaDTO factura = new eventos.piura.dto.organizador.FacturaDTO();
+        factura.setId(java.util.UUID.randomUUID().toString());
+        factura.setPeriodo(periodo);
+        factura.setEstado(estado);
+        factura.setMonto(monto);
+        factura.setCreadoEn(java.time.LocalDate.now());
+        try {
+            if (archivo != null && !archivo.isEmpty()) {
+                var opt = organizadorConfigService.guardarFacturaFile(usuario.getId(), archivo.getOriginalFilename(), archivo.getBytes());
+                opt.ifPresent(factura::setArchivoPath);
+            }
+            organizadorConfigService.addFactura(usuario.getId(), factura);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No se pudo subir la factura.");
+            return "redirect:/organizador/configuracion?tab=facturacion";
+        }
+        redirectAttributes.addFlashAttribute("successMessage", "Factura agregada al historial.");
+        return "redirect:/organizador/configuracion?tab=facturacion";
+    }
+
+    @GetMapping("/facturacion/factura/{filename:.+}")
+    public ResponseEntity<byte[]> servirFactura(@PathVariable String filename, Authentication authentication) {
+        try {
+            Usuario usuario = obtenerUsuario(authentication);
+            java.nio.file.Path p = java.nio.file.Paths.get("data", "organizadores").resolve(usuario.getId().toString()).resolve("invoices").resolve(filename);
+            if (!java.nio.file.Files.exists(p)) {
+                return ResponseEntity.notFound().build();
+            }
+            String contentType = java.nio.file.Files.probeContentType(p);
+            byte[] bytes = java.nio.file.Files.readAllBytes(p);
+            return ResponseEntity.ok().contentType(org.springframework.http.MediaType.parseMediaType(contentType != null ? contentType : org.springframework.http.MediaType.APPLICATION_PDF_VALUE)).body(bytes);
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/configuracion/notificaciones/json")
+    public ResponseEntity<List<NotificationDTO>> notificacionesJson(Authentication authentication) {
+        try {
+            Usuario usuario = obtenerUsuario(authentication);
+            List<NotificationDTO> list = organizadorConfigService.readNotificaciones(usuario.getId());
+            return ResponseEntity.ok(list);
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/configuracion/notificaciones/{id}/toggle")
+    public String toggleNotificacion(@PathVariable String id, Authentication authentication, RedirectAttributes redirectAttributes) {
+        Usuario usuario = obtenerUsuario(authentication);
+        try {
+            List<NotificationDTO> list = organizadorConfigService.readNotificaciones(usuario.getId());
+            for (NotificationDTO n : list) {
+                if (n.getId().equals(id)) {
+                    n.setActivo(n.getActivo() == null ? Boolean.FALSE : !n.getActivo());
+                    organizadorConfigService.updateNotificacion(usuario.getId(), n);
+                    break;
+                }
+            }
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No se pudo actualizar la notificación.");
+        }
+        return "redirect:/organizador/configuracion?tab=notificaciones";
+    }
+
+    @PostMapping("/configuracion/notificaciones/{id}/delete")
+    public String deleteNotificacionAction(@PathVariable String id, Authentication authentication, RedirectAttributes redirectAttributes) {
+        Usuario usuario = obtenerUsuario(authentication);
+        try {
+            organizadorConfigService.deleteNotificacion(usuario.getId(), id);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No se pudo eliminar la notificación.");
+        }
+        return "redirect:/organizador/configuracion?tab=notificaciones";
+    }
+
+    @GetMapping("/imagen/{filename:.+}")
+    public ResponseEntity<byte[]> servirImagen(@PathVariable String filename) {
+        try {
+            java.nio.file.Path p = java.nio.file.Paths.get("data", "imagenes").resolve(filename);
+            if (!java.nio.file.Files.exists(p)) {
+                return ResponseEntity.notFound().build();
+            }
+            String contentType = java.nio.file.Files.probeContentType(p);
+            byte[] bytes = java.nio.file.Files.readAllBytes(p);
+            return ResponseEntity.ok().contentType(org.springframework.http.MediaType.parseMediaType(contentType != null ? contentType : org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE)).body(bytes);
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/analitica")
