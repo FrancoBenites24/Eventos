@@ -19,8 +19,8 @@
     <section class="organizer-content">
       <header class="org-page-title">
         <div>
-          <h1>Crear nuevo evento</h1>
-          <p>Completa la información del evento y publica cuando estés listo.</p>
+          <h1 th:text="${modoEdicion} ? 'Editar evento' : 'Crear nuevo evento'">Crear nuevo evento</h1>
+          <p th:text="${modoEdicion} ? 'Actualiza la información del evento y publica los cambios.' : 'Completa la información del evento y publica cuando estés listo.'">Completa la información del evento y publica cuando estés listo.</p>
         </div>
         <a class="org-btn-outline" th:href="@{/organizador/eventos}">
           <i class="bi bi-arrow-left"></i> Volver al listado
@@ -28,8 +28,13 @@
       </header>
 
       <article class="org-card">
-        <form th:action="@{/organizador/eventos}" th:object="${form}" method="post" enctype="multipart/form-data" class="vstack gap-4">
+        <form th:action="${modoEdicion} ? @{/organizador/eventos/{id}(id=${eventoId})} : @{/organizador/eventos}"
+              th:object="${form}"
+              method="post"
+              enctype="multipart/form-data"
+              class="vstack gap-4">
           <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+          <input th:if="${modoEdicion}" type="hidden" name="_method" value="put"/>
 
           <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger mb-0">
             <span th:each="err : ${#fields.globalErrors()}" th:text="${err}">Error</span>
@@ -235,7 +240,8 @@
                 Cancelar
               </a>
               <button class="org-btn-teal" type="submit">
-                <i class="bi bi-check-circle"></i> Guardar evento
+                <i class="bi bi-check-circle"></i>
+                <span th:text="${modoEdicion} ? 'Actualizar evento' : 'Guardar evento'">Guardar evento</span>
               </button>
             </div>
           </section>

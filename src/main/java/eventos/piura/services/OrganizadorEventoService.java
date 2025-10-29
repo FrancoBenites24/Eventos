@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,6 +41,30 @@ public class OrganizadorEventoService {
     @Transactional
     public UUID crearEvento(Usuario organizador, @Valid NuevoEventoForm form) {
         Evento evento = new Evento();
+        aplicarDatosEvento(evento, organizador, form, true);
+        Evento guardado = eventoRepository.save(evento);
+        return guardado.getId();
+    }
+
+    @Transactional
+    public void actualizarEvento(UUID eventoId, Usuario organizador, @Valid NuevoEventoForm form) {
+        Evento evento = eventoRepository.findByIdAndOrganizadorId(eventoId, organizador.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado para el organizador actual."));
+        boolean actualizarImagenes = contieneArchivos(form.getImagenes());
+        aplicarDatosEvento(evento, organizador, form, actualizarImagenes);
+    }
+
+    @Transactional
+    public void eliminarEvento(UUID eventoId, UUID organizadorId) {
+        Evento evento = eventoRepository.findByIdAndOrganizadorId(eventoId, organizadorId)
+                .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado para el organizador actual."));
+        eventoRepository.delete(evento);
+    }
+
+    private void aplicarDatosEvento(Evento evento,
+                                    Usuario organizador,
+                                    NuevoEventoForm form,
+                                    boolean actualizarImagenes) {
         evento.setOrganizador(organizador);
         evento.setTitulo(form.getTitulo().trim());
         evento.setDescripcion(trimToNull(form.getDescripcion()));
@@ -49,10 +74,9 @@ public class OrganizadorEventoService {
         asignarCategoria(form, evento);
         asignarEstado(form, evento);
         asignarTiposEntrada(form, evento);
-        eventoImagenService.asignarImagenes(evento, form.getImagenes());
-
-        Evento guardado = eventoRepository.save(evento);
-        return guardado.getId();
+        if (actualizarImagenes) {
+            eventoImagenService.asignarImagenes(evento, form.getImagenes());
+        }
     }
 
     private void asignarFechas(NuevoEventoForm form, Evento evento) {
@@ -124,6 +148,13 @@ public class OrganizadorEventoService {
     private Integer toCentavos(Double precio) {
         BigDecimal monto = BigDecimal.valueOf(Optional.ofNullable(precio).orElse(0.0d));
         return monto.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.HALF_UP).intValueExact();
+    }
+
+    private boolean contieneArchivos(List<MultipartFile> archivos) {
+        if (archivos == null || archivos.isEmpty()) {
+            return false;
+        }
+        return archivos.stream().anyMatch(file -> file != null && !file.isEmpty());
     }
 
     private String trimToNull(String valor) {
