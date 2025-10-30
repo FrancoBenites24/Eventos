@@ -14,7 +14,7 @@ public class WalletTx extends AuditableEntity {
 
   @Column(length=10, nullable=false) private String tipo; // CR/DB
   @NotBlank @Size(max=40) @Column(nullable=false, length=40)
-  private String concepto; // VENTA_ENTRADA, CASHIN, CASHOUT, AJUSTE, COMISION_PLATAFORMA
+  private String concepto; 
 
   @Positive @Column(name="monto_centavos", nullable=false)
   private Integer montoCentavos;
