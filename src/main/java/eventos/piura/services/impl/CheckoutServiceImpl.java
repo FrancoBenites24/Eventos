@@ -8,6 +8,7 @@ import eventos.piura.dto.checkout.CheckoutItemView;
 import eventos.piura.dto.checkout.CheckoutPagoRequest;
 import eventos.piura.dto.checkout.CheckoutResumenView;
 import eventos.piura.dto.checkout.MetodoPagoGuardadoView;
+import eventos.piura.dto.checkout.TicketDigitalView;
 import eventos.piura.model.Billetera;
 import eventos.piura.model.Evento;
 import eventos.piura.model.EventoEntradaTipo;
@@ -16,9 +17,11 @@ import eventos.piura.model.MetodoPagoGuardado;
 import eventos.piura.model.OrdenItem;
 import eventos.piura.model.Usuario;
 import eventos.piura.model.WalletTx;
+import eventos.piura.model.BoletoEntrada;
 import eventos.piura.model.enums.EstadoOrden;
 import eventos.piura.model.enums.MetodoPago;
 import eventos.piura.repository.BilleteraRepository;
+import eventos.piura.repository.BoletoEntradaRepository;
 import eventos.piura.repository.EventoEntradaTipoRepository;
 import eventos.piura.repository.EventoRepository;
 import eventos.piura.repository.OrdenRepository;
@@ -26,8 +29,11 @@ import eventos.piura.repository.WalletTxRepository;
 import eventos.piura.services.CarritoService;
 import eventos.piura.services.CheckoutService;
 import eventos.piura.services.MetodoPagoGuardadoService;
+import eventos.piura.services.ConfirmacionCompraService;
 import eventos.piura.services.carrito.CarritoSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +41,7 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -48,9 +55,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class CheckoutServiceImpl implements CheckoutService {
 
     private static final BigDecimal IGV_PORCENTAJE = new BigDecimal("0.18");
+    private static final SecureRandom TICKET_RANDOM = new SecureRandom();
 
     private final EventoRepository eventoRepository;
     private final EventoEntradaTipoRepository eventoEntradaTipoRepository;
@@ -60,6 +69,8 @@ public class CheckoutServiceImpl implements CheckoutService {
     private final BilleteraRepository billeteraRepository;
     private final WalletTxRepository walletTxRepository;
     private final MetodoPagoGuardadoService metodoPagoGuardadoService;
+    private final BoletoEntradaRepository boletoEntradaRepository;
+    private final ObjectProvider<ConfirmacionCompraService> confirmacionCompraServiceProvider;
 
     @Value("${app.currency:PEN}")
     private String currency;
@@ -156,6 +167,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         }
 
         List<BoletaItemView> boletaItems = new ArrayList<>();
+        List<BoletoEntrada> boletosGenerados = new ArrayList<>();
         for (Map.Entry<UUID, List<CarritoSession.CarritoSessionItem>> entry : itemsPorEvento.entrySet()) {
             UUID eventoId = entry.getKey();
             Evento evento = eventos.get(eventoId);
@@ -200,13 +212,18 @@ public class CheckoutServiceImpl implements CheckoutService {
             orden.setDescuentoCentavos(0);
             orden.setTotalCentavos(subtotalOrden + calcularIgv(subtotalOrden));
 
-            ordenRepository.save(orden);
+            orden = ordenRepository.save(orden);
+
+            List<BoletoEntrada> boletosOrden = generarBoletosParaOrden(orden, request);
+            if (!boletosOrden.isEmpty()) {
+                boletosGenerados.addAll(boletoEntradaRepository.saveAll(boletosOrden));
+            }
         }
 
         carritoService.limpiar();
         guardarMetodoSiCorresponde(usuario, request, metodo, metodoGuardado);
 
-        return new BoletaView(
+        BoletaView boleta = new BoletaView(
                 generarCodigoBoleta(),
                 request.getNombreCompleto(),
                 request.getCorreoElectronico(),
@@ -219,6 +236,71 @@ public class CheckoutServiceImpl implements CheckoutService {
                 currencySymbol(),
                 OffsetDateTime.now()
         );
+
+        confirmacionCompraServiceProvider.ifAvailable(servicio -> {
+            try {
+                List<TicketDigitalView> tickets = construirTicketsDigitales(boletosGenerados, boleta);
+                servicio.enviarConfirmacion(usuario, request, boleta, tickets);
+            } catch (Exception ex) {
+                log.error("Fallo al preparar la confirmacion de compra para el usuario {}", usuario.getCorreo(), ex);
+            }
+        });
+
+        return boleta;
+    }
+
+    private List<BoletoEntrada> generarBoletosParaOrden(Orden orden, CheckoutPagoRequest request) {
+        List<BoletoEntrada> boletos = new ArrayList<>();
+        for (OrdenItem item : orden.getItems()) {
+            for (int i = 0; i < item.getCantidad(); i++) {
+                BoletoEntrada boleto = new BoletoEntrada();
+                boleto.setOrden(orden);
+                boleto.setOrdenItem(item);
+                boleto.setNombreTitular(request.getNombreCompleto());
+                boleto.setCorreoDestino(request.getCorreoElectronico());
+                boleto.setCodigo(generarCodigoTicket());
+                boleto.setQrPayload(construirPayloadTicket(boleto, item));
+                boletos.add(boleto);
+            }
+        }
+        return boletos;
+    }
+
+    private List<TicketDigitalView> construirTicketsDigitales(List<BoletoEntrada> boletos, BoletaView boleta) {
+        List<TicketDigitalView> tickets = new ArrayList<>();
+        for (BoletoEntrada boleto : boletos) {
+            Orden orden = boleto.getOrden();
+            Evento evento = orden.getEvento();
+            String lugar = formatearLugar(evento);
+            EventoEntradaTipo tipo = boleto.getOrdenItem().getTipoDeEvento();
+            tickets.add(new TicketDigitalView(
+                    boleto.getId(),
+                    boleto.getCodigo(),
+                    boleto.getNombreTitular(),
+                    evento.getTitulo(),
+                    evento.getInicioEn(),
+                    lugar,
+                    tipo.getNombreVisible(),
+                    boleto.getQrPayload(),
+                    orden.getId(),
+                    boleto.getOrdenItem().getId(),
+                    boleta.codigo()
+            ));
+        }
+        return tickets;
+    }
+
+    private String generarCodigoTicket() {
+        String alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        StringBuilder builder = new StringBuilder(10);
+        for (int i = 0; i < 10; i++) {
+            builder.append(alfabeto.charAt(TICKET_RANDOM.nextInt(alfabeto.length())));
+        }
+        return builder.toString();
+    }
+
+    private String construirPayloadTicket(BoletoEntrada boleto, OrdenItem item) {
+        return "EVT|" + boleto.getCodigo() + "|" + boleto.getOrden().getId() + "|" + item.getId();
     }
 
     private MetodoPagoGuardado validarMedioPago(Usuario usuario, CheckoutPagoRequest request) {
@@ -409,3 +491,4 @@ public class CheckoutServiceImpl implements CheckoutService {
         return "BOL-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT);
     }
 }
+
