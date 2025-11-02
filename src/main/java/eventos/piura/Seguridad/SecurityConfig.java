@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .map(usuario -> User.builder()
                         .username(usuario.getUsername())
                         .password(usuario.getContrasenaHash())
+                        .disabled(!usuario.isCorreoVerificado())
                         .roles(usuario.getRoles().stream()
                                 .map(Rol::getNombre)
                                 .toArray(String[]::new))

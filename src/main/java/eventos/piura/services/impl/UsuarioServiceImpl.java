@@ -1,15 +1,16 @@
 package eventos.piura.services.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import eventos.piura.dto.RegistroUsuarioRequest;
 import eventos.piura.model.Rol;
 import eventos.piura.model.Usuario;
 import eventos.piura.repository.RolRepository;
 import eventos.piura.repository.UsuarioRepository;
 import eventos.piura.services.UsuarioService;
+import eventos.piura.services.VerificacionCorreoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -22,9 +23,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private RolRepository rolRepository;
 
+    @Autowired
+    private VerificacionCorreoService verificacionCorreoService;
+
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
+    @Transactional
     public Usuario registrar(RegistroUsuarioRequest request) {
         // Trim de campos de texto para eliminar espacios en blanco
         request.setNombre(request.getNombre().trim());
@@ -80,12 +85,17 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new IllegalStateException("Rol USER no encontrado en la base de datos"));
         usuario.getRoles().add(rolUsuario);
 
-        return usuarioRepository.save(usuario);
+        Usuario guardado = usuarioRepository.save(usuario);
+
+        verificacionCorreoService.crearSolicitudVerificacion(guardado);
+
+        return guardado;
     }
 
     @Override
     public Optional<Usuario> login(String username, String rawPassword) {
         return usuarioRepository.findByUsernameIgnoreCase(username)
+                .filter(u -> u.isCorreoVerificado())
                 .filter(u -> passwordEncoder.matches(rawPassword, u.getContrasenaHash()));
     }
 
@@ -97,5 +107,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public boolean existePorUsername(String username) {
         return usuarioRepository.existsByUsernameIgnoreCase(username);
+    }
+
+    @Override
+    public Optional<Usuario> obtenerPorCorreo(String correo) {
+        if (correo == null) {
+            return Optional.empty();
+        }
+        return usuarioRepository.findByCorreoIgnoreCase(correo.trim());
     }
 }

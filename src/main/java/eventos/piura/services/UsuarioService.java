@@ -10,4 +10,5 @@ public interface UsuarioService {
     Optional<Usuario> login(String username, String rawPassword);
     boolean existePorCorreo(String correo);
     boolean existePorUsername(String username);
+    Optional<Usuario> obtenerPorCorreo(String correo);
 }

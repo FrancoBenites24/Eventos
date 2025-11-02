@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eventia - Iniciar Sesión</title>
+  <title>Eventia - Iniciar Sesion</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -92,7 +92,7 @@
   <div class="container-login">
     <div class="login-card">
 
-      <!-- Sección izquierda -->
+      <!-- Seccion izquierda -->
       <div class="login-left">
         <div class="mb-4 d-flex align-items-center">
           <h5 class="m-0">Eventia</h5>
@@ -101,14 +101,14 @@
         <p class="text-secondary">Gestiona tus eventos profesionalmente</p>
 
         <p class="fs-6 text-muted">
-          La plataforma moderna para organizar y participar en reuniones, ferias, campañas y eventos de todo tipo.
+          La plataforma moderna para organizar y participar en reuniones, ferias, campanas y eventos de todo tipo.
         </p>
 
         <div class="mt-4">
           <div class="d-flex align-items-start mb-3">
             <i class="bi bi-person feature-icon"></i>
             <div>
-              <strong>Gestión simplificada</strong><br>
+              <strong>Gestion simplificada</strong><br>
               <small class="text-muted">Organiza eventos de manera profesional</small>
             </div>
           </div>
@@ -116,30 +116,31 @@
           <div class="d-flex align-items-start">
             <i class="bi bi-people feature-icon"></i>
             <div>
-              <strong>Múltiples tipos de eventos</strong><br>
+              <strong>Multiples tipos de eventos</strong><br>
               <small class="text-muted">Desde reuniones hasta grandes ferias</small>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Sección derecha -->
+      <!-- Seccion derecha -->
       <div class="login-right">
-        <h6 class="mb-3">Iniciar Sesión</h6>
+        <h6 class="mb-3">Iniciar Sesion</h6>
         <p class="text-muted">Ingresa tus credenciales para acceder a tu cuenta</p>
 
         <!-- Mensajes de error/success -->
         <div th:if="${error}" class="alert alert-danger" role="alert">
-          <i class="bi bi-exclamation-triangle"></i> Usuario o contraseña incorrectos
+          <i class="bi bi-exclamation-triangle"></i>
+          <span th:text="${error}">Ha ocurrido un error</span>
         </div>
         <div th:if="${success}" class="alert alert-success" role="alert">
-          <i class="bi bi-check-circle"></i> <span th:text="${success}"></span>
+          <i class="bi bi-check-circle"></i> <span th:text="${success}">Accion completada</span>
         </div>
 
         <form th:action="@{/auth/login}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
           <div class="mb-3">
-            <label class="form-label small">Usuario o Correo Electrónico</label>
+            <label class="form-label small">Usuario o Correo Electronico</label>
             <div class="input-group">
               <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
               <input type="text" class="form-control" name="username" placeholder="usuario@ejemplo.com" maxlength="120" required>
@@ -147,7 +148,7 @@
           </div>
 
           <div class="mb-2">
-            <label class="form-label small">Contraseña</label>
+            <label class="form-label small">Contrasena</label>
             <div class="input-group">
               <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
               <input type="password" class="form-control" name="password" placeholder="********" maxlength="72" required>
@@ -155,14 +156,14 @@
           </div>
 
           <div class="text-end mb-3">
-            <a href="#">¿Olvidaste tu contraseña?</a>
+            <a th:href="@{/auth/recuperar}">Olvidaste tu contrasena?</a>
           </div>
 
-          <button type="submit" class="btn btn-login py-2">Iniciar Sesión</button>
+          <button type="submit" class="btn btn-login py-2">Iniciar Sesion</button>
         </form>
 
         <div class="text-center mt-4">
-          <small>¿No tienes una cuenta? <a th:href="@{/auth/registro}">Regístrate aquí</a></small>
+          <small>No tienes una cuenta? <a th:href="@{/auth/registro}">Registrate aqui</a></small>
         </div>
       </div>
 
@@ -176,7 +177,7 @@
       const form = document.querySelector('form');
       const inputs = form.querySelectorAll('input');
 
-      // Función para trim automático en inputs de texto
+      // Funcion para trim automatico en inputs de texto
       inputs.forEach(input => {
         if (input.type === 'text' || input.type === 'email' || input.type === 'password') {
           input.addEventListener('blur', function() {
@@ -185,7 +186,7 @@
         }
       });
 
-      // Validación adicional antes del envío
+      // Validacion adicional antes del envio
       form.addEventListener('submit', function(e) {
         let isValid = true;
 
