@@ -45,13 +45,18 @@
   </div>
 
   <div class="position-relative">
-    <select class="org-form-control" name="tipo" th:value="${filtros.tipo}">
-      <option value="">Todos los tipos</option>
-      <option th:each="tipo : ${tipos}"
-              th:value="${tipo.valor}"
-              th:text="${tipo.label}">
-      </option>
-    </select>
+   <select class="org-form-control" name="tipo" th:value="${filtros.tipo}">
+  <option value="">Todos los tipos</option>
+
+  <!-- Categorías manuales -->
+  <option value="Acampados">Acampados</option>
+  <option value="Conciertos">Conciertos</option>
+  <option value="Ferias">Ferias</option>
+  <option value="Prueba">Prueba</option>
+  <option value="Sin categoria">Sin categoría</option>
+
+</select>
+
   </div>
 
   <button class="org-btn-teal" type="submit">
