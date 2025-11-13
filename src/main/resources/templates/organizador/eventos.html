@@ -24,40 +24,74 @@
       <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
       <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-      <div class="org-toolbar flex-wrap">
-        <div class="org-search flex-grow p-0" style="border:none;">
-          <i class="bi bi-search"></i>
-          <input type="text" placeholder="Buscar eventos..." th:value="${filtros.busqueda}">
-        </div>
-        <div class="position-relative">
-          <select class="org-form-control" name="estado">
-            <option value="">Todos los estados</option>
-            <option th:each="estado : ${estados}" th:value="${estado.valor}"
-                    th:text="${estado.label}"
-                    th:selected="${filtros.estado != null} ? ${filtros.estado == estado.valor} : false"></option>
-          </select>
-        </div>
-        <div class="position-relative">
-          <select class="org-form-control" name="tipo">
-            <option value="">Todos los tipos</option>
-            <option th:each="tipo : ${tipos}" th:value="${tipo.valor}"
-                    th:text="${tipo.label}"
-                    th:selected="${filtros.tipo != null} ? ${filtros.tipo == tipo.valor} : false"></option>
-          </select>
-        </div>
-        <a class="org-btn-teal" th:href="@{/organizador/eventos/nuevo}">
-          <i class="bi bi-plus-circle"></i> Crear nuevo evento
-        </a>
-      </div>
+       <!-- Filtros -->
+<form class="org-toolbar flex-wrap" method="get" th:action="@{/organizador/eventos}">
+  <div class="org-search flex-grow p-0" style="border:none;">
+    <i class="bi bi-search"></i>
+    <input type="text"
+           name="busqueda"
+           placeholder="Buscar eventos..."
+           th:value="${filtros.busqueda}">
+  </div>
 
-      <div class="org-event-grid">
-        <div th:each="evento : ${eventos}">
-          <div th:replace="~{organizador/fragments/event-card :: eventCard(${evento})}"></div>
-        </div>
-        <p th:if="${#lists.isEmpty(eventos)}" class="text-center text-muted py-5">
-          Aun no tienes eventos creados. Empieza con el boton <strong>Crear nuevo evento</strong>.
-        </p>
-      </div>
+  <div class="position-relative">
+    <select class="org-form-control" name="estado" th:value="${filtros.estado}">
+      <option value="">Todos los estados</option>
+      <option th:each="estado : ${estados}"
+              th:value="${estado.valor}"
+              th:text="${estado.label}">
+      </option>
+    </select>
+  </div>
+
+  <div class="position-relative">
+    <select class="org-form-control" name="tipo" th:value="${filtros.tipo}">
+      <option value="">Todos los tipos</option>
+      <option th:each="tipo : ${tipos}"
+              th:value="${tipo.valor}"
+              th:text="${tipo.label}">
+      </option>
+    </select>
+  </div>
+
+  <button class="org-btn-teal" type="submit">
+    <i class="bi bi-search"></i> Buscar
+  </button>
+
+  <a class="org-btn-outline" th:href="@{/organizador/eventos}">
+    Limpiar
+  </a>
+
+  <a class="org-btn-teal" th:href="@{/organizador/eventos/nuevo}">
+    <i class="bi bi-plus-circle"></i> Crear nuevo evento
+  </a>
+</form>
+
+<!-- Grilla de eventos -->
+<div class="org-event-grid mt-3">
+  <div th:each="evento : ${eventos}">
+    <div th:replace="~{organizador/fragments/event-card :: eventCard(${evento})}"></div>
+  </div>
+
+  <p th:if="${#lists.isEmpty(eventos)}" class="text-center text-muted py-5">
+    Aún no tienes eventos que coincidan con el filtro.
+  </p>
+</div>
+
+<script>
+  // Auto-submit al cambiar selects y al presionar Enter en búsqueda
+  (function(){
+    const form = document.querySelector('.org-toolbar');
+    const busq = form?.querySelector('input[name="busqueda"]');
+    form?.querySelectorAll('select[name="estado"], select[name="tipo"]').forEach(sel => {
+      sel.addEventListener('change', () => form.submit());
+    });
+    busq?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') form.submit();
+    });
+  })();
+</script>
+
     </section>
   </div>
 </div>

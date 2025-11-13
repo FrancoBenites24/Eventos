@@ -8,6 +8,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <link rel="stylesheet" th:href="@{/css/organizador.css}">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <!-- Calendario Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+
 </head>
 <body class="organizer-body">
 <div class="organizer-layout">
@@ -81,36 +85,52 @@
 
           <section>
             <h5 class="mb-3">Fechas y horarios</h5>
-            <div class="row g-3">
-              <div class="col-sm-6 col-lg-3">
-                <label class="org-label">Inicio (fecha)<span class="text-danger">*</span></label>
-                <input type="date" class="form-control org-form-control"
-                       th:field="*{inicioFecha}"
-                       th:classappend="${#fields.hasErrors('inicioFecha')} ? ' is-invalid'">
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('inicioFecha')}" th:errors="*{inicioFecha}"></div>
-              </div>
-              <div class="col-sm-6 col-lg-3">
-                <label class="org-label">Inicio (hora)<span class="text-danger">*</span></label>
-                <input type="time" class="form-control org-form-control"
-                       th:field="*{inicioHora}"
-                       th:classappend="${#fields.hasErrors('inicioHora')} ? ' is-invalid'">
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('inicioHora')}" th:errors="*{inicioHora}"></div>
-              </div>
-              <div class="col-sm-6 col-lg-3">
-                <label class="org-label">Fin (fecha)<span class="text-danger">*</span></label>
-                <input type="date" class="form-control org-form-control"
-                       th:field="*{finFecha}"
-                       th:classappend="${#fields.hasErrors('finFecha')} ? ' is-invalid'">
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('finFecha')}" th:errors="*{finFecha}"></div>
-              </div>
-              <div class="col-sm-6 col-lg-3">
-                <label class="org-label">Fin (hora)<span class="text-danger">*</span></label>
-                <input type="time" class="form-control org-form-control"
-                       th:field="*{finHora}"
-                       th:classappend="${#fields.hasErrors('finHora')} ? ' is-invalid'">
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('finHora')}" th:errors="*{finHora}"></div>
-              </div>
-            </div>
+           <div class="row g-3">
+  <!-- Inicio (fecha) -->
+  <div class="col-sm-6 col-lg-3">
+    <label class="org-label">Inicio (fecha)<span class="text-danger">*</span></label>
+    <input id="inicioFecha" type="text" class="form-control org-form-control"
+           th:field="*{inicioFecha}"
+           th:classappend="${#fields.hasErrors('inicioFecha')} ? ' is-invalid'">
+    <div class="invalid-feedback" th:if="${#fields.hasErrors('inicioFecha')}" th:errors="*{inicioFecha}"></div>
+  </div>
+
+  <!-- Inicio (hora) -->
+   <div class="col-sm-6 col-lg-3">
+      <label class="org-label">Inicio (hora)<span class="text-danger">*</span></label>
+      <input id="inicioHora" type="time" class="form-control org-form-control"
+             th:field="*{inicioHora}"
+             step="300" min="00:00" max="23:55"
+             pattern="^(?:[01]\\d|2[0-3]):(?:00|05|10|15|20|25|30|35|40|45|50|55)$"
+             title="Usa minutos en múltiplos de 5 (00,05,10,…,55)"
+             inputmode="numeric" placeholder="HH:MM"
+             th:classappend="${#fields.hasErrors('inicioHora')} ? ' is-invalid'">
+      <div class="invalid-feedback" th:if="${#fields.hasErrors('inicioHora')}" th:errors="*{inicioHora}"></div>
+    </div>
+
+  <!-- Fin (fecha) -->
+  <div class="col-sm-6 col-lg-3">
+    <label class="org-label">Fin (fecha)<span class="text-danger">*</span></label>
+    <input id="finFecha" type="text" class="form-control org-form-control"
+           th:field="*{finFecha}"
+           th:classappend="${#fields.hasErrors('finFecha')} ? ' is-invalid'">
+    <div class="invalid-feedback" th:if="${#fields.hasErrors('finFecha')}" th:errors="*{finFecha}"></div>
+  </div>
+
+  <!-- Fin (hora) -->
+  <div class="col-sm-6 col-lg-3">
+      <label class="org-label">Fin (hora)<span class="text-danger">*</span></label>
+      <input id="finHora" type="time" class="form-control org-form-control"
+             th:field="*{finHora}"
+             step="300" min="00:00" max="23:55"
+             pattern="^(?:[01]\\d|2[0-3]):(?:00|05|10|15|20|25|30|35|40|45|50|55)$"
+             title="Usa minutos en múltiplos de 5 (00,05,10,…,55)"
+             inputmode="numeric" placeholder="HH:MM"
+             th:classappend="${#fields.hasErrors('finHora')} ? ' is-invalid'">
+      <div class="invalid-feedback" th:if="${#fields.hasErrors('finHora')}" th:errors="*{finHora}"></div>
+    </div>
+</div>
+
           </section>
 
           <section>
@@ -310,27 +330,64 @@
     }
   }
 
-  function reverseGeocode(lat, lng) {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
-    fetch(url, {
-      headers: {
-        'Accept': 'application/json'
-      }
+ function reverseGeocode(lat, lng) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+  fetch(url, { headers: { 'Accept': 'application/json' } })
+    .then(resp => resp.ok ? resp.json() : null)
+    .then(data => {
+      if (!data || !data.address) return;
+      const addr = data.address;
+
+      const direccionInput    = document.getElementById('direccion');
+      const distritoInput     = document.getElementById('distrito');
+      const provinciaInput    = document.getElementById('provincia');
+      const departamentoInput = document.getElementById('departamento');
+      const paisInput         = document.getElementById('pais');
+
+      // Mostrar dirección principal
+      if (direccionInput) direccionInput.value = data.display_name || '';
+
+      // Distrito (adm3)
+      const distrito =
+        addr.city_district ||
+        addr.suburb ||
+        addr.municipality ||
+        addr.town ||
+        addr.city ||
+        addr.village ||
+        '';
+
+      // Provincia (adm2)
+      const provincia =
+        addr.state_district ||
+        addr.county ||
+        addr.province ||
+        addr.region ||
+        addr.state ||
+        '';
+
+      // Departamento (adm1)
+      const departamento =
+        addr.state ||
+        addr.region ||
+        addr.state_name ||
+        '';
+
+      const pais = addr.country || '';
+
+      if (distritoInput) distritoInput.value = distrito;
+      if (provinciaInput) provinciaInput.value = provincia;
+      if (departamentoInput) departamentoInput.value = departamento;
+      if (paisInput) paisInput.value = pais;
+
+      // Debug opcional: ver qué claves trae Nominatim
+      console.log("🔍 Datos devueltos por Nominatim:", addr);
     })
-      .then(resp => resp.ok ? resp.json() : null)
-      .then(data => {
-        if (!data || !data.address) return;
-        const addr = data.address;
-        if (direccionInput && (!direccionInput.value || direccionInput.value.trim() === '')) {
-          direccionInput.value = data.display_name || '';
-        }
-        if (distritoInput) distritoInput.value = addr.suburb || addr.district || addr.city_district || distritoInput.value;
-        if (provinciaInput) provinciaInput.value = addr.province || addr.county || provinciaInput.value;
-        if (departamentoInput) departamentoInput.value = addr.state || departamentoInput.value;
-        if (paisInput) paisInput.value = addr.country || paisInput.value;
-      })
-      .catch(() => {});
-  }
+    .catch(err => console.error('Error reverse geocode:', err));
+}
+
+ 
+
 
   marker.on('dragend', (ev) => {
     const {lat, lng} = ev.target.getLatLng();
@@ -400,5 +457,127 @@
   refreshRemoveButtons();
 })();
 </script>
+<!-- Flatpickr (calendario) -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  // Calendarios (solo fecha) con formato español
+  const fpInicio = flatpickr("#inicioFecha", {
+    locale: "es",
+    altInput: true,
+    altFormat: "d/m/Y",
+    dateFormat: "Y-m-d",
+    allowInput: true,
+    onChange: ([d]) => {
+      if (d) fpFin.set("minDate", d);
+      ajustarRestriccionHora();
+    }
+  });
+
+  const fpFin = flatpickr("#finFecha", {
+    locale: "es",
+    altInput: true,
+    altFormat: "d/m/Y",
+    dateFormat: "Y-m-d",
+    allowInput: true,
+    onChange: ajustarRestriccionHora
+  });
+
+  // Reglas: fin ≥ inicio (fecha/hora)
+  function ajustarRestriccionHora() {
+    const iniD = fpInicio.selectedDates[0];
+    const finD = fpFin.selectedDates[0];
+
+    if (!finD) {
+      $("#finHora").removeAttribute("min");
+      return;
+    }
+
+    if (iniD && finD < iniD) {
+      fpFin.setDate(iniD, true);
+    }
+
+    if (iniD && finD && iniD.toDateString() === finD.toDateString()) {
+      const iniH = $("#inicioHora").value || "00:00";
+      $("#finHora").setAttribute("min", iniH);
+      const finH = $("#finHora").value;
+      if (finH && finH < iniH) $("#finHora").value = iniH;
+    } else {
+      $("#finHora").removeAttribute("min");
+    }
+  }
+
+  $("#inicioHora")?.addEventListener("input", ajustarRestriccionHora);
+  $("#finHora")?.addEventListener("input", ajustarRestriccionHora);
+
+  if (fpInicio.selectedDates[0]) fpFin.set("minDate", fpInicio.selectedDates[0]);
+  ajustarRestriccionHora();
+})();
+
+
+
+(function () {
+  const ini = document.getElementById('inicioHora');
+  const fin = document.getElementById('finHora');
+  const submitBtn = document.querySelector('button[type="submit"]');
+
+  function snapTo5(hhmm) {
+    if (!/^\d{1,2}:\d{2}$/.test(hhmm || '')) return hhmm;
+    let [h, m] = hhmm.split(':').map(Number);
+    let t = h * 60 + m;
+    t = Math.round(t / 5) * 5;
+    if (t >= 24 * 60) t = 23 * 60 + 55;
+    const hh = String(Math.floor(t / 60)).padStart(2, '0');
+    const mm = String(t % 60).padStart(2, '0');
+    return `${hh}:${mm}`;
+  }
+
+  function enforce(el) {
+    if (!el || !el.value) return;
+    const v = snapTo5(el.value);
+    if (v !== el.value) {
+      el.value = v;
+      el.dispatchEvent(new Event('input', { bubbles: true })); // mantiene la regla fin>=inicio
+    }
+  }
+
+  function hook(el) {
+    if (!el) return;
+    el.addEventListener('input',  () => { if ((el.value || '').length >= 4) enforce(el); });
+    el.addEventListener('change', () => enforce(el));
+    el.addEventListener('blur',   () => enforce(el));
+    el.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' || ev.key === 'Tab') enforce(el);
+    });
+  }
+
+  hook(ini);
+  hook(fin);
+
+  // Normaliza justo al hacer click en "Guardar"
+  submitBtn?.addEventListener('click', () => { enforce(ini); enforce(fin); });
+
+  // Si el navegador marca inválido, corrige y vuelve a mostrar el mensaje
+  document.addEventListener('invalid', (ev) => {
+    const el = ev.target;
+    if (el === ini || el === fin) {
+      ev.preventDefault();
+      enforce(el);
+      if (!el.checkValidity()) el.reportValidity();
+    }
+  }, true);
+})();
+
+
+
+
+
+
+
+</script>
+
 </body>
 </html>
