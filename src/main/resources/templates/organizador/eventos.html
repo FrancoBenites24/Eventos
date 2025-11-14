@@ -82,6 +82,57 @@
     Aún no tienes eventos que coincidan con el filtro.
   </p>
 </div>
+<!-- Paginación -->
+<nav th:if="${totalPaginas > 1}" class="mt-4">
+  <ul class="pagination justify-content-center">
+
+    <!-- Anterior -->
+    <li class="page-item" th:classappend="${paginaActual == 0} ? ' disabled'">
+      <a class="page-link"
+         th:href="@{/organizador/eventos(
+             page=${paginaActual - 1},
+             size=${pageSize},
+             busqueda=${filtros.busqueda},
+             estado=${filtros.estado},
+             tipo=${filtros.tipo}
+         )}">
+        &laquo;
+      </a>
+    </li>
+
+    <!-- Números de página -->
+    <li class="page-item"
+        th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+        th:classappend="${i == paginaActual} ? ' active'">
+      <a class="page-link"
+         th:text="${i + 1}"
+         th:href="@{/organizador/eventos(
+             page=${i},
+             size=${pageSize},
+             busqueda=${filtros.busqueda},
+             estado=${filtros.estado},
+             tipo=${filtros.tipo}
+         )}">
+      </a>
+    </li>
+
+    <!-- Siguiente -->
+    <li class="page-item" th:classappend="${paginaActual == totalPaginas - 1} ? ' disabled'">
+      <a class="page-link"
+         th:href="@{/organizador/eventos(
+             page=${paginaActual + 1},
+             size=${pageSize},
+             busqueda=${filtros.busqueda},
+             estado=${filtros.estado},
+             tipo=${filtros.tipo}
+         )}">
+        &raquo;
+      </a>
+    </li>
+
+  </ul>
+</nav>
+
 
 <script>
   // Auto-submit al cambiar selects y al presionar Enter en búsqueda

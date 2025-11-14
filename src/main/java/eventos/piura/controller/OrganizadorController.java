@@ -138,48 +138,74 @@ public class OrganizadorController {
     }
 
     @GetMapping("/eventos")
-    public String eventos(Model model,
-                          @RequestParam(value = "busqueda", required = false) String busqueda,
-                          @RequestParam(value = "estado", required = false) String estado,
-                          @RequestParam(value = "tipo", required = false) String tipo,
-                          Authentication authentication) {
-        Usuario usuario = obtenerUsuario(authentication);
-        UsuarioResumenView usuarioView = usuarioViewMapper.mapear(usuario);
-        model.addAttribute("usuario", usuarioView);
+public String eventos(Model model,
+                      @RequestParam(value = "busqueda", required = false) String busqueda,
+                      @RequestParam(value = "estado", required = false) String estado,
+                      @RequestParam(value = "tipo", required = false) String tipo,
+                      @RequestParam(value = "page", defaultValue = "0") int page,
+                      @RequestParam(value = "size", defaultValue = "8") int size,
+                      Authentication authentication) {
 
-        List<Evento> eventos = eventoRepository.findByOrganizadorIdOrderByInicioEnDesc(usuario.getId());
-        Map<UUID, Long> entradasVendidas = calcularEntradasVendidas(eventos);
-        Map<UUID, Long> ingresosPorEvento = calcularIngresos(eventos);
+    Usuario usuario = obtenerUsuario(authentication);
+    UsuarioResumenView usuarioView = usuarioViewMapper.mapear(usuario);
+    model.addAttribute("usuario", usuarioView);
 
-        String filtroBusqueda = safe(busqueda);
-        EstadoEvento estadoFiltro = parseEstado(estado);
-        String tipoFiltro = safe(tipo);
+    // 1) Traer todos los eventos del organizador
+    List<Evento> eventos = eventoRepository.findByOrganizadorIdOrderByInicioEnDesc(usuario.getId());
+    Map<UUID, Long> entradasVendidas = calcularEntradasVendidas(eventos);
+    Map<UUID, Long> ingresosPorEvento = calcularIngresos(eventos);
 
-        List<Evento> filtrados = eventos.stream()
-                .filter(evento -> filtrarPorBusqueda(evento, filtroBusqueda))
-                .filter(evento -> filtrarPorEstado(evento, estadoFiltro))
-                .filter(evento -> filtrarPorTipo(evento, tipoFiltro))
-                .toList();
+    // 2) Filtros
+    String filtroBusqueda = safe(busqueda);
+    EstadoEvento estadoFiltro = parseEstado(estado);
+    String tipoFiltro = safe(tipo);
 
-        List<OrganizadorEventoCard> tarjetas = filtrados.stream()
-                .map(evento -> construirEventoCard(
-                        evento,
-                        entradasVendidas.getOrDefault(evento.getId(), 0L),
-                        ingresosPorEvento.getOrDefault(evento.getId(), 0L)
-                ))
-                .toList();
+    List<Evento> filtrados = eventos.stream()
+            .filter(evento -> filtrarPorBusqueda(evento, filtroBusqueda))
+            .filter(evento -> filtrarPorEstado(evento, estadoFiltro))
+            .filter(evento -> filtrarPorTipo(evento, tipoFiltro))
+            .toList();
 
-        model.addAttribute("eventos", tarjetas);
-        model.addAttribute("filtros", Map.of(
-                "busqueda", filtroBusqueda,
-                "estado", estadoFiltro != null ? estadoFiltro.name() : "",
-                "tipo", tipoFiltro
-        ));
-        model.addAttribute("estados", construirOpcionesEstado());
-        model.addAttribute("tipos", construirOpcionesTipo(eventos));
+    // 3) Paginación en memoria
+    int total = filtrados.size();
+    if (size <= 0) size = 8;
+    if (page < 0) page = 0;
 
-        return "organizador/eventos";
-    }
+    int fromIndex = Math.min(page * size, total);
+    int toIndex   = Math.min(fromIndex + size, total);
+
+    List<Evento> paginaEventos = filtrados.subList(fromIndex, toIndex);
+
+    // 4) Mapear solo la página actual a tarjetas
+    List<OrganizadorEventoCard> tarjetas = paginaEventos.stream()
+            .map(evento -> construirEventoCard(
+                    evento,
+                    entradasVendidas.getOrDefault(evento.getId(), 0L),
+                    ingresosPorEvento.getOrDefault(evento.getId(), 0L)
+            ))
+            .toList();
+
+    int totalPaginas = (int) Math.ceil(total / (double) size);
+
+    model.addAttribute("eventos", tarjetas);
+
+    // Filtros para el HTML
+    model.addAttribute("filtros", Map.of(
+            "busqueda", filtroBusqueda,
+            "estado", estadoFiltro != null ? estadoFiltro.name() : "",
+            "tipo", tipoFiltro
+    ));
+
+    model.addAttribute("estados", construirOpcionesEstado());
+    model.addAttribute("tipos", construirOpcionesTipo(eventos)); // si no lo usas, da igual
+
+    // Datos de paginación
+    model.addAttribute("paginaActual", page);      // 0-based
+    model.addAttribute("totalPaginas", totalPaginas);
+    model.addAttribute("pageSize", size);
+
+    return "organizador/eventos";
+}
 
     @GetMapping("/eventos/nuevo")
     public String nuevoEvento(Model model, Authentication authentication) {
