@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="'Detalle de evento - ' + ${evento.titulo}">Detalle de evento</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" th:href="@{/css/organizador.css}">
+</head>
+<body class="organizer-body">
+<div class="organizer-layout">
+
+  <div th:replace="~{organizador/fragments/sidebar :: sidebar('eventos')}"></div>
+
+  <div class="organizer-main">
+    <div th:replace="~{organizador/fragments/topbar :: topbar(${usuario})}"></div>
+
+    <section class="organizer-content">
+      <header class="org-page-title d-flex justify-content-between align-items-center">
+        <div>
+          <h1 th:text="${evento.titulo}">Título del evento</h1>
+          <p class="text-muted mb-0" th:text="${fechaLarga}">Fecha larga</p>
+          <p class="text-muted mb-0" th:text="${lugar}">Lugar</p>
+        </div>
+        <a class="org-btn-outline" th:href="@{/organizador/eventos}">
+          <i class="bi bi-arrow-left"></i> Volver
+        </a>
+      </header>
+
+      <article class="org-card p-4">
+        <div class="row g-4">
+          <!-- Imagen -->
+          <div class="col-12 col-lg-5">
+            <div class="ratio ratio-16x9 rounded-4 overflow-hidden">
+              <img th:src="${imagenUrl}" alt="Imagen del evento" class="w-100 h-100" style="object-fit: cover;">
+            </div>
+          </div>
+
+          <!-- Info principal -->
+          <div class="col-12 col-lg-7">
+            <div class="mb-3 d-flex gap-2 flex-wrap">
+              <span class="badge bg-teal-soft" th:text="${estadoLabel}">Publicado</span>
+              <span class="badge bg-light text-muted" th:text="${evento.categoria != null ? evento.categoria.nombre : 'Sin categoría'}">Categoría</span>
+            </div>
+
+            <p th:text="${evento.descripcion}">Descripción del evento...</p>
+
+            <div class="row g-3 mt-3">
+              <div class="col-6 col-md-4">
+                <h6 class="text-muted mb-1">Entradas vendidas</h6>
+                <p class="mb-0" th:text="${vendidos}">0</p>
+              </div>
+              <div class="col-6 col-md-4">
+                <h6 class="text-muted mb-1">Capacidad</h6>
+                <p class="mb-0" th:text="${capacidad}">0</p>
+              </div>
+              <div class="col-6 col-md-4">
+                <h6 class="text-muted mb-1">Ingresos</h6>
+                <p class="mb-0" th:text="${ingresos}">S/ 0.00</p>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <h6 class="text-muted mb-1">Progreso de ventas</h6>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar" role="progressbar"
+                     th:style="'width:' + ${progreso} + '%;'"
+                     th:aria-valuenow="${progreso}" aria-valuemin="0" aria-valuemax="100">
+                </div>
+              </div>
+              <small class="text-muted" th:text="${progreso + '%'}">0%</small>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

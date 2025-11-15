@@ -38,6 +38,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -206,6 +208,57 @@ public String eventos(Model model,
 
     return "organizador/eventos";
 }
+@GetMapping("/eventos/{id}/detalle")
+public String verDetalleEvento(@PathVariable UUID id,
+                               Model model,
+                               Authentication authentication) {
+
+    // Usuario logueado (igual que en los otros métodos)
+    Usuario usuario = obtenerUsuario(authentication);
+    UsuarioResumenView usuarioView = usuarioViewMapper.mapear(usuario);
+    model.addAttribute("usuario", usuarioView);
+
+    // Buscar evento por ID
+    Evento evento = eventoRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    // (Si más adelante quieres validar que el evento es del organizador, lo hacemos,
+    //  por ahora lo dejamos simple para evitar 500 raros.)
+
+    // Métricas seguras (evitamos nulls)
+    Long vendidosTmp = entradaRepository
+            .countByEventoIdAndEstadoNot(evento.getId(), EstadoEntrada.CANCELADA);
+    long vendidos = vendidosTmp != null ? vendidosTmp : 0L;
+
+    Long ingresosTmp = ordenRepository
+            .sumTotalCentavosByEventoIdAndEstado(evento.getId(), EstadoOrden.PAGADA);
+    long ingresosCentavos = ingresosTmp != null ? ingresosTmp : 0L;
+
+    int capacidad = calcularCapacidad(evento);
+    int progreso = capacidad > 0
+            ? Math.min(100, (int) Math.round((vendidos * 100.0) / capacidad))
+            : 0;
+
+    String imagenUrl = eventoImagenService.obtenerPrimeraImagen(evento.getId())
+            .map(eventoImagenService::construirUrl)
+            .orElse(IMAGEN_POR_DEFECTO);
+
+    // Datos para la vista
+    model.addAttribute("evento", evento);
+    model.addAttribute("imagenUrl", imagenUrl);
+    model.addAttribute("vendidos", vendidos);
+    model.addAttribute("ingresos", formatCurrency(ingresosCentavos));
+    model.addAttribute("capacidad", capacidad);
+    model.addAttribute("progreso", progreso);
+    model.addAttribute("estadoLabel", traducirEstadoEvento(evento.getEstado()));
+    model.addAttribute("fechaLarga", formatearFechaLarga(evento.getInicioEn()));
+    model.addAttribute("fechaCorta", formatearFechaCorta(evento.getInicioEn()));
+    model.addAttribute("lugar", resolverLugar(evento));
+
+    return "organizador/evento-detalle";
+}
+
+
 
     @GetMapping("/eventos/nuevo")
     public String nuevoEvento(Model model, Authentication authentication) {
@@ -492,7 +545,7 @@ public String eventos(Model model,
                 ? formatNumber(vendidos) + " / " + formatNumber(capacidad) + " entradas vendidas"
                 : formatNumber(vendidos) + " entradas vendidas";
 
-        String basePath = "/organizador/eventos/" + evento.getId();
+        String basePath = "/organizador/eventos/" + evento.getId() + "/detalle";
         String imagenUrl = eventoImagenService.obtenerPrimeraImagen(evento.getId())
                 .map(eventoImagenService::construirUrl)
                 .orElse(IMAGEN_POR_DEFECTO);
