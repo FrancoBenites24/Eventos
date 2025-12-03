@@ -1,10 +1,10 @@
 package eventos.piura.services.impl;
 
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import eventos.piura.dto.checkout.BoletaView;
 import eventos.piura.dto.checkout.TicketDigitalView;
 import org.springframework.stereotype.Component;
@@ -50,7 +50,7 @@ public class TicketPdfGenerator {
             builder.toStream(output);
             builder.run();
             return output.toByteArray();
-        } catch (IOException | com.openhtmltopdf.exception.RenderingException e) {
+        } catch (Exception e) {
             throw new IllegalStateException("No se pudo generar el PDF de tickets", e);
         }
     }
